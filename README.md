@@ -73,16 +73,14 @@ za `browser` server mora sve nepoznate putanje da vrati na `index.html`.
 
 ## Docker
 
-Image se pravi u dva koraka: Node build, a zatim nginx servira `dist/`. Nginx ima SPA fallback na `index.html` i prosleđuje `/api/*` na backend.
+Deploy je test verzija i radi isto kao lokalno: koristi mock backend (`VITE_USE_MOCK=true`), a podaci se čuvaju u `localStorage` browsera. Pravi backend se ne poziva.
 
 ```bash
 docker build -t uspomena-web .
-docker run -p 8080:80 -e API_UPSTREAM=http://backend:8001/api/v1 uspomena-web
+docker run -p 8080:80 uspomena-web
 ```
 
-- `API_UPSTREAM` (runtime): gde ide `/api/*`, npr. `/api/weddings/1` → `http://backend:8001/api/v1/weddings/1`.
-- `CLIENT_MAX_BODY_SIZE` (runtime, podrazumevano `100m`): maksimalna veličina upload-a.
-- `VITE_USE_MOCK`, `VITE_ROUTER`, `VITE_API_BASE_URL` (build-arg): ugrađuju se u bundle. Podrazumevano je `VITE_USE_MOCK=false`. Demo image bez backenda: `docker build --build-arg VITE_USE_MOCK=true -t uspomena-demo .`
+Nginx servira `dist/` i nepoznate putanje vraća na `index.html` (SPA).
 
 ## Napomene
 
