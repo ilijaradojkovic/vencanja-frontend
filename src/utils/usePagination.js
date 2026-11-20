@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-/**
- * Klijentsko straničenje za listu koja je već cela učitana.
- * - `storageKey`: broj stavki po strani se pamti u ovom browseru (pogodnost)
- * - `resetKey`: kad se promeni (pretraga, filter), vraća na stranu 1
- * - ako lista postane kraća (brisanje), strana se sama spušta na poslednju postojeću
- * Vraća i `topRef` – postavi ga na vrh liste da se pri promeni strane skroluje do nje.
- */
 export function usePagination(items, { storageKey, defaultSize = 10, resetKey } = {}) {
   const [pageSize, setPageSizeState] = useState(() => {
     try {
@@ -43,7 +36,6 @@ export function usePagination(items, { storageKey, defaultSize = 10, resetKey } 
     try {
       localStorage.setItem(`page-size:${storageKey}`, String(size));
     } catch {
-      /* ignore */
     }
   };
 

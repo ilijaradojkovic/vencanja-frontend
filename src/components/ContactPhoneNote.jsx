@@ -3,7 +3,6 @@ import { useAppSelector } from '../app/hooks';
 import { formatPhone } from '../utils/phone';
 import Icon from './Icon';
 
-/** "Kontaktiraćemo vas na +381 64 …" – broj sa naloga, menja se u Podešavanjima */
 export default function ContactPhoneNote({ onNavigate }) {
   const phone = useAppSelector((s) => s.auth.user?.phone);
   if (!phone) return null;

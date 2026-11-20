@@ -29,7 +29,6 @@ export default function AppLayout() {
   const pending = useAppSelector(selectPhotoCounts).pending;
   const user = useAppSelector((s) => s.auth.user);
 
-  // podaci koje koristi više ekrana učitavaju se jednom, pri ulasku u aplikaciju
   useEffect(() => {
     if (weddingStatus === 'idle') {
       dispatch(fetchWedding()).then((a) => {

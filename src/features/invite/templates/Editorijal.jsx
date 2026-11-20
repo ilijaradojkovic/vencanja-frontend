@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, SANS, SERIF } from './shared';
 
-// Editorijal – plakat/magazin: ogroman datum, VELIKA SLOVA, blok akcentne boje, numerisan raspored
 export default function Editorijal({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const ink = '#0F0F0F';

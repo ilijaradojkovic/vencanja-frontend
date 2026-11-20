@@ -5,7 +5,7 @@ import { updateWedding, fetchWedding } from '../services/wedding.service';
 import { fetchGuests } from '../../guests/services/guests.service';
 import { fetchPhotos } from '../../photos/services/photos.service';
 import { fetchRequests } from '../../requests/services/requests.service';
-import { showToast } from '../../common/store/common.store';
+import { toast } from 'react-toastify';
 import { ResetMockData } from '../../../mock/mock.api';
 import env from '../../../app/config/env';
 import { ConfirmModal, Spinner } from '../../../components/ui';
@@ -14,7 +14,6 @@ import { updateMe } from '../../auth/services/auth.service';
 import PhoneField from '../../../components/PhoneField';
 import { normalizePhone, PHONE_ERROR } from '../../../utils/phone';
 
-/** Nalog mladenaca: email (samo prikaz) i obavezan broj telefona koji važi za ceo nalog */
 function AccountSection() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((s) => s.auth.user);
@@ -30,7 +29,7 @@ function AccountSection() {
     const res = await dispatch(updateMe({ phone: clean }));
     if (res.meta.requestStatus === 'fulfilled') {
       setPhone(res.payload.phone);
-      dispatch(showToast('Broj telefona je sačuvan'));
+      toast.success('Broj telefona je sačuvan');
     } else setError(res.payload?.message);
   };
 
@@ -62,7 +61,7 @@ export default function Settings() {
     setError('');
     const { slug, city, ...settings } = f;
     const res = await dispatch(updateWedding({ slug, city, settings }));
-    if (res.meta.requestStatus === 'fulfilled') dispatch(showToast('Podešavanja su sačuvana'));
+    if (res.meta.requestStatus === 'fulfilled') toast.success('Podešavanja su sačuvana');
     else setError(res.payload?.message);
   };
 
@@ -75,12 +74,11 @@ export default function Settings() {
     dispatch(fetchRequests());
     setResetting(false);
     setResetOpen(false);
-    dispatch(showToast('Demo podaci su vraćeni na početak'));
+    toast.success('Demo podaci su vraćeni na početak');
   };
 
   const toggle = (k) => (e) => setF({ ...f, [k]: e.target.checked });
 
-  // link "Promeni" iz zahteva vodi na /app/podesavanja#nalog
   const { hash } = useLocation();
   useEffect(() => {
     if (hash === '#nalog') document.getElementById('nalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });

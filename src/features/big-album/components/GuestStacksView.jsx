@@ -3,10 +3,6 @@ import { HAND, jitter } from '../utils/polaroid';
 import { plural } from '../../../utils/format';
 import Polaroid from './Polaroid';
 
-/**
- * Po gostima: svaki gost je jedna lepeza od do 3 polaroida (prva slika na vrhu) sa imenom i brojem slika.
- * 100 slika od 25 gostiju = 25 urednih gomilica. Klik otvara samo slike tog gosta.
- */
 export default function GuestStacksView({ photos, width, onOpenGroup, dark }) {
   const groups = useMemo(() => {
     const m = new Map();
@@ -30,9 +26,8 @@ export default function GuestStacksView({ photos, width, onOpenGroup, dark }) {
             aria-label={`${g.name}: ${more} ${plural(more, 'slika', 'slike', 'slika')}`}
             style={{ position: 'relative', background: 'none', border: 'none', padding: 0, cursor: 'zoom-in', justifySelf: 'center', width: w + 50 }}>
             <div style={{ position: 'relative', height: w * 1.28, width: w + 50 }}>
-              {/* donje kartice lepeze idu prve u DOM-u */}
               {[...top].reverse().map((p, ri) => {
-                const i = top.length - 1 - ri; // 0 = gornja
+                const i = top.length - 1 - ri;
                 const fan = [0, -8, 9][i] + jitter(p.id, 5) * 3;
                 const off = [0, -16, 18][i];
                 return (

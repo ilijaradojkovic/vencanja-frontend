@@ -14,7 +14,6 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
   }
 });
 
-/** novi nalog mladenaca: { email, password, partner1, partner2, date, phone } – telefon je obavezan */
 export const register = createAsyncThunk('auth/register', async (payload, { rejectWithValue }) => {
   try {
     const response = await Register(payload);

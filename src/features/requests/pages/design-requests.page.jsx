@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { createRequest, fetchRequests } from '../services/requests.service';
-import { showToast } from '../../common/store/common.store';
+import { toast } from 'react-toastify';
 import Icon from '../../../components/Icon';
 import ContactPhoneNote from '../../../components/ContactPhoneNote';
 import { formatPhone } from '../../../utils/phone';
@@ -9,7 +9,6 @@ import { PageLoading, Spinner } from '../../../components/ui';
 import { formatDate, REQUEST_STATUS, REQUEST_TYPES } from '../../../utils/format';
 
 const STEPS = ['received', 'in_progress', 'review', 'done'];
-// novi zahtevi: pozivnica ili veliki album (stari 'album'/'both' zahtevi i dalje se prikazuju u listi)
 const NEW_TYPES = ['invitation', 'big_album'];
 const EMPTY = { type: 'invitation', style: 'Romantičan, klasičan', budget: '100–200 €', description: '' };
 
@@ -30,7 +29,7 @@ export default function DesignRequests() {
     setError('');
     const res = await dispatch(createRequest({ ...f, pages: null, includePrint: false }));
     if (res.meta.requestStatus === 'fulfilled') {
-      dispatch(showToast('Zahtev je poslat. Dizajner se javlja u roku od 48 sati.'));
+      toast.success('Zahtev je poslat. Dizajner se javlja u roku od 48 sati.');
       setF(EMPTY);
     }
   };

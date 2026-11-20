@@ -4,7 +4,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { updateWedding } from '../../wedding/services/wedding.service';
 import { guestsSelectors } from '../../guests/store/guests.store';
-import { showToast } from '../../common/store/common.store';
+import { toast } from 'react-toastify';
 import InvitationView from '../components/InvitationView';
 import Icon from '../../../components/Icon';
 import { Spinner } from '../../../components/ui';
@@ -21,7 +21,6 @@ const pick = (w) => ({
   invitation: w.invitation,
 });
 
-/** umanjeni živi pregled pozivnice u izabranom templejtu */
 function TemplateThumb({ wedding, draft, templateId }) {
   const W = 380;
   const scale = 0.42;
@@ -52,21 +51,19 @@ export default function InvitationEditor() {
     if (requests.status === 'idle') dispatch(fetchRequests());
   }, [dispatch, requests.status]);
 
-  // poslednji aktivan zahtev za custom pozivnicu (da mladenci vide da je u izradi)
   const activeRequest = requests.items.find((r) => (r.type === 'invitation' || r.type === 'both') && r.status !== 'done');
 
   const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(pick(wedding)), [draft, wedding]);
   const inv = draft.invitation;
   const setInv = (patch) => setDraft({ ...draft, invitation: { ...inv, ...patch } });
   const template = getInvitationTemplate(inv.templateId);
-  // pri promeni izgleda: ako trenutna boja ne pripada paleti novog templejta, uzmi njegovu podrazumevanu
   const chooseTemplate = (t) =>
     setInv({ templateId: t.id, ...(t.accents.length && !t.accents.includes(inv.accentColor) ? { accentColor: t.accents[0] } : {}) });
   const setEvent = (id, patch) => setInv({ schedule: inv.schedule.map((e) => (e.id === id ? { ...e, ...patch } : e)) });
 
   const save = async () => {
     const res = await dispatch(updateWedding(draft));
-    if (res.meta.requestStatus === 'fulfilled') dispatch(showToast('Pozivnica je sačuvana'));
+    if (res.meta.requestStatus === 'fulfilled') toast.success('Pozivnica je sačuvana');
   };
 
   return (
@@ -110,7 +107,6 @@ export default function InvitationEditor() {
                 );
               })}
 
-              {/* custom dizajn – poslednja pločica */}
               <button type="button" onClick={() => setCustomOpen(true)}
                 className="stack" style={{ '--gap': '8px', padding: 8, borderRadius: 14, cursor: 'pointer', textAlign: 'left', background: '#fff', border: '1.5px dashed var(--line-strong)' }}>
                 <span style={{ height: 212, borderRadius: 10, display: 'grid', placeItems: 'center', textAlign: 'center', padding: 16,

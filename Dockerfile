@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1
 
-# ---------- 1) build ----------
 FROM node:22-alpine AS build
 WORKDIR /app
 
@@ -9,19 +8,13 @@ RUN npm ci
 
 COPY . .
 
-# Deploy je test verzija – radi isto kao lokalno, sa mock backend-om (src/mock),
-# podaci se čuvaju u localStorage browsera, ne zove se pravi BE.
 ENV VITE_USE_MOCK=true \
     VITE_ROUTER=browser
 
 RUN npm run build
 
-# ---------- 2) serve ----------
 FROM nginx:1.27-alpine
 
-# nginx servira dist/; svaka nepoznata putanja (/i/:token, /app/gosti…) vraća index.html
-# da bi direktni linkovi i refresh radili (React Router preuzima).
-# ${PORT} se popunjava pri startu – platforme za deploy ga često postavljaju same.
 COPY <<'EOF' /etc/nginx/templates/default.conf.template
 server {
     listen ${PORT};

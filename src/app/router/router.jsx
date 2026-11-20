@@ -20,18 +20,14 @@ export default function Router() {
   return (
     <Routes>
       <Route path="/" element={<App />}>
-        {/* PUBLIC */}
         <Route index element={<LandingPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="registracija" element={<RegisterPage />} />
 
-        {/* gost – lični link */}
         <Route path="i/:token" element={<GuestInvitationPage />} />
         <Route path="i/:token/upload" element={<GuestUploadPage />} />
-        {/* opšti link venčanja (QR kod na stolovima) */}
         <Route path="w/:slug/upload" element={<GuestUploadPage />} />
 
-        {/* PROTECTED – mladenci */}
         <Route path="app" element={<ProtectedRoute />}>
           <Route index element={<DashboardPage />} />
           <Route path="gosti" element={<GuestsPage />} />

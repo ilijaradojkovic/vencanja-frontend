@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { createGuest, deleteGuest, importGuests, updateGuest } from '../services/guests.service';
 import { guestsSelectors } from '../store/guests.store';
-import { showToast } from '../../common/store/common.store';
+import { toast } from 'react-toastify';
 import Icon from '../../../components/Icon';
 import { ConfirmModal, CopyButton, Modal, PageLoading, RsvpBadge, Spinner } from '../../../components/ui';
 import { guestLink, SIDES, persons } from '../../../utils/format';
@@ -38,7 +38,7 @@ function GuestModal({ guest, onClose }) {
       action = await dispatch(createGuest(payload));
     }
     if (action.meta.requestStatus === 'fulfilled') {
-      dispatch(showToast(guest ? 'Gost je sačuvan' : 'Gost je dodat, lični link je spreman'));
+      toast.success(guest ? 'Gost je sačuvan' : 'Gost je dodat, lični link je spreman');
       onClose();
     } else setError(action.payload?.message);
   };
@@ -96,7 +96,7 @@ function ImportModal({ onClose }) {
   const submit = async () => {
     const res = await dispatch(importGuests(parsed));
     if (res.meta.requestStatus === 'fulfilled') {
-      dispatch(showToast(`Dodato gostiju: ${res.payload.length}`));
+      toast.success(`Dodato gostiju: ${res.payload.length}`);
       onClose();
     }
   };
@@ -132,7 +132,7 @@ export default function Guests() {
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState('all');
   const [side, setSide] = useState('all');
-  const [modal, setModal] = useState(null); // {type:'edit'|'new'|'import'|'delete', guest}
+  const [modal, setModal] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   const counts = useMemo(() => ({
@@ -157,7 +157,7 @@ export default function Guests() {
     const res = await dispatch(deleteGuest(modal.guest.id));
     setDeleting(false);
     if (res.meta.requestStatus === 'fulfilled') {
-      dispatch(showToast('Gost je obrisan'));
+      toast.success('Gost je obrisan');
       setModal(null);
     }
   };

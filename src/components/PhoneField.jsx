@@ -1,9 +1,5 @@
 import { normalizePhone, formatPhone, PHONE_HINT } from '../utils/phone';
 
-/**
- * Polje za broj telefona naloga. Prihvata bilo koji uobičajeni zapis (064 123 4567, +381…, 00381…)
- * i ispod prikazuje kako će broj biti sačuvan, pa korisnik odmah vidi da je ispravan.
- */
 export default function PhoneField({ value, onChange, error, label = 'Broj telefona', hint = PHONE_HINT, autoFocus, id = 'account-phone' }) {
   const clean = normalizePhone(value);
   return (

@@ -1,6 +1,5 @@
 import Icon from './Icon';
 
-/** brojevi strana sa "…": 1 … 4 5 [6] 7 8 … 20 */
 function pageList(page, pages) {
   if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
   const out = [1];
@@ -13,10 +12,6 @@ function pageList(page, pages) {
   return out;
 }
 
-/**
- * Straničenje za listu koja je već cela učitana (klijentski).
- * `page` je 1-based; `onPage`/`onPageSize` menjaju stanje roditelja.
- */
 export default function Pagination({ page, pageSize, total, onPage, onPageSize, sizes = [10, 25, 50, 100], label = 'stavki' }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (total === 0) return null;

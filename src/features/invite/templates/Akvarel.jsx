@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, mix, useSvgId, SERIF } from './shared';
 
-/** akvarel mrlja: krugovi kroz turbulence + displacement filter → nepravilne, "mokre" ivice */
 function Wash({ color, second, leaf, size = 190, style }) {
   const id = useSvgId('wash');
   return (
@@ -19,7 +18,6 @@ function Wash({ color, second, leaf, size = 190, style }) {
         <ellipse cx="128" cy="44" rx="22" ry="9" fill={leaf} opacity="0.45" transform="rotate(-30 128 44)" />
         <ellipse cx="34" cy="150" rx="22" ry="9" fill={leaf} opacity="0.4" transform="rotate(60 34 150)" />
       </g>
-      {/* "cvetovi" preko mrlje */}
       {[[70, 66, 15], [104, 98, 11], [52, 104, 8]].map(([cx, cy, r]) => (
         <g key={cx} opacity="0.85">
           {[0, 72, 144, 216, 288].map((a) => (
@@ -32,7 +30,6 @@ function Wash({ color, second, leaf, size = 190, style }) {
   );
 }
 
-// Akvarel – akvarel cveće u uglovima, belo, nežni italik
 export default function Akvarel({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const c = x.accent;

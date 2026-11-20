@@ -11,13 +11,6 @@ import Boho from './Boho';
 import Limun from './Limun';
 import Retro from './Retro';
 
-/**
- * Katalog izgleda pozivnice. Svaki templejt je zaseban raspored (ne samo druga boja).
- * - accents: predložene boje koje se slažu sa templejtom (prva je podrazumevana);
- *   prazan niz = templejt ima svoju fiksnu paletu i ne koristi akcentnu boju
- * - envelope: boja ekrana sa kovertom kod gosta kada templejt ne koristi akcent
- * ID-jevi klasik/minimal/botanika/noc su isti kao ranije, pa sačuvane pozivnice rade i dalje.
- */
 export const INVITATION_TEMPLATES = [
   {
     id: 'klasik',
@@ -83,7 +76,6 @@ export const INVITATION_TEMPLATES = [
     name: 'Zlatna geometrija',
     description: 'Mermer i metalik geometrijski okvir',
     Component: ZlatnaGeometrija,
-    // boja = metal: zlato, roze zlato, srebro, bronza, smaragd
     accents: ['#B8913A', '#B76E79', '#8E9AA6', '#9A6B3F', '#2F6B5A'],
     isNew: true,
   },
@@ -117,7 +109,6 @@ export const INVITATION_TEMPLATE_MAP = Object.fromEntries(INVITATION_TEMPLATES.m
 
 export const getInvitationTemplate = (id) => INVITATION_TEMPLATE_MAP[id] || INVITATION_TEMPLATE_MAP.klasik;
 
-/** boja pozadine ekrana sa kovertom kod gosta */
 export const envelopeColor = (invitation) => {
   const t = getInvitationTemplate(invitation?.templateId);
   return t.accents.length ? invitation?.accentColor || t.accents[0] : t.envelope;

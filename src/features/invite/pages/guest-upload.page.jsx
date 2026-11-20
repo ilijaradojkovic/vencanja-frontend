@@ -15,7 +15,7 @@ export default function GuestUpload() {
   const dispatch = useAppDispatch();
   const { guest, wedding, status, error, upload } = useAppSelector((s) => s.invite);
   const inputRef = useRef(null);
-  const [files, setFiles] = useState([]); // { file, url }
+  const [files, setFiles] = useState([]);
   const [category, setCategory] = useState('wedding');
   const [senderName, setSenderName] = useState('');
   const [message, setMessage] = useState('');
@@ -34,7 +34,6 @@ export default function GuestUpload() {
     if (guest?.name) setSenderName(guest.name);
   }, [guest?.name]);
 
-  // oslobađanje object URL-ova
   const filesRef = useRef(files);
   filesRef.current = files;
   useEffect(() => () => filesRef.current.forEach((f) => URL.revokeObjectURL(f.url)), []);

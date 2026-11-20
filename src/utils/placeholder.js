@@ -1,4 +1,3 @@
-// Generiše diskretne ilustracije (SVG data URI) umesto pravih fotografija u mock podacima
 const PALETTES = [
   ['#E9DFCC', '#C9B48E', '#8A6A2F', '#F6EEDC'],
   ['#DCE3D7', '#9DB09A', '#4F6B58', '#F2F4EE'],

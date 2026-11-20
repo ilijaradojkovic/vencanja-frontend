@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, Branch, SERIF } from './shared';
 
-// Botanika – žalfija pozadina, krem panel u obliku luka, grančice, raspored kao vremenska linija
 export default function Botanika({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const ink = '#24372C';

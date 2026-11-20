@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { bulkPhotoStatus, deletePhoto, fetchPhotos, setPhotoStatus } from '../services/photos.service';
 import { photosSelectors, selectPhotoCounts } from '../store/photos.store';
-import { showToast } from '../../common/store/common.store';
+import { toast } from 'react-toastify';
 import Icon from '../../../components/Icon';
 import { ConfirmModal, Lightbox, PageLoading, PhotoStatusBadge, Spinner } from '../../../components/ui';
 import { CATEGORIES, formatDateTime } from '../../../utils/format';
@@ -33,7 +33,7 @@ export default function Photos() {
     const res = await dispatch(bulkPhotoStatus({ ids: selected, status: st }));
     setBusy(false);
     if (res.meta.requestStatus === 'fulfilled') {
-      dispatch(showToast(st === 'approved' ? `Odobreno: ${selected.length}` : `Sakriveno: ${selected.length}`));
+      toast.success(st === 'approved' ? `Odobreno: ${selected.length}` : `Sakriveno: ${selected.length}`);
       setSelected([]);
     }
   };
@@ -45,7 +45,7 @@ export default function Photos() {
     if (res.meta.requestStatus === 'fulfilled') {
       setToDelete(null);
       setLightbox(null);
-      dispatch(showToast('Fotografija je obrisana'));
+      toast.success('Fotografija je obrisana');
     }
   };
 

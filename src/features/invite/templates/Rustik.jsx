@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, SERIF } from './shared';
 
-// Rustik – kraft papir, "prošiveni" isprekidani rub, pečat sa datumom, kanap između sekcija
 export default function Rustik({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const kraft = '#E8D9BF';
@@ -25,7 +24,6 @@ export default function Rustik({ wedding, guestName, children }) {
             {wedding.partner1} <span style={{ fontWeight: 400, fontStyle: 'italic', color: stamp }}>&amp;</span> {wedding.partner2}
           </h1>
 
-          {/* pečat */}
           <div style={{ marginTop: 14, width: 120, height: 120, borderRadius: '50%', border: `2px solid ${stamp}`, color: stamp, display: 'grid', placeItems: 'center', transform: 'rotate(-8deg)', position: 'relative' }}>
             <span style={{ position: 'absolute', inset: 6, borderRadius: '50%', border: `1px dashed ${stamp}` }} />
             <div style={{ textAlign: 'center' }}>

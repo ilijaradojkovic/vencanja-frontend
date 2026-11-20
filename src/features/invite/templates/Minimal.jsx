@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, SANS } from './shared';
 
-// Minimal – belo, levo poravnato, tanak sans, puno prostora, tabela umesto kartica
 export default function Minimal({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const ink = '#151515';

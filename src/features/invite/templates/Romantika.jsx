@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, Flowers, SERIF } from './shared';
 
-// Romantika – puder roze, cvetni uglovi, veliki italik "&", datum u okruglom pečatu
 export default function Romantika({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const rose = x.accent;

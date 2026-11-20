@@ -7,7 +7,6 @@ export const SANS = "'Jost', system-ui, sans-serif";
 
 export const mapsUrl = (e) => e.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.place)}`;
 
-/** .ics fajl za dodavanje u kalendar (radi bez backenda) */
 export const icsHref = (wedding) => {
   const first = wedding.invitation.schedule[0];
   const [hh, mm] = (first?.time || '12:00').split(':');
@@ -24,7 +23,6 @@ export const icsHref = (wedding) => {
   return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
 };
 
-/** sve izvedene vrednosti koje templejti prikazuju */
 export function inviteInfo(wedding) {
   const inv = wedding.invitation;
   const days = wedding.date ? daysUntil(wedding.date) : null;
@@ -63,13 +61,9 @@ export function CalendarButton({ wedding, style, className = 'btn btn-outline' }
   );
 }
 
-// ---------- ornamenti (čist SVG, boja preko props) ----------
-
-/** grančica sa listovima – listovi se ređaju duž krive */
 export function Branch({ color, width = 220, flip = false, style }) {
   const leaves = [0.12, 0.24, 0.36, 0.48, 0.6, 0.72, 0.84];
   const pt = (t) => {
-    // kvadratna bezijeova kriva (10,40) → (110,8) → (210,40)
     const x = (1 - t) ** 2 * 10 + 2 * (1 - t) * t * 110 + t ** 2 * 210;
     const y = (1 - t) ** 2 * 40 + 2 * (1 - t) * t * 8 + t ** 2 * 40;
     return [x, y];
@@ -89,7 +83,6 @@ export function Branch({ color, width = 220, flip = false, style }) {
   );
 }
 
-/** art-deco ugao */
 export function DecoCorner({ color, size = 44, rotate = 0, style }) {
   return (
     <svg viewBox="0 0 44 44" width={size} height={size} aria-hidden="true"
@@ -101,7 +94,6 @@ export function DecoCorner({ color, size = 44, rotate = 0, style }) {
   );
 }
 
-/** buket u uglu – ruže od koncentričnih krugova + listovi */
 export function Flowers({ color, leaf, size = 120, style }) {
   const rose = (cx, cy, r) => (
     <g key={`${cx}-${cy}`}>
@@ -128,9 +120,6 @@ export function Diamond({ color, size = 8 }) {
   return <span aria-hidden="true" style={{ width: size, height: size, transform: 'rotate(45deg)', border: `1px solid ${color}`, display: 'inline-block' }} />;
 }
 
-// ---------- pomoćno za boje i SVG ----------
-
-/** meša dve hex boje: t=0 → a, t=1 → b */
 export function mix(a, b, t) {
   const p = (h) => [1, 3, 5].map((i) => parseInt(h.replace('#', '').padEnd(6, '0').slice(i - 1, i + 1), 16));
   const [r1, g1, b1] = p(a);
@@ -139,7 +128,6 @@ export function mix(a, b, t) {
   return `#${c(r1, r2)}${c(g1, g2)}${c(b1, b2)}`;
 }
 
-/** jedinstven id za SVG filtere/gradijente (više pregleda na istoj strani) */
 export function useSvgId(prefix) {
   return `${prefix}-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
 }

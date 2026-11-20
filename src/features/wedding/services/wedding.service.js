@@ -10,7 +10,6 @@ export const fetchWedding = createAsyncThunk('wedding/fetch', async (_, { reject
   }
 });
 
-/** patch: bilo koji podskup polja venčanja, npr. { invitation: {...} } ili { settings: {...} } */
 export const updateWedding = createAsyncThunk('wedding/update', async (patch, { getState, rejectWithValue }) => {
   try {
     return await UpdateWedding(weddingIdFrom(getState), patch);

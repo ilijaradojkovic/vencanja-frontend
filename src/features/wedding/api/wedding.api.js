@@ -5,7 +5,6 @@ export async function GetCurrentWedding() {
   return response.data;
 }
 
-/** patch: bilo koji podskup polja venčanja, npr. { invitation: {...} } ili { settings: {...} } */
 export async function UpdateWedding(weddingId, patch) {
   const response = await axiosInstance.patch(`/weddings/${weddingId}`, patch);
   return response.data;

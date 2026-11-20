@@ -10,7 +10,6 @@ export async function Register(payload) {
   return response.data;
 }
 
-/** izmena naloga: { name?, phone? } */
 export async function UpdateMe(payload) {
   const response = await axiosInstance.patch('/auth/me', payload);
   return response.data;

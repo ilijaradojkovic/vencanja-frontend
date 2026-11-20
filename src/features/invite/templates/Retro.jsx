@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, mix, SANS, SERIF } from './shared';
 
-// Retro – 70-e: duga od debelih lukova, krupna slova sa pomerenom senkom, zaobljene "chunky" kartice
 export default function Retro({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const a = x.accent;
@@ -12,7 +11,6 @@ export default function Retro({ wedding, guestName, children }) {
   return (
     <div style={{ background: cream, color: ink, overflow: 'hidden' }}>
       <header style={{ position: 'relative', padding: '0 20px 30px', textAlign: 'center' }}>
-        {/* duga */}
         <svg viewBox="0 0 300 150" width="100%" style={{ display: 'block', maxWidth: 360, margin: '0 auto' }} aria-hidden="true">
           {stripes.map((c, i) => {
             const r = 140 - i * 22;
@@ -43,7 +41,6 @@ export default function Retro({ wedding, guestName, children }) {
         </div>
       </header>
 
-      {/* talas */}
       <svg viewBox="0 0 300 20" width="100%" height="20" preserveAspectRatio="none" aria-hidden="true" style={{ display: 'block' }}>
         <path d="M0 10 Q 25 0 50 10 T 100 10 T 150 10 T 200 10 T 250 10 T 300 10 V20 H0 Z" fill={stripes[3]} />
       </svg>

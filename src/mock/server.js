@@ -1,11 +1,6 @@
-/**
- * Mock backend. Emulira REST API opisan u API.md:
- * isti metodi, putanje, telo zahteva i oblik odgovora kao budući pravi server.
- */
 import { db, persist, uid, token as newToken, resetDb, syncFromStorage } from './db';
 import { normalizePhone, PHONE_ERROR } from '../utils/phone';
 
-/** Greška mock servera – adapter je pretvara u AxiosError sa response.status / response.data */
 export class ApiError extends Error {
   constructor(message, status = 0, data = null) {
     super(message);
@@ -23,7 +18,6 @@ const fail = (status, message) => {
 };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 
-// ---------- helperi ----------
 const userFromToken = (tok) => {
   const userId = db.sessions[tok];
   const user = db.users.find((u) => u.id === userId);
@@ -39,7 +33,6 @@ const requireWedding = (ctx, weddingId) => {
 };
 const publicUser = (u) => ({ id: u.id, email: u.email, name: u.name, phone: u.phone || '', weddingId: u.weddingId });
 
-/** "Ana i Marko" → "ana-i-marko" (bez dijakritika), jedinstven među venčanjima */
 const slugFor = (a, b) => {
   const base = `${a}-i-${b}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'dj').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 34) || 'vencanje';
   let slug = base;
@@ -62,7 +55,6 @@ const guestByToken = (tok) => {
   return g;
 };
 
-/** Smanjuje sliku pre čuvanja (u pravom BE-u ovo radi worker sa originalom u S3/R2) */
 async function fileToDataUrl(file, max = 1100) {
   try {
     const bmp = await createImageBitmap(file);
@@ -85,7 +77,6 @@ async function savePhotos(wedding, guest, formData, onUploadProgress) {
   for (let i = 0; i < files.length; i += 1) {
     const f = files[i];
     if (!f.type?.startsWith('image/')) fail(400, `${f.name} nije slika.`);
-    // simulacija napretka uploada
     for (let step = 1; step <= 4; step += 1) {
       await sleep(70 + Math.random() * 90);
       onUploadProgress?.(Math.round(((i + step / 4) / files.length) * 100));
@@ -107,7 +98,6 @@ async function savePhotos(wedding, guest, formData, onUploadProgress) {
   return { uploaded: created.length, photos: created.map((p) => ({ id: p.id, status: p.status })) };
 }
 
-// ---------- rute ----------
 const routes = [
   ['POST', '/auth/login', async ({ body }) => {
     const user = db.users.find((u) => u.email.toLowerCase() === String(body?.email || '').toLowerCase().trim());
@@ -156,7 +146,6 @@ const routes = [
     persist();
     return { token: tok, user: publicUser(user) };
   }],
-  // izmena naloga – broj telefona je obavezan i ne može se obrisati
   ['PATCH', '/auth/me', async (ctx) => {
     const user = userFromToken(ctx.token);
     const { name, phone } = ctx.body || {};
@@ -186,7 +175,6 @@ const routes = [
     return clone(w);
   }],
 
-  // gosti
   ['GET', '/weddings/:id/guests', async (ctx) => {
     requireWedding(ctx, ctx.params.id);
     return clone(db.guests.filter((g) => g.weddingId === ctx.params.id));
@@ -253,7 +241,6 @@ const routes = [
     return { id: ctx.params.id };
   }],
 
-  // fotografije
   ['GET', '/weddings/:id/photos', async (ctx) => {
     requireWedding(ctx, ctx.params.id);
     return clone(db.photos.filter((p) => p.weddingId === ctx.params.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
@@ -284,7 +271,6 @@ const routes = [
     return { id: ctx.params.id };
   }],
 
-  // custom dizajn
   ['GET', '/weddings/:id/design-requests', async (ctx) => {
     requireWedding(ctx, ctx.params.id);
     return clone(db.designRequests.filter((r) => r.weddingId === ctx.params.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
@@ -293,7 +279,6 @@ const routes = [
     requireWedding(ctx, ctx.params.id);
     const b = ctx.body || {};
     if (!b.description?.trim()) fail(422, 'Opišite šta želite.');
-    // kontakt broj se uvek uzima sa naloga, ne iz forme
     const account = userFromToken(ctx.token);
     if (!account.phone) fail(422, 'Dodajte broj telefona na nalog da bi dizajner mogao da vas kontaktira.');
     const r = {
@@ -315,7 +300,6 @@ const routes = [
     return clone(r);
   }],
 
-  // javno – gosti
   ['GET', '/public/invitations/:token', async (ctx) => {
     const g = guestByToken(ctx.params.token);
     const w = db.weddings.find((x) => x.id === g.weddingId);
@@ -359,9 +343,8 @@ const routes = [
     return savePhotos(w, null, ctx.body, ctx.onUploadProgress);
   }],
 
-  // samo za mock: reset podataka
   ['POST', '/__mock/reset', async () => {
-    const { sessions } = db; // korisnik ostaje prijavljen
+    const { sessions } = db;
     resetDb();
     db.sessions = sessions;
     persist();

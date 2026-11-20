@@ -1,8 +1,3 @@
-/**
- * Mock baza – živi u memoriji i čuva se u localStorage, pa izmene prežive refresh.
- * Reset: localStorage.removeItem('uspomena-mock-db-v2') ili dugme u Podešavanjima.
- * v2: demo venčanje ima 100 gostiju i 100 odobrenih slika (+ nekoliko na čekanju/skrivenih).
- */
 import { placeholderPhoto } from '../utils/placeholder';
 
 const KEY = 'uspomena-mock-db-v2';
@@ -12,7 +7,6 @@ export const token = () => Math.random().toString(36).slice(2, 7) + Math.random(
 
 const daysAgo = (d) => new Date(Date.now() - d * 86400000).toISOString();
 
-/** mali deterministički PRNG – seed je uvek isti, pa reset daje iste podatke */
 function prng(seed) {
   let a = seed >>> 0;
   return () => {
@@ -31,7 +25,6 @@ const LAST = ['Petrović', 'Nikolić', 'Jovanović', 'Đorđević', 'Ilić', 'Pa
   'Savić', 'Lazić', 'Milošević', 'Stanković', 'Ristić', 'Mitrović', 'Kovačević', 'Todorović', 'Simić', 'Radovanović', 'Vasić', 'Obradović'];
 const RELATIVE = ['Tetka', 'Teča', 'Ujak', 'Ujna', 'Stric', 'Strina', 'Kuma', 'Kum', 'Deda', 'Baka', 'Sestra', 'Brat', 'Bratanac', 'Sestrična'];
 
-/** 88 dodatnih gostiju (uz 12 ručno upisanih) – parovi, porodice, rodbina, prijatelji */
 function extraGuests(count) {
   const rnd = prng(2027);
   const pick = (arr) => arr[Math.floor(rnd() * arr.length)];
@@ -107,7 +100,6 @@ function seed() {
     'Hvala vam što smo bili deo ovoga ❤',
   ];
 
-  // ko šalje slike: gosti koji dolaze (i Luka koji ne može, ali šalje), neki šalju mnogo, većina po 1–3
   const rnd = prng(612);
   const senders = guests.filter((g) => g.rsvp.status === 'yes' || g.id === 'g_7').slice(0, 45);
   const weights = senders.map((g, i) => (['g_1', 'g_5', 'g_2'].includes(g.id) ? 6 : i < 12 ? 3 : 1 + rnd() * 1.5));
@@ -120,10 +112,8 @@ function seed() {
     }
     return senders[senders.length - 1];
   };
-  // 100 odobrenih + 6 na čekanju + 2 skrivene (da i moderacija ima šta da prikaže)
   const statusFor = (i) => (i < 100 ? 'approved' : i < 106 ? 'pending' : 'hidden');
   const photos = Array.from({ length: 108 }, (_, i) => {
-    // prvih nekoliko pošiljalaca garantovano ima slike, ostalo po težinama
     const g = i < senders.length ? senders[i] : pickSender();
     return {
       id: `p_${i + 1}`,
@@ -192,17 +182,15 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) return JSON.parse(raw);
   } catch {
-    /* localStorage nedostupan – radimo samo u memoriji */
   }
   return seed();
 }
 
 export const db = load();
 
-/** Ponovo čita localStorage – da se vide izmene iz drugog taba (npr. gost poslao sliku) */
 let storageOk = true;
 export function syncFromStorage() {
-  if (!storageOk) return; // posle punog localStorage-a važi samo memorija
+  if (!storageOk) return;
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return;
@@ -210,7 +198,6 @@ export function syncFromStorage() {
     Object.keys(db).forEach((k) => delete db[k]);
     Object.assign(db, fresh);
   } catch {
-    /* ignore */
   }
 }
 
@@ -219,7 +206,6 @@ export function persist() {
     localStorage.setItem(KEY, JSON.stringify(db));
   } catch {
     storageOk = false;
-    // pun localStorage (puno uploadovanih slika) – podaci ostaju u memoriji do refresha
   }
 }
 
@@ -227,7 +213,6 @@ export function resetDb() {
   try {
     localStorage.removeItem(KEY);
   } catch {
-    /* ignore */
   }
   const fresh = seed();
   Object.keys(db).forEach((k) => delete db[k]);

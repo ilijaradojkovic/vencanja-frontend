@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, mix, useSvgId, SERIF, SANS } from './shared';
 
-/** traka majolika pločica (SVG pattern) */
 function Tiles({ color, height = 34 }) {
   const id = useSvgId('tile');
   return (
@@ -37,7 +36,6 @@ function Lemon({ x, y, r = 0, s = 1 }) {
   );
 }
 
-// Limun – mediteranski: plave majolika pločice, limunovi, italik u plavoj
 export default function Limun({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const blue = x.accent;

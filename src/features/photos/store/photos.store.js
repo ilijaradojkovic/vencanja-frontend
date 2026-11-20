@@ -22,7 +22,6 @@ export const photosSlice = createSlice({
       .addCase(fetchPhotos.rejected, (state) => {
         state.status = 'failed';
       })
-      // optimistično ažuriranje statusa – UI reaguje odmah, a vraća se ako server odbije
       .addCase(setPhotoStatus.pending, (state, action) => {
         const p = state.entities[action.meta.arg.id];
         if (p) {

@@ -2,15 +2,11 @@ import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { updateMe } from '../features/auth/services/auth.service';
 import { logout } from '../features/auth/store/auth.store';
-import { showToast } from '../features/common/store/common.store';
+import { toast } from 'react-toastify';
 import { normalizePhone, PHONE_ERROR } from '../utils/phone';
 import PhoneField from './PhoneField';
 import { Spinner } from './ui';
 
-/**
- * Nalozi napravljeni pre nego što je telefon postao obavezan: dok ne unesu broj,
- * ovaj prozor ostaje otvoren (nema X). Jedini izlaz bez broja je odjava.
- */
 export default function PhoneRequiredModal() {
   const dispatch = useAppDispatch();
   const saving = useAppSelector((s) => s.auth.savingMe);
@@ -22,7 +18,7 @@ export default function PhoneRequiredModal() {
     const clean = normalizePhone(phone);
     if (!clean) return setError(PHONE_ERROR);
     const res = await dispatch(updateMe({ phone: clean }));
-    if (res.meta.requestStatus === 'fulfilled') dispatch(showToast('Broj telefona je sačuvan'));
+    if (res.meta.requestStatus === 'fulfilled') toast.success('Broj telefona je sačuvan');
     else setError(res.payload?.message || 'Čuvanje nije uspelo.');
   };
 

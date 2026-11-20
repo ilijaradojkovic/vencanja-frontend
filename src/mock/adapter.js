@@ -1,8 +1,3 @@
-/**
- * Axios adapter za mock režim (VITE_USE_MOCK=true).
- * Zahtev ne ide na mrežu nego u mockRequest – isti URL, metod i telo kao pravi BE,
- * a odgovor/greška imaju isti oblik kao od axios-a (response.data, error.response.status).
- */
 import { AxiosError } from 'axios';
 import { mockRequest } from './server';
 
@@ -12,13 +7,11 @@ const tokenFrom = (headers) => {
 };
 
 export async function mockAdapter(config) {
-  // axios je JSON telo već pretvorio u string; FormData ostaje FormData
   let data = config.data;
   if (typeof data === 'string') {
     try {
       data = JSON.parse(data);
     } catch {
-      /* ostaje string */
     }
   }
 

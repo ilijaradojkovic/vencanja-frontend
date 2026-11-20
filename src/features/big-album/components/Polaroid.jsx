@@ -2,12 +2,6 @@ import { HAND, jitter } from '../utils/polaroid';
 
 export const TAPES = ['rgba(240,214,160,0.8)', 'rgba(186,220,205,0.8)', 'rgba(240,190,196,0.8)', 'rgba(200,200,235,0.8)'];
 
-/**
- * Jedna polaroid slika: beli ram, washi traka, ime gosta (i poruka) "rukom".
- * Spoljni element je container (`containerType: inline-size`), pa se sve unutra zadaje u `cqw`
- * i kartica izgleda isto bilo da je široka 120px ili 100% (prezentacija).
- * Nagib i pomak su deterministički iz id-ja slike, pa raspored ne "skače" pri osvežavanju.
- */
 export default function Polaroid({ photo, index = 0, width, showMessage, onOpen, tilt = 6, shift = 0, className = 'ba-polaroid', style, as }) {
   const Tag = as || (onOpen ? 'button' : 'div');
   const rot = jitter(photo.id, 1) * tilt;

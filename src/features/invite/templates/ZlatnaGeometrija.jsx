@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, mix, useSvgId, SERIF, SANS } from './shared';
 
-// Zlatna geometrija – mermer, geometrijski metalik okvir (zlato / roze zlato / srebro), velika slova
 export default function ZlatnaGeometrija({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const metal = x.accent;
@@ -30,7 +29,6 @@ export default function ZlatnaGeometrija({ wedding, guestName, children }) {
                 <stop offset="1" stopColor={dark} />
               </linearGradient>
             </defs>
-            {/* izduženi šestougao + unutrašnji okvir + dijamanti na vrhu/dnu */}
             <path d="M150 6 L292 70 V314 L150 378 L8 314 V70 Z" fill="rgba(255,255,255,0.55)" stroke={`url(#${gid})`} strokeWidth="2.2" />
             <path d="M150 20 L280 78 V306 L150 364 L20 306 V78 Z" fill="none" stroke={`url(#${gid})`} strokeWidth="0.8" />
             <path d="M150 0 L158 8 L150 16 L142 8 Z" fill={`url(#${gid})`} />

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { createRequest } from '../../requests/services/requests.service';
-import { showToast } from '../../common/store/common.store';
+import { toast } from 'react-toastify';
 import { Modal, Spinner } from '../../../components/ui';
 import Icon from '../../../components/Icon';
 import { INVITATION_TEMPLATES } from '../templates';
@@ -11,10 +11,6 @@ import ContactPhoneNote from '../../../components/ContactPhoneNote';
 const STYLES = ['Romantičan, klasičan', 'Moderan, minimalistički', 'Boho, prirodni tonovi', 'Editorial, kao magazin', 'Ilustracije / akvarel'];
 const BUDGETS = ['do 50 €', '50–100 €', '100–200 €', '200 € +'];
 
-/**
- * Zahtev za unikatnu pozivnicu. Koristi postojeći POST /weddings/:id/design-requests
- * (type = invitation); inspiracija, boje i rok se upisuju u description, pa backend ne treba menjati.
- */
 export default function CustomDesignModal({ currentTemplateId, onClose }) {
   const dispatch = useAppDispatch();
   const saving = useAppSelector((s) => s.requests.saving);
@@ -42,7 +38,7 @@ export default function CustomDesignModal({ currentTemplateId, onClose }) {
     ].filter(Boolean).join('\n');
     const res = await dispatch(createRequest({ type: 'invitation', style, budget, pages: null, includePrint: false, description: full }));
     if (res.meta.requestStatus === 'fulfilled') {
-      dispatch(showToast('Zahtev je poslat. Dizajner se javlja u roku od 48 sati.'));
+      toast.success('Zahtev je poslat. Dizajner se javlja u roku od 48 sati.');
       setSent(true);
     } else {
       setError(res.payload?.message || 'Slanje nije uspelo. Pokušajte ponovo.');

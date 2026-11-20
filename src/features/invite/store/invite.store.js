@@ -3,7 +3,6 @@ import { fetchInvitation, fetchPublicWedding, submitRsvp, uploadPhotos, uploadPr
 
 const idleUpload = { status: 'idle', progress: 0, result: null };
 
-/** Javni deo – pozivnica gosta (po tokenu) ili opšta stranica venčanja (po slug-u za QR kod) */
 export const inviteSlice = createSlice({
   name: 'invite',
   initialState: {

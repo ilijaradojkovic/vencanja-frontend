@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, SERIF } from './shared';
 
-// Klasik – obojeno zaglavlje (akcentna boja), slonovača, serif i zlatni detalji
 export default function Klasik({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const gold = '#D9C9A3';

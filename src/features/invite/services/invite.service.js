@@ -2,10 +2,8 @@ import { createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { GetInvitation, GetPublicWedding, MarkInvitationOpened, SubmitRsvp, UploadPhotos } from '../api/invite.api';
 import { toRejectValue } from '../../../utils/thunk.utils';
 
-/** Napredak upload-a (0–100) – obrađuje ga invite.store */
 export const uploadProgress = createAction('invite/uploadProgress');
 
-/** Pozivnica gosta (po tokenu iz ličnog linka) */
 export const fetchInvitation = createAsyncThunk('invite/fetch', async (token, { rejectWithValue }) => {
   try {
     const response = await GetInvitation(token);
@@ -16,7 +14,6 @@ export const fetchInvitation = createAsyncThunk('invite/fetch', async (token, { 
   }
 });
 
-/** Opšta stranica venčanja (po slug-u za QR kod) */
 export const fetchPublicWedding = createAsyncThunk('invite/fetchWedding', async (slug, { rejectWithValue }) => {
   try {
     return { guest: null, wedding: await GetPublicWedding(slug) };

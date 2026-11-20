@@ -23,7 +23,6 @@ export const weekday = (iso) => formatDate(iso, { weekday: 'long' });
 export const formatDateTime = (iso) =>
   iso ? new Date(iso).toLocaleString('sr-Latn-RS', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
 
-/** srpska množina: 1 osoba, 2–4 osobe, 5+ osoba (11–14 osoba) */
 export const plural = (n, one, few, many) => {
   const m10 = n % 10;
   const m100 = n % 100;
@@ -32,7 +31,6 @@ export const plural = (n, one, few, many) => {
   return many;
 };
 export const persons = (n) => `${n} ${plural(n, 'osoba', 'osobe', 'osoba')}`;
-/** "za 1 osobu / 2 osobe / 5 osoba" */
 export const personsAcc = (n) => `${n} ${plural(n, 'osobu', 'osobe', 'osoba')}`;
 export const photosLabel = (n) => `${n} ${plural(n, 'fotografija', 'fotografije', 'fotografija')}`;
 
@@ -44,7 +42,6 @@ const appBase = () => {
 export const guestLink = (token) => `${appBase()}/i/${token}`;
 export const generalUploadLink = (slug) => `${appBase()}/w/${slug}/upload`;
 
-// Labele za prikaz – ključevi su BE enum vrednosti iz app/config/enums.js
 export const SIDES = {
   [GuestSide.BRIDE]: 'Mladina strana',
   [GuestSide.GROOM]: 'Mladoženjina strana',

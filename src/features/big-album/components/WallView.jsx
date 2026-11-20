@@ -2,15 +2,11 @@ import { useState } from 'react';
 import { jitter } from '../utils/polaroid';
 import Polaroid from './Polaroid';
 
-const STEP = 60; // koliko polaroida se crta odjednom – ostali se dodaju na "Prikaži još"
+const STEP = 60;
 
-/**
- * Zid: polaroidi se preklapaju kao prava gomila na tabli (ćelija mreže je uža od kartice),
- * pa 100+ slika stane na nekoliko ekrana umesto dugačkog spiska. Hover/fokus izvlači sliku napred.
- */
 export default function WallView({ photos, width, showMessages, onOpen }) {
   const [limit, setLimit] = useState(STEP);
-  const cell = Math.round(width * 0.74); // ~26% horizontalnog preklapanja – gomila, ali se svaka slika vidi
+  const cell = Math.round(width * 0.74);
   const overlapY = Math.round(width * (showMessages ? 0.16 : 0.24));
   const shown = photos.slice(0, limit);
 
@@ -23,7 +19,6 @@ export default function WallView({ photos, width, showMessages, onOpen }) {
         {shown.map((p, i) => (
           <div key={p.id} style={{ display: 'flex', justifyContent: 'center', marginBottom: -overlapY, position: 'relative',
             zIndex: 1 + Math.round((jitter(p.id, 4) + 1) * 20) }}>
-            {/* kartica je šira od ćelije; flex centrira prelivanje na obe strane */}
             <div style={{ flex: '0 0 auto' }}>
               <Polaroid photo={p} index={i} width={width} showMessage={showMessages} onOpen={() => onOpen(i)} tilt={9} shift={14} />
             </div>

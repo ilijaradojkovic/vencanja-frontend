@@ -1,6 +1,4 @@
-/** Greška iz API-ja → payload za rejectWithValue (poruka za toast + status za 401 → odjava) */
 export const toRejectValue = (error) => {
-  // axios: odgovor servera je u error.response; bez njega zahtev nije ni stigao do BE
   if (error?.response) {
     return {
       message: error.response.data?.message || 'Greška na serveru',

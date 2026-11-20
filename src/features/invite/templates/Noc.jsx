@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, DecoCorner, Diamond, SERIF, SANS } from './shared';
 
-// Noć – tamna pozadina, šampanj zlato, art-deco ram, monogram u rombu
 export default function Noc({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const gold = '#D9C9A3';

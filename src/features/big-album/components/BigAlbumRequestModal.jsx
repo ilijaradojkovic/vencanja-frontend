@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { createRequest } from '../../requests/services/requests.service';
-import { showToast } from '../../common/store/common.store';
+import { toast } from 'react-toastify';
 import { Modal, Spinner } from '../../../components/ui';
 import Icon from '../../../components/Icon';
 import ContactPhoneNote from '../../../components/ContactPhoneNote';
@@ -14,10 +14,6 @@ export const PRODUCTS = [
 ];
 const BUDGETS = ['do 50 €', '50–100 €', '100–200 €', '200 € +'];
 
-/**
- * "Uradite ovo za nas" – mladenci traže da naš tim složi i pripremi veliki album
- * (zid polaroida). Šalje se kao design request tipa big_album; kontakt broj ide sa naloga.
- */
 export default function BigAlbumRequestModal({ photoCount, background, scopeLabel, showMessages, onClose }) {
   const dispatch = useAppDispatch();
   const saving = useAppSelector((s) => s.requests.saving);
@@ -48,7 +44,7 @@ export default function BigAlbumRequestModal({ photoCount, background, scopeLabe
       type: 'big_album', style: `${prod.label}, ${size}`, budget, pages: null, includePrint: product !== 'digital', description,
     }));
     if (res.meta.requestStatus === 'fulfilled') {
-      dispatch(showToast('Zahtev je poslat. Javljamo se u roku od 48 sati.'));
+      toast.success('Zahtev je poslat. Javljamo se u roku od 48 sati.');
       setSent(true);
     } else setError(res.payload?.message || 'Slanje nije uspelo. Pokušajte ponovo.');
   };

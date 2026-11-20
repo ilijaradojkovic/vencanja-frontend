@@ -40,7 +40,8 @@ src/
       api.js             ← axiosInstance (baseURL, Bearer token interceptor) + get/set/clearAuthToken
       env.js             ← čitanje .env (getApiBaseUrl, isProduction, isMockEnabled…)
       enums.js           ← enum vrednosti sa BE (RsvpStatus, PhotoStatus, DesignRequestStatus…)
-    app.jsx, app.css     ← koren aplikacije (restore sesije, toast-ovi) + globalni stilovi
+    app.jsx              ← koren aplikacije (restore sesije, toast-ovi)
+    theme.css            ← svi stilovi: fontovi, boje (CSS promenljive), komponente
     router/router.jsx    ← sve rute
     store/index.store.js ← combineReducers + middleware (greške → toast, 401 → odjava)
     hooks.js

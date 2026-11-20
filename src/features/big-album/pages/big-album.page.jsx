@@ -12,7 +12,6 @@ import WallView from '../components/WallView';
 import GuestStacksView from '../components/GuestStacksView';
 import SlideshowView from '../components/SlideshowView';
 
-/* pozadine table – sve su čist CSS */
 const BACKGROUNDS = {
   lan: {
     label: 'Lan',
@@ -44,7 +43,6 @@ const SIZES = { S: 140, M: 185, L: 240 };
 const FILTERS = { all: 'Sve slike', memories: 'Pre venčanja', wedding: 'Venčanje' };
 const VIEWS = { zid: 'Zid', gosti: 'Po gostima', prezentacija: 'Prezentacija' };
 
-/** podešavanja table se pamte samo u ovom browseru (pogodnost, ne podatak) */
 function usePref(key, initial) {
   const [v, setV] = useState(() => {
     try {
@@ -58,7 +56,6 @@ function usePref(key, initial) {
     try {
       localStorage.setItem(`veliki-album:${key}`, JSON.stringify(x));
     } catch {
-      /* ignore */
     }
   }, [key]);
   return [v, set];
@@ -76,7 +73,6 @@ export default function BigAlbumPage() {
   const [size, setSize] = usePref('size', 'M');
   const [showMessages, setShowMessages] = usePref('messages', true);
   const [view, setView] = usePref('view', 'zid');
-  // lightbox: lista slika (sve ili samo jednog gosta) + indeks
   const [box, setBox] = useState(null);
   const [requestOpen, setRequestOpen] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -92,7 +88,6 @@ export default function BigAlbumPage() {
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);
 
-  // najstarije prve – album "raste" kako gosti šalju
   const photos = useMemo(
     () => approved
       .filter((p) => filter === 'all' || p.category === filter)
@@ -169,7 +164,6 @@ export default function BigAlbumPage() {
         </div>
       )}
 
-      {/* alatke */}
       <div className="row" style={{ '--gap': '14px', flexWrap: 'wrap', marginBottom: 14, alignItems: 'center' }}>
         <div className="segmented" role="group" aria-label="Prikaz">
           {Object.entries(VIEWS).map(([k, v]) => seg(k, view, setView, v))}
@@ -192,12 +186,10 @@ export default function BigAlbumPage() {
         )}
       </div>
 
-      {/* tabla */}
       <div ref={boardRef} style={{
         background: background.css, borderRadius: fullscreen ? 0 : 18, padding: 'clamp(20px, 4vw, 56px)',
         minHeight: fullscreen ? '100vh' : 520, overflowX: 'hidden', overflowY: fullscreen ? 'auto' : 'visible', boxShadow: fullscreen ? 'none' : 'inset 0 0 60px rgba(0,0,0,0.12)',
       }}>
-        {/* naslovna beleška */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'clamp(24px, 4vw, 44px)' }}>
           <div style={{ position: 'relative', background: '#FFFBEA', padding: '18px 34px 16px', textAlign: 'center', transform: 'rotate(-1.5deg)',
             boxShadow: '0 6px 16px rgba(40,30,20,0.25)', fontFamily: HAND, color: '#3B3A44',
@@ -223,7 +215,6 @@ export default function BigAlbumPage() {
           </>
         )}
 
-        {/* unutar table da bi radio i u režimu celog ekrana */}
         {box && <Lightbox photos={box.list} index={box.index} onClose={closeLightbox} onIndex={setBoxIndex} />}
         {fullscreen && (
           <button className="btn btn-sm" onClick={toggleFullscreen} style={{ position: 'fixed', top: 16, right: 16, zIndex: 200, background: 'rgba(255,255,255,0.9)' }}>

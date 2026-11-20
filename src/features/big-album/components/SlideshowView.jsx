@@ -5,10 +5,6 @@ import Polaroid from './Polaroid';
 
 const SPEEDS = { 3000: 'Brzo', 5000: 'Normalno', 8000: 'Sporo' };
 
-/**
- * Prezentacija: jedan veliki polaroid "pada" na sto, prethodni ostaju ispod na gomili.
- * Sama se vrti – zamišljeno za TV/projektor na svadbi (uz "Prikaži na ekranu").
- */
 export default function SlideshowView({ photos, showMessages, dark, fullscreen }) {
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -44,7 +40,6 @@ export default function SlideshowView({ photos, showMessages, dark, fullscreen }
 
   return (
     <div className="stack" style={{ alignItems: 'center', '--gap': '18px', paddingBottom: 10 }}>
-      {/* trenutna slika je u toku dokumenta i određuje visinu; gomila je iza nje, poravnata gore */}
       <div style={{ position: 'relative', width: size, margin: '10px auto 0' }}>
         {pile.map((p, k) => (
           <div key={`${p.id}-pile`} style={{ position: 'absolute', top: 0, left: 0, right: 0, transform: `rotate(${jitter(p.id, 6) * 12}deg) translate(${jitter(p.id, 7) * 18}px, ${jitter(p.id, 8) * 10}px)`, opacity: 0.95 }}>
@@ -71,7 +66,6 @@ export default function SlideshowView({ photos, showMessages, dark, fullscreen }
   );
 }
 
-/** veliki polaroid za prezentaciju – istog stila, ali skaliran na kontejner */
 function SlidePolaroid({ photo, showMessage, index }) {
   return (
     <Polaroid photo={photo} index={index} width="100%" as="div" tilt={0} className="ba-static" showMessage={showMessage}

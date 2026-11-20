@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { dismissToast } from '../features/common/store/common.store';
 import Icon from './Icon';
 
 export const Spinner = ({ light }) => <span className={`spinner ${light ? 'spinner-light' : ''}`} role="status" aria-label="Učitavanje" />;
@@ -80,29 +78,6 @@ export function Lightbox({ photos, index, onClose, onIndex }) {
   );
 }
 
-function Toast({ toast }) {
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    const t = setTimeout(() => dispatch(dismissToast(toast.id)), toast.type === 'error' ? 6000 : 3500);
-    return () => clearTimeout(t);
-  }, [toast.id, toast.type, dispatch]);
-  return (
-    <div className={`toast ${toast.type === 'error' ? 'toast-error' : ''}`} role={toast.type === 'error' ? 'alert' : 'status'}>
-      <Icon name={toast.type === 'error' ? 'x' : 'check'} size={18} />
-      <span>{toast.message}</span>
-      <button onClick={() => dispatch(dismissToast(toast.id))} aria-label="Zatvori obaveštenje"><Icon name="x" size={16} /></button>
-    </div>
-  );
-}
-
-export function Toasts() {
-  const toasts = useAppSelector((s) => s.common.toasts);
-  return (
-    <div className="toasts" aria-live="polite">
-      {toasts.slice(-3).map((t) => <Toast key={t.id} toast={t} />)}
-    </div>
-  );
-}
 
 export function CopyButton({ text, label = 'Kopiraj link', className = 'btn btn-outline btn-sm' }) {
   const [copied, setCopied] = useState(false);

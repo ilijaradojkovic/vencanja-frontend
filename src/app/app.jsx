@@ -2,9 +2,8 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useAppDispatch } from './hooks';
 import { restoreSession } from '../features/auth/services/auth.service';
-import { Toasts } from '../components/ui';
+import { ToastContainer } from 'react-toastify';
 
-/** Koren aplikacije – vraća sesiju iz localStorage-a i prikazuje toast poruke */
 export default function App() {
   const dispatch = useAppDispatch();
 
@@ -15,7 +14,7 @@ export default function App() {
   return (
     <>
       <Outlet />
-      <Toasts />
+      <ToastContainer />
     </>
   );
 }

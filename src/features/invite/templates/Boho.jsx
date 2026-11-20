@@ -1,6 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, mix, SERIF, SANS } from './shared';
 
-/** pampas trava – snop tankih zakrivljenih vlati */
 function Pampas({ color, style, flip }) {
   const stems = Array.from({ length: 9 }, (_, i) => i);
   return (
@@ -25,7 +24,6 @@ function Pampas({ color, style, flip }) {
   );
 }
 
-// Boho – pesak i terakota, slojeviti lukovi sa suncem, pampas trava, lukovi umesto kartica
 export default function Boho({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
   const t1 = x.accent;
@@ -40,7 +38,6 @@ export default function Boho({ wedding, guestName, children }) {
         <Pampas color={mix(t1, '#8C6E4E', 0.5)} style={{ top: 10, left: -8 }} />
         <Pampas color={mix(t1, '#8C6E4E', 0.5)} style={{ top: 10, right: -8 }} flip />
 
-        {/* slojeviti lukovi + sunce */}
         <svg viewBox="0 0 220 150" width="220" height="150" aria-hidden="true" style={{ display: 'block', margin: '0 auto' }}>
           <path d="M20 150 V110 A90 90 0 0 1 200 110 V150 Z" fill={t3} />
           <path d="M45 150 V112 A65 65 0 0 1 175 112 V150 Z" fill={t2} />
