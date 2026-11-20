@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
@@ -8,6 +8,10 @@ import { photosSelectors, selectPhotoCounts } from '../../photos/store/photos.st
 import Icon from '../../../components/Icon';
 import { CopyButton, RsvpBadge } from '../../../components/ui';
 import { daysUntil, formatDateTime, generalUploadLink, persons, plural } from '../../../utils/format';
+import { isGalleryOpen } from '../../../utils/gallery';
+import { notifyStats } from '../../notifications/components/notifyRecipients';
+import NotifyGuestsModal from '../../notifications/components/NotifyGuestsModal';
+import ShareReadyModal from '../../notifications/components/ShareReadyModal';
 
 export default function Dashboard() {
   const dispatch = useAppDispatch();
@@ -17,6 +21,9 @@ export default function Dashboard() {
   const guests = useAppSelector(guestsSelectors.selectAll);
   const pending = useAppSelector(photosSelectors.selectAll).filter((p) => p.status === 'pending').slice(0, 4);
   const qrRef = useRef(null);
+  const [notifyModal, setNotifyModal] = useState(null);
+  const notify = notifyStats(guests, wedding);
+  const galleryOpen = isGalleryOpen(wedding);
 
   const days = daysUntil(wedding.date);
   const answered = stats.households - stats.waiting;
@@ -118,6 +125,21 @@ export default function Dashboard() {
             </div>
           </section>
 
+          <section className="card stack" aria-labelledby="notify-h">
+            <div className="row between">
+              <h2 id="notify-h">Slike za goste</h2>
+              <span className={`badge ${galleryOpen ? 'badge-yes' : 'badge-no'}`} style={{ fontSize: 12 }}>{galleryOpen ? 'Galerija otvorena' : 'Galerija zatvorena'}</span>
+            </div>
+            <ul className="stack small" style={{ listStyle: 'none', margin: 0, padding: 0, '--gap': '4px', color: 'var(--ink-2)' }}>
+              <li><strong style={{ fontWeight: 500 }}>{notify.toSend}</strong> čeka obaveštenje mejlom{notify.subscriberPending.length ? ` (${notify.subscriberPending.length} preko QR)` : ''}</li>
+              <li><strong style={{ fontWeight: 500 }}>{notify.alreadySent}</strong> već obavešteno</li>
+              <li><strong style={{ fontWeight: 500 }}>{notify.withoutEmail.length}</strong> gostiju bez emaila</li>
+            </ul>
+            {!galleryOpen && <p className="xs muted">Obaveštenje šaljete kad otvorite galeriju u <Link to="/app/podesavanja">podešavanjima</Link>.</p>}
+            <button className="btn btn-primary" onClick={() => setNotifyModal('email')}><Icon name="mail" size={18} /> Obavesti goste da su slike spremne</button>
+            <button className="btn btn-outline" onClick={() => setNotifyModal('share')}><Icon name="whatsapp" size={18} /> WhatsApp / Viber</button>
+          </section>
+
           <section className="card card-cream stack" aria-labelledby="album-h">
             <h2 id="album-h">Veliki album</h2>
             <p style={{ color: 'var(--ink-2)' }}>
@@ -130,6 +152,8 @@ export default function Dashboard() {
           </section>
         </div>
       </div>
+      {notifyModal === 'email' && <NotifyGuestsModal onClose={() => setNotifyModal(null)} />}
+      {notifyModal === 'share' && <ShareReadyModal onClose={() => setNotifyModal(null)} />}
     </>
   );
 }

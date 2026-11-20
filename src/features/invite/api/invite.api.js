@@ -28,3 +28,23 @@ export async function UploadPhotos(target, formData, onProgress) {
   });
   return response.data;
 }
+
+export async function SubscribeNotifyByToken(token, email) {
+  const response = await axiosInstance.post(`/public/invitations/${token}/notify`, { email });
+  return response.data;
+}
+
+export async function SubscribeNotifyBySlug(slug, email, name) {
+  const response = await axiosInstance.post(`/public/weddings/${slug}/notify`, { email, name });
+  return response.data;
+}
+
+export async function GetGalleryByToken(token) {
+  const response = await axiosInstance.get(`/public/invitations/${token}/gallery`);
+  return response.data;
+}
+
+export async function GetGalleryBySlug(slug) {
+  const response = await axiosInstance.get(`/public/weddings/${slug}/gallery`);
+  return response.data;
+}

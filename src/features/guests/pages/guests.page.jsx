@@ -1,89 +1,16 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { createGuest, deleteGuest, importGuests, updateGuest } from '../services/guests.service';
+import { deleteGuest, importGuests } from '../services/guests.service';
+import GuestModal from '../components/GuestModal';
 import { guestsSelectors } from '../store/guests.store';
 import { toast } from 'react-toastify';
 import Icon from '../../../components/Icon';
 import { ConfirmModal, CopyButton, Modal, PageLoading, RsvpBadge, Spinner } from '../../../components/ui';
-import { guestLink, SIDES, persons } from '../../../utils/format';
+import { CompanionType } from '../../../app/config/enums';
+import { formatDate, guestLink, SIDES, persons } from '../../../utils/format';
 import Pagination from '../../../components/Pagination';
 import { usePagination } from '../../../utils/usePagination';
-
-const EMPTY = { name: '', email: '', phone: '', side: 'zajednicki', maxPersons: 2, rsvpStatus: 'pending', rsvpPersons: 0 };
-
-function GuestModal({ guest, onClose }) {
-  const dispatch = useAppDispatch();
-  const saving = useAppSelector((s) => s.guests.saving);
-  const [f, setF] = useState(
-    guest
-      ? { ...EMPTY, ...guest, rsvpStatus: guest.rsvp.status, rsvpPersons: guest.rsvp.persons }
-      : EMPTY,
-  );
-  const [error, setError] = useState('');
-  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
-
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!f.name.trim()) return setError('Ime je obavezno.');
-    const payload = { name: f.name, email: f.email, phone: f.phone, side: f.side, maxPersons: Number(f.maxPersons) };
-    let action;
-    if (guest) {
-      const rsvpChanged = f.rsvpStatus !== guest.rsvp.status || Number(f.rsvpPersons) !== guest.rsvp.persons;
-      if (rsvpChanged) {
-        payload.rsvp = { status: f.rsvpStatus, persons: f.rsvpStatus === 'yes' ? Math.min(Number(f.rsvpPersons) || 1, payload.maxPersons) : 0 };
-      }
-      action = await dispatch(updateGuest({ id: guest.id, ...payload }));
-    } else {
-      action = await dispatch(createGuest(payload));
-    }
-    if (action.meta.requestStatus === 'fulfilled') {
-      toast.success(guest ? 'Gost je sačuvan' : 'Gost je dodat, lični link je spreman');
-      onClose();
-    } else setError(action.payload?.message);
-  };
-
-  return (
-    <Modal title={guest ? 'Izmeni gosta' : 'Novi gost'} onClose={onClose}>
-      <form onSubmit={submit} className="stack" id="guest-form">
-        {error && <div className="form-error" role="alert">{error}</div>}
-        <label className="field"><span>Ime (kako piše na pozivnici)</span>
-          <input className="input" value={f.name} onChange={set('name')} placeholder="npr. Jelena i Nikola" required /></label>
-        <div className="row" style={{ alignItems: 'flex-start' }}>
-          <label className="field grow"><span>Telefon</span><input className="input" value={f.phone} onChange={set('phone')} inputMode="tel" placeholder="+381…" /></label>
-          <label className="field grow"><span>Email</span><input className="input" type="email" value={f.email} onChange={set('email')} /></label>
-        </div>
-        <div className="row" style={{ alignItems: 'flex-start' }}>
-          <label className="field grow"><span>Strana</span>
-            <select className="select" value={f.side} onChange={set('side')}>
-              {Object.entries(SIDES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-            </select></label>
-          <label className="field" style={{ width: 140 }}><span>Najviše osoba</span>
-            <input className="input" type="number" min={1} max={20} value={f.maxPersons} onChange={set('maxPersons')} /></label>
-        </div>
-        {guest && (
-          <fieldset className="stack" style={{ border: '1px solid var(--line)', borderRadius: 12, padding: 14, margin: 0 }}>
-            <legend className="small" style={{ padding: '0 6px', color: 'var(--ink-2)', fontWeight: 500 }}>Odgovor (ako se gost javio telefonom)</legend>
-            <div className="row" style={{ alignItems: 'flex-start' }}>
-              <label className="field grow"><span>Status</span>
-                <select className="select" value={f.rsvpStatus} onChange={set('rsvpStatus')}>
-                  <option value="pending">Čeka odgovor</option><option value="yes">Dolazi</option><option value="no">Ne dolazi</option>
-                </select></label>
-              {f.rsvpStatus === 'yes' && (
-                <label className="field" style={{ width: 140 }}><span>Broj osoba</span>
-                  <input className="input" type="number" min={1} max={f.maxPersons} value={f.rsvpPersons || 1} onChange={set('rsvpPersons')} /></label>
-              )}
-            </div>
-          </fieldset>
-        )}
-      </form>
-      <div className="modal-foot">
-        <button className="btn btn-soft" onClick={onClose}>Odustani</button>
-        <button className="btn btn-primary" form="guest-form" disabled={saving}>{saving ? <Spinner light /> : 'Sačuvaj'}</button>
-      </div>
-    </Modal>
-  );
-}
 
 function ImportModal({ onClose }) {
   const dispatch = useAppDispatch();
@@ -114,9 +41,31 @@ function ImportModal({ onClose }) {
   );
 }
 
+const COMPANION_LABEL = { [CompanionType.NONE]: 'Bez pratioca', [CompanionType.OPEN]: 'Bez imena', [CompanionType.NAMED]: 'Navedeni' };
+
+function companionsLine(g) {
+  const coming = g.rsvp.companions || [];
+  if (g.rsvp.status === 'yes' && coming.length) return `sa: ${coming.join(', ')}`;
+  if (g.companions?.type === CompanionType.NAMED) return `pozvani: ${g.companions.names.join(', ')}`;
+  return '';
+}
+
+function NotifyCell({ guest }) {
+  const n = guest.photoNotify || {};
+  if (n.sentAt) {
+    return <span className="row" style={{ '--gap': '4px', color: 'var(--green)' }} title={n.email}><Icon name="check" size={16} />Poslato {formatDate(n.sentAt, { day: 'numeric', month: 'numeric' })}</span>;
+  }
+  if (n.email) return <span className="row" style={{ '--gap': '4px' }} title={n.email}><Icon name="mail" size={16} />Čeka</span>;
+  return <span className="muted">–</span>;
+}
+
 function exportCsv(guests) {
-  const rows = [['Ime', 'Strana', 'Najviše osoba', 'Status', 'Dolazi osoba', 'Napomena', 'Telefon', 'Email', 'Link']];
-  guests.forEach((g) => rows.push([g.name, SIDES[g.side], g.maxPersons, g.rsvp.status, g.rsvp.persons, g.rsvp.note, g.phone, g.email, guestLink(g.token)]));
+  const rows = [['Ime', 'Strana', 'Pratioci', 'Pozvani pratioci', 'Najviše osoba', 'Status', 'Dolazi osoba', 'Pratioci koji dolaze', 'Napomena', 'Telefon', 'Email', 'Email za slike', 'Obaveštenje poslato', 'Link']];
+  guests.forEach((g) => rows.push([
+    g.name, SIDES[g.side], COMPANION_LABEL[g.companions?.type] || '', (g.companions?.names || []).join(', '), g.maxPersons,
+    g.rsvp.status, g.rsvp.persons, (g.rsvp.companions || []).join(', '), g.rsvp.note, g.phone, g.email,
+    g.photoNotify?.email || '', g.photoNotify?.sentAt || '', guestLink(g.token),
+  ]));
   const csv = rows.map((r) => r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' }));
@@ -205,7 +154,7 @@ export default function Guests() {
           <div className="table-wrap" ref={pager.topRef} style={{ scrollMarginTop: 16 }}>
             <table className="table">
               <thead>
-                <tr><th>Gost</th><th>Strana</th><th>Odgovor</th><th>Dolazi</th><th>Pozivnica</th><th style={{ textAlign: 'right' }}>Akcije</th></tr>
+                <tr><th>Gost</th><th>Strana</th><th>Odgovor</th><th>Dolazi</th><th>Pozivnica</th><th>Slike</th><th style={{ textAlign: 'right' }}>Akcije</th></tr>
               </thead>
               <tbody>
                 {pager.pageItems.map((g) => (
@@ -218,8 +167,12 @@ export default function Guests() {
                     </td>
                     <td className="small muted">{SIDES[g.side]}</td>
                     <td><RsvpBadge status={g.rsvp.status} /></td>
-                    <td className="small">{g.rsvp.status === 'yes' ? persons(g.rsvp.persons) : '–'} <span className="xs muted">/ {g.maxPersons}</span></td>
+                    <td className="small">
+                      {g.rsvp.status === 'yes' ? persons(g.rsvp.persons) : '–'} <span className="xs muted">/ {g.maxPersons}</span>
+                      {companionsLine(g) && <div className="xs muted" title={companionsLine(g)} style={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{companionsLine(g)}</div>}
+                    </td>
                     <td className="small">{g.openedAt ? <span className="row" style={{ '--gap': '4px', color: 'var(--green)' }}><Icon name="eye" size={16} />Otvorena</span> : <span className="muted">Nije otvorena</span>}</td>
+                    <td className="small"><NotifyCell guest={g} /></td>
                     <td>
                       <div className="row" style={{ justifyContent: 'flex-end', '--gap': '6px', flexWrap: 'nowrap' }}>
                         <CopyButton text={guestLink(g.token)} label="Link" />

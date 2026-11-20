@@ -8,6 +8,7 @@ import LoginPage from '../../features/auth/pages/login.page';
 import RegisterPage from '../../features/auth/pages/register.page';
 import GuestInvitationPage from '../../features/invite/pages/guest-invitation.page';
 import GuestUploadPage from '../../features/invite/pages/guest-upload.page';
+import GuestGalleryPage from '../../features/invite/pages/guest-gallery.page';
 import InvitationEditorPage from '../../features/invite/pages/invitation-editor.page';
 import DashboardPage from '../../features/dashboard/pages/dashboard.page';
 import GuestsPage from '../../features/guests/pages/guests.page';
@@ -26,7 +27,9 @@ export default function Router() {
 
         <Route path="i/:token" element={<GuestInvitationPage />} />
         <Route path="i/:token/upload" element={<GuestUploadPage />} />
+        <Route path="i/:token/galerija" element={<GuestGalleryPage />} />
         <Route path="w/:slug/upload" element={<GuestUploadPage />} />
+        <Route path="w/:slug/galerija" element={<GuestGalleryPage />} />
 
         <Route path="app" element={<ProtectedRoute />}>
           <Route index element={<DashboardPage />} />

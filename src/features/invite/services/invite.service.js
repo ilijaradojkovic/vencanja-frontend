@@ -1,5 +1,15 @@
 import { createAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { GetInvitation, GetPublicWedding, MarkInvitationOpened, SubmitRsvp, UploadPhotos } from '../api/invite.api';
+import {
+  GetGalleryBySlug,
+  GetGalleryByToken,
+  GetInvitation,
+  GetPublicWedding,
+  MarkInvitationOpened,
+  SubmitRsvp,
+  SubscribeNotifyBySlug,
+  SubscribeNotifyByToken,
+  UploadPhotos,
+} from '../api/invite.api';
 import { toRejectValue } from '../../../utils/thunk.utils';
 
 export const uploadProgress = createAction('invite/uploadProgress');
@@ -45,3 +55,19 @@ export const uploadPhotos = createAsyncThunk(
     }
   },
 );
+
+export const subscribeNotify = createAsyncThunk('invite/subscribeNotify', async ({ token, slug, email, name }, { rejectWithValue }) => {
+  try {
+    return token ? await SubscribeNotifyByToken(token, email) : await SubscribeNotifyBySlug(slug, email, name);
+  } catch (error) {
+    return rejectWithValue(toRejectValue(error));
+  }
+});
+
+export const fetchGallery = createAsyncThunk('invite/fetchGallery', async ({ token, slug }, { rejectWithValue }) => {
+  try {
+    return token ? await GetGalleryByToken(token) : await GetGalleryBySlug(slug);
+  } catch (error) {
+    return rejectWithValue(toRejectValue(error));
+  }
+});

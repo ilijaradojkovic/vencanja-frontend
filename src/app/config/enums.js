@@ -34,3 +34,15 @@ export const DesignRequestType = Object.freeze({
   BOTH: 'both',
   BIG_ALBUM: 'big_album',
 });
+
+export const CompanionType = Object.freeze({
+  NONE: 'none',
+  OPEN: 'open',
+  NAMED: 'named',
+});
+
+export const GalleryOpenMode = Object.freeze({
+  NOW: 'now',
+  AFTER_WEDDING: 'after_wedding',
+  MANUAL: 'manual',
+});

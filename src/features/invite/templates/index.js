@@ -8,8 +8,7 @@ import Rustik from './Rustik';
 import Akvarel from './Akvarel';
 import ZlatnaGeometrija from './ZlatnaGeometrija';
 import Boho from './Boho';
-import Limun from './Limun';
-import Retro from './Retro';
+import Bordo from './Bordo';
 
 export const INVITATION_TEMPLATES = [
   {
@@ -88,19 +87,11 @@ export const INVITATION_TEMPLATES = [
     isNew: true,
   },
   {
-    id: 'limun',
-    name: 'Limun',
-    description: 'Mediteran: plave pločice i limunovi',
-    Component: Limun,
-    accents: ['#1F4E9C', '#2A6FB0', '#1F6F78', '#1B2F5E'],
-    isNew: true,
-  },
-  {
-    id: 'retro',
-    name: 'Retro',
-    description: 'Duga iz 70-ih, krupna i razigrana slova',
-    Component: Retro,
-    accents: ['#E2622B', '#E07A9B', '#2E8C83', '#7A5BA6', '#C2452D'],
+    id: 'bordo',
+    name: 'Bordo',
+    description: 'Crveno-braon akvarel cveće na krem papiru',
+    Component: Bordo,
+    accents: ['#8E2B2B', '#A33A2E', '#7A2E3A', '#9C4A2F', '#6E3B2A'],
     isNew: true,
   },
 ];

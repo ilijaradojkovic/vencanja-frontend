@@ -41,6 +41,8 @@ const appBase = () => {
 };
 export const guestLink = (token) => `${appBase()}/i/${token}`;
 export const generalUploadLink = (slug) => `${appBase()}/w/${slug}/upload`;
+export const guestGalleryLink = (token) => `${appBase()}/i/${token}/galerija`;
+export const generalGalleryLink = (slug) => `${appBase()}/w/${slug}/galerija`;
 
 export const SIDES = {
   [GuestSide.BRIDE]: 'Mladina strana',

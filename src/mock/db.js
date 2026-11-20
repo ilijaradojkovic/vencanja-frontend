@@ -1,6 +1,8 @@
 import { placeholderPhoto } from '../utils/placeholder';
+import { companionsFromMaxPersons } from '../utils/gallery';
 
-const KEY = 'uspomena-mock-db-v2';
+const KEY = 'uspomena-mock-db-v3';
+const OLD_KEYS = ['uspomena-mock-db-v2'];
 
 export const uid = (prefix = 'id') => `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 export const token = () => Math.random().toString(36).slice(2, 7) + Math.random().toString(36).slice(2, 5);
@@ -67,19 +69,41 @@ function seed() {
     ['Kolege iz firme', 'kolege', 'mladozenja', 6, 'yes', 5, ''],
     ...extraGuests(88),
   ];
-  const guests = guestsSeed.map(([name, tok, side, maxPersons, status, persons, note], i) => ({
-    id: `g_${i + 1}`,
-    weddingId,
-    name,
-    token: tok,
-    email: '',
-    phone: '',
-    side,
-    maxPersons,
-    invitedAt: daysAgo(20),
-    openedAt: status !== 'pending' || i % 3 === 0 ? daysAgo(10 - (i % 5)) : null,
-    rsvp: { status, persons, note, respondedAt: status === 'pending' ? null : daysAgo(8 - (i % 4)) },
-  }));
+  const named = {
+    petrovic: ['Dragan', 'Vesna', 'Luka'],
+    stefan: ['Teodora'],
+    ilic: ['Zoran', 'Maja', 'Sofija', 'Đorđe'],
+  };
+  const companionNames = { kum: ['Jasna', 'Pavle'], 'demo-jelena': ['Nikola'] };
+  const notify = {
+    'demo-jelena': 'jelena@example.com',
+    petrovic: 'vesna.petrovic@example.com',
+    kum: 'vladimir.kum@example.com',
+    baka: '',
+    luka: 'luka.markovic@example.com',
+  };
+  const guests = guestsSeed.map(([name, tok, side, maxPersons, status, persons, note], i) => {
+    const companions = named[tok]
+      ? { type: 'named', max: named[tok].length, names: named[tok] }
+      : companionsFromMaxPersons(maxPersons);
+    const coming = status !== 'yes' ? [] : named[tok] ? named[tok].slice(0, persons - 1) : (companionNames[tok] || []).slice(0, persons - 1);
+    const email = notify[tok] || (i % 7 === 3 ? `gost${i + 1}@example.com` : '');
+    return {
+      id: `g_${i + 1}`,
+      weddingId,
+      name,
+      token: tok,
+      email,
+      phone: i % 4 === 0 ? `+38164${String(1000000 + i * 7919).slice(0, 7)}` : '',
+      side,
+      maxPersons: 1 + (companions.type === 'named' ? companions.names.length : companions.max),
+      companions,
+      invitedAt: daysAgo(20),
+      openedAt: status !== 'pending' || i % 3 === 0 ? daysAgo(10 - (i % 5)) : null,
+      rsvp: { status, persons, companions: coming, note, respondedAt: status === 'pending' ? null : daysAgo(8 - (i % 4)) },
+      photoNotify: notify[tok] ? { email: notify[tok], requestedAt: daysAgo(7), sentAt: null } : { email: '', requestedAt: null, sentAt: null },
+    };
+  });
 
   const msgs = [
     'Kopaonik 2019 – tada smo znali da će ovo biti nešto ozbiljno!',
@@ -152,9 +176,15 @@ function seed() {
         },
         settings: {
           autoApprovePhotos: false,
-          galleryUnlockAfterWedding: true,
           allowGeneralUpload: true,
+          galleryOpen: 'after_wedding',
+          galleryManualOpen: false,
+          galleryViaQr: true,
         },
+        photoSubscribers: [
+          { id: 'ps_1', email: 'drugarica.sa.faksa@example.com', name: 'Mina', createdAt: daysAgo(3), sentAt: null },
+          { id: 'ps_2', email: 'fotograf.amater@example.com', name: '', createdAt: daysAgo(2), sentAt: null },
+        ],
       },
     ],
     guests,
@@ -179,6 +209,7 @@ function seed() {
 
 function load() {
   try {
+    OLD_KEYS.forEach((k) => localStorage.removeItem(k));
     const raw = localStorage.getItem(KEY);
     if (raw) return JSON.parse(raw);
   } catch {

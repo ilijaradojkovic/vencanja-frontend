@@ -1,7 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchInvitation, fetchPublicWedding, submitRsvp, uploadPhotos, uploadProgress } from '../services/invite.service';
+import {
+  fetchGallery,
+  fetchInvitation,
+  fetchPublicWedding,
+  submitRsvp,
+  subscribeNotify,
+  uploadPhotos,
+  uploadProgress,
+} from '../services/invite.service';
 
 const idleUpload = { status: 'idle', progress: 0, result: null };
+const idleGallery = { status: 'idle', data: null, error: null };
 
 export const inviteSlice = createSlice({
   name: 'invite',
@@ -11,7 +20,9 @@ export const inviteSlice = createSlice({
     status: 'idle',
     error: null,
     rsvpSaving: false,
+    notifySaving: false,
     upload: idleUpload,
+    gallery: idleGallery,
   },
   reducers: {
     resetUpload(state) {
@@ -60,6 +71,28 @@ export const inviteSlice = createSlice({
       })
       .addCase(uploadPhotos.rejected, (state) => {
         state.upload.status = 'failed';
+      })
+      .addCase(subscribeNotify.pending, (state) => {
+        state.notifySaving = true;
+      })
+      .addCase(subscribeNotify.fulfilled, (state, action) => {
+        state.notifySaving = false;
+        if (state.guest && action.meta.arg.token) {
+          state.guest.notifyEmail = action.payload.notifyEmail;
+          state.guest.prefillEmail = action.payload.notifyEmail;
+        }
+      })
+      .addCase(subscribeNotify.rejected, (state) => {
+        state.notifySaving = false;
+      })
+      .addCase(fetchGallery.pending, (state) => {
+        state.gallery = { ...state.gallery, status: 'loading', error: null };
+      })
+      .addCase(fetchGallery.fulfilled, (state, action) => {
+        state.gallery = { status: 'succeeded', data: action.payload, error: null };
+      })
+      .addCase(fetchGallery.rejected, (state, action) => {
+        state.gallery = { status: 'failed', data: null, error: action.payload?.message };
       });
   },
 });

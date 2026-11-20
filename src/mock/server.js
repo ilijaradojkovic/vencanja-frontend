@@ -1,5 +1,6 @@
 import { db, persist, uid, token as newToken, resetDb, syncFromStorage } from './db';
 import { normalizePhone, PHONE_ERROR } from '../utils/phone';
+import { cleanNames, companionsFromMaxPersons, galleryOpensAt, isEmail, isGalleryOpen, maxCompanions } from '../utils/gallery';
 
 export class ApiError extends Error {
   constructor(message, status = 0, data = null) {
@@ -48,11 +49,102 @@ const publicWedding = (w) => ({
   city: w.city,
   invitation: w.invitation,
   settings: { allowGeneralUpload: w.settings.allowGeneralUpload },
+  gallery: { open: isGalleryOpen(w), mode: w.settings.galleryOpen, opensAt: galleryOpensAt(w), viaQr: !!w.settings.galleryViaQr },
 });
 const guestByToken = (tok) => {
   const g = db.guests.find((x) => x.token === tok);
   if (!g) fail(404, 'Pozivnica nije pronađena. Proverite link.');
   return g;
+};
+const weddingBySlug = (slug) => {
+  const w = db.weddings.find((x) => x.slug === slug);
+  if (!w) fail(404, 'Venčanje nije pronađeno.');
+  return w;
+};
+
+const parseCompanions = (input, maxPersons) => {
+  if (!input) return companionsFromMaxPersons(maxPersons);
+  const type = ['none', 'open', 'named'].includes(input.type) ? input.type : 'none';
+  if (type === 'named') {
+    const names = cleanNames(input.names);
+    if (!names.length) fail(422, 'Upišite bar jedno ime pratioca.');
+    if (names.length > 19) fail(422, 'Najviše 19 pratilaca.');
+    return { type, max: names.length, names };
+  }
+  if (type === 'open') {
+    const max = Number(input.max);
+    if (!Number.isInteger(max) || max < 1 || max > 19) fail(422, 'Broj pratilaca mora biti između 1 i 19.');
+    return { type, max, names: [] };
+  }
+  return { type: 'none', max: 0, names: [] };
+};
+
+const parseRsvp = (guest, body, { manual = false } = {}) => {
+  const { status, note } = body || {};
+  const valid = manual ? ['yes', 'no', 'pending'] : ['yes', 'no'];
+  if (!valid.includes(status)) fail(422, 'Izaberite da li dolazite.');
+  if (status !== 'yes') return { status, persons: 0, companions: [], note: note ?? guest.rsvp.note ?? '' };
+  const c = guest.companions;
+  let companions = cleanNames(body.companions);
+  let persons;
+  if (c.type === 'named') {
+    if (companions.some((n) => !c.names.includes(n))) fail(422, 'Pratilac nije na spisku pozvanih.');
+    companions = c.names.filter((n) => companions.includes(n));
+    persons = 1 + companions.length;
+  } else {
+    const max = maxCompanions(guest);
+    persons = Number(body.persons) || 1;
+    if (persons < 1 || persons > max + 1) fail(422, `Broj osoba mora biti između 1 i ${max + 1}.`);
+    if (companions.length > persons - 1) fail(422, 'Više imena pratilaca nego osoba koje dolaze.');
+  }
+  return { status, persons, companions, note: note ?? '' };
+};
+
+const emptyNotify = () => ({ email: '', requestedAt: null, sentAt: null });
+
+const newGuest = (weddingId, b) => {
+  const companions = parseCompanions(b.companions, b.maxPersons);
+  return {
+    id: uid('g'),
+    weddingId,
+    name: b.name.trim(),
+    token: newToken(),
+    email: b.email || '',
+    phone: b.phone || '',
+    side: b.side || 'zajednicki',
+    companions,
+    maxPersons: 1 + maxCompanions({ companions }),
+    invitedAt: new Date().toISOString(),
+    openedAt: null,
+    rsvp: { status: 'pending', persons: 0, companions: [], note: '', respondedAt: null },
+    photoNotify: emptyNotify(),
+  };
+};
+
+const publicGuest = (g) => ({
+  name: g.name,
+  token: g.token,
+  maxPersons: g.maxPersons,
+  companions: g.companions,
+  rsvp: g.rsvp,
+  notifyEmail: g.photoNotify?.email || '',
+  prefillEmail: g.photoNotify?.email || g.email || '',
+});
+
+const publicGallery = (w, viaQr) => {
+  if (viaQr && !w.settings.galleryViaQr) fail(403, 'Galerija je dostupna samo preko ličnih linkova gostiju.');
+  const open = isGalleryOpen(w);
+  return {
+    open,
+    mode: w.settings.galleryOpen,
+    opensAt: galleryOpensAt(w),
+    photos: open
+      ? db.photos
+        .filter((p) => p.weddingId === w.id && p.status === 'approved')
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+        .map((p) => ({ id: p.id, url: p.url, senderName: p.senderName, message: p.message, category: p.category, createdAt: p.createdAt }))
+      : [],
+  };
 };
 
 async function fileToDataUrl(file, max = 1100) {
@@ -136,7 +228,8 @@ const routes = [
         message: '',
         schedule: [{ id: uid('e'), time: '17:00', title: 'Svečana večera', place: '', mapUrl: '' }],
       },
-      settings: { autoApprovePhotos: false, galleryUnlockAfterWedding: true, allowGeneralUpload: true },
+      settings: { autoApprovePhotos: false, allowGeneralUpload: true, galleryOpen: 'after_wedding', galleryManualOpen: false, galleryViaQr: true },
+      photoSubscribers: [],
     };
     const user = { id: uid('u'), email, password: b.password, name: `${partner1} i ${partner2}`, phone, weddingId: wedding.id };
     db.weddings.push(wedding);
@@ -170,7 +263,10 @@ const routes = [
     }
     Object.assign(w, Object.fromEntries(Object.entries({ partner1, partner2, date, rsvpDeadline, city }).filter(([, v]) => v !== undefined)));
     if (invitation) w.invitation = { ...w.invitation, ...invitation };
-    if (settings) w.settings = { ...w.settings, ...settings };
+    if (settings) {
+      if (settings.galleryOpen !== undefined && !['now', 'after_wedding', 'manual'].includes(settings.galleryOpen)) fail(422, 'Nepoznat način otvaranja galerije.');
+      w.settings = { ...w.settings, ...settings };
+    }
     persist();
     return clone(w);
   }],
@@ -183,19 +279,7 @@ const routes = [
     requireWedding(ctx, ctx.params.id);
     const b = ctx.body || {};
     if (!b.name?.trim()) fail(422, 'Ime gosta je obavezno.');
-    const g = {
-      id: uid('g'),
-      weddingId: ctx.params.id,
-      name: b.name.trim(),
-      token: newToken(),
-      email: b.email || '',
-      phone: b.phone || '',
-      side: b.side || 'zajednicki',
-      maxPersons: Math.max(1, Number(b.maxPersons) || 1),
-      invitedAt: new Date().toISOString(),
-      openedAt: null,
-      rsvp: { status: 'pending', persons: 0, note: '', respondedAt: null },
-    };
+    const g = newGuest(ctx.params.id, b);
     db.guests.push(g);
     persist();
     return clone(g);
@@ -203,19 +287,7 @@ const routes = [
   ['POST', '/weddings/:id/guests/import', async (ctx) => {
     requireWedding(ctx, ctx.params.id);
     const list = Array.isArray(ctx.body?.guests) ? ctx.body.guests : [];
-    const created = list.filter((x) => x.name?.trim()).map((x) => ({
-      id: uid('g'),
-      weddingId: ctx.params.id,
-      name: x.name.trim(),
-      token: newToken(),
-      email: x.email || '',
-      phone: x.phone || '',
-      side: x.side || 'zajednicki',
-      maxPersons: Math.max(1, Number(x.maxPersons) || 1),
-      invitedAt: new Date().toISOString(),
-      openedAt: null,
-      rsvp: { status: 'pending', persons: 0, note: '', respondedAt: null },
-    }));
+    const created = list.filter((x) => x.name?.trim()).map((x) => newGuest(ctx.params.id, x));
     db.guests.push(...created);
     persist();
     return clone(created);
@@ -224,11 +296,24 @@ const routes = [
     const w = requireWedding(ctx);
     const g = db.guests.find((x) => x.id === ctx.params.id && x.weddingId === w.id);
     if (!g) fail(404, 'Gost nije pronađen.');
-    const { name, email, phone, side, maxPersons, rsvp } = ctx.body || {};
+    const { name, email, phone, side, companions, rsvp } = ctx.body || {};
     if (name !== undefined && !String(name).trim()) fail(422, 'Ime gosta je obavezno.');
     Object.assign(g, Object.fromEntries(Object.entries({ name, email, phone, side }).filter(([, v]) => v !== undefined)));
-    if (maxPersons !== undefined) g.maxPersons = Math.max(1, Number(maxPersons) || 1);
-    if (rsvp) g.rsvp = { ...g.rsvp, ...rsvp, respondedAt: new Date().toISOString() };
+    if (companions !== undefined) {
+      g.companions = parseCompanions(companions);
+      g.maxPersons = 1 + maxCompanions(g);
+      if (!rsvp && g.rsvp.status === 'yes') {
+        const keep = g.companions.type === 'named'
+          ? g.rsvp.companions.filter((n) => g.companions.names.includes(n))
+          : g.rsvp.companions.slice(0, g.companions.max);
+        const persons = g.companions.type === 'named' ? 1 + keep.length : Math.min(g.rsvp.persons, g.maxPersons);
+        g.rsvp = { ...g.rsvp, companions: keep.slice(0, persons - 1), persons };
+      }
+    }
+    if (rsvp) {
+      const parsed = parseRsvp(g, rsvp, { manual: true });
+      g.rsvp = { ...parsed, respondedAt: parsed.status === 'pending' ? null : new Date().toISOString() };
+    }
     persist();
     return clone(g);
   }],
@@ -271,6 +356,18 @@ const routes = [
     return { id: ctx.params.id };
   }],
 
+  ['POST', '/weddings/:id/photo-notifications', async (ctx) => {
+    const w = requireWedding(ctx, ctx.params.id);
+    if (!isGalleryOpen(w)) fail(409, 'Galerija još nije otvorena za goste. Otvorite je u podešavanjima pa pošaljite obaveštenje.');
+    const sentAt = new Date().toISOString();
+    const guests = db.guests.filter((g) => g.weddingId === w.id && g.photoNotify?.email && !g.photoNotify.sentAt);
+    guests.forEach((g) => { g.photoNotify.sentAt = sentAt; });
+    const subscribers = w.settings.galleryViaQr ? (w.photoSubscribers || []).filter((x) => !x.sentAt) : [];
+    subscribers.forEach((x) => { x.sentAt = sentAt; });
+    persist();
+    return { sent: guests.length + subscribers.length, sentAt, guestIds: guests.map((g) => g.id), subscriberIds: subscribers.map((x) => x.id) };
+  }],
+
   ['GET', '/weddings/:id/design-requests', async (ctx) => {
     requireWedding(ctx, ctx.params.id);
     return clone(db.designRequests.filter((r) => r.weddingId === ctx.params.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
@@ -303,10 +400,7 @@ const routes = [
   ['GET', '/public/invitations/:token', async (ctx) => {
     const g = guestByToken(ctx.params.token);
     const w = db.weddings.find((x) => x.id === g.weddingId);
-    return {
-      guest: { name: g.name, maxPersons: g.maxPersons, rsvp: g.rsvp, token: g.token },
-      wedding: publicWedding(w),
-    };
+    return { guest: publicGuest(g), wedding: publicWedding(w) };
   }],
   ['POST', '/public/invitations/:token/opened', async (ctx) => {
     const g = guestByToken(ctx.params.token);
@@ -318,27 +412,44 @@ const routes = [
   }],
   ['POST', '/public/invitations/:token/rsvp', async (ctx) => {
     const g = guestByToken(ctx.params.token);
-    const { status, persons, note } = ctx.body || {};
-    if (!['yes', 'no'].includes(status)) fail(422, 'Izaberite da li dolazite.');
-    const n = status === 'yes' ? Number(persons) : 0;
-    if (status === 'yes' && (n < 1 || n > g.maxPersons)) fail(422, `Broj osoba mora biti između 1 i ${g.maxPersons}.`);
-    g.rsvp = { status, persons: n, note: note || '', respondedAt: new Date().toISOString() };
+    g.rsvp = { ...parseRsvp(g, ctx.body), respondedAt: new Date().toISOString() };
     persist();
     return { rsvp: g.rsvp };
+  }],
+  ['POST', '/public/invitations/:token/notify', async (ctx) => {
+    const g = guestByToken(ctx.params.token);
+    const email = String(ctx.body?.email || '').trim().toLowerCase();
+    if (!isEmail(email)) fail(422, 'Unesite ispravan email.');
+    const changed = g.photoNotify?.email !== email;
+    g.photoNotify = { email, requestedAt: new Date().toISOString(), sentAt: changed ? null : g.photoNotify.sentAt };
+    persist();
+    return { notifyEmail: email };
+  }],
+  ['GET', '/public/invitations/:token/gallery', async (ctx) => {
+    const g = guestByToken(ctx.params.token);
+    return publicGallery(db.weddings.find((x) => x.id === g.weddingId), false);
   }],
   ['POST', '/public/invitations/:token/photos', async (ctx) => {
     const g = guestByToken(ctx.params.token);
     const w = db.weddings.find((x) => x.id === g.weddingId);
     return savePhotos(w, g, ctx.body, ctx.onUploadProgress);
   }],
-  ['GET', '/public/weddings/:slug', async (ctx) => {
-    const w = db.weddings.find((x) => x.slug === ctx.params.slug);
-    if (!w) fail(404, 'Venčanje nije pronađeno.');
-    return publicWedding(w);
+  ['GET', '/public/weddings/:slug', async (ctx) => publicWedding(weddingBySlug(ctx.params.slug))],
+  ['GET', '/public/weddings/:slug/gallery', async (ctx) => publicGallery(weddingBySlug(ctx.params.slug), true)],
+  ['POST', '/public/weddings/:slug/notify', async (ctx) => {
+    const w = weddingBySlug(ctx.params.slug);
+    if (!w.settings.galleryViaQr) fail(403, 'Galerija je dostupna samo preko ličnih linkova gostiju.');
+    const email = String(ctx.body?.email || '').trim().toLowerCase();
+    if (!isEmail(email)) fail(422, 'Unesite ispravan email.');
+    w.photoSubscribers = w.photoSubscribers || [];
+    if (!w.photoSubscribers.some((x) => x.email === email)) {
+      w.photoSubscribers.push({ id: uid('ps'), email, name: String(ctx.body?.name || '').trim(), createdAt: new Date().toISOString(), sentAt: null });
+      persist();
+    }
+    return { notifyEmail: email };
   }],
   ['POST', '/public/weddings/:slug/photos', async (ctx) => {
-    const w = db.weddings.find((x) => x.slug === ctx.params.slug);
-    if (!w) fail(404, 'Venčanje nije pronađeno.');
+    const w = weddingBySlug(ctx.params.slug);
     if (!w.settings.allowGeneralUpload) fail(403, 'Mladenci su isključili slanje slika preko QR koda.');
     return savePhotos(w, null, ctx.body, ctx.onUploadProgress);
   }],

@@ -9,7 +9,9 @@ import { toast } from 'react-toastify';
 import { ResetMockData } from '../../../mock/mock.api';
 import env from '../../../app/config/env';
 import { ConfirmModal, Spinner } from '../../../components/ui';
-import { generalUploadLink } from '../../../utils/format';
+import { formatDate, generalUploadLink } from '../../../utils/format';
+import { GalleryOpenMode } from '../../../app/config/enums';
+import { galleryOpensAt, isGalleryOpen } from '../../../utils/gallery';
 import { updateMe } from '../../auth/services/auth.service';
 import PhoneField from '../../../components/PhoneField';
 import { normalizePhone, PHONE_ERROR } from '../../../utils/phone';
@@ -102,8 +104,28 @@ export default function Settings() {
           <span>Automatski odobri nove fotografije<br /><span className="xs muted">Inače ih prvo pregledate vi.</span></span></label>
         <label className="check"><input type="checkbox" checked={f.allowGeneralUpload} onChange={toggle('allowGeneralUpload')} />
           <span>Dozvoli slanje preko QR koda<br /><span className="xs muted">Bilo ko sa linkom može da pošalje sliku, bez ličnog linka.</span></span></label>
-        <label className="check"><input type="checkbox" checked={f.galleryUnlockAfterWedding} onChange={toggle('galleryUnlockAfterWedding')} />
-          <span>Gostima otvori galeriju tek dan posle venčanja</span></label>
+
+        <h2 style={{ marginTop: 10 }}>Galerija za goste</h2>
+        <fieldset className="stack" style={{ '--gap': '2px', border: 'none', padding: 0, margin: 0 }}>
+          <legend className="small" style={{ fontWeight: 500, color: 'var(--ink-2)', marginBottom: 4 }}>Kada se galerija otvara gostima?</legend>
+          {[
+            [GalleryOpenMode.NOW, 'Odmah', 'Gosti vide odobrene slike čim ih odobrite.'],
+            [GalleryOpenMode.AFTER_WEDDING, 'Dan posle venčanja', `Automatski ${formatDate(galleryOpensAt({ date: wedding.date, settings: { galleryOpen: GalleryOpenMode.AFTER_WEDDING } }))}.`],
+            [GalleryOpenMode.MANUAL, 'Ručno', 'Vi odlučujete kada, jednim klikom.'],
+          ].map(([value, label, hint]) => (
+            <label key={value} className="check">
+              <input type="radio" name="galleryOpen" checked={f.galleryOpen === value} onChange={() => setF({ ...f, galleryOpen: value })} />
+              <span>{label}<br /><span className="xs muted">{hint}</span></span>
+            </label>
+          ))}
+        </fieldset>
+        {f.galleryOpen === GalleryOpenMode.MANUAL && (
+          <label className="check" style={{ marginLeft: 32 }}><input type="checkbox" checked={!!f.galleryManualOpen} onChange={toggle('galleryManualOpen')} />
+            <span>Galerija je otvorena za goste</span></label>
+        )}
+        <label className="check"><input type="checkbox" checked={!!f.galleryViaQr} onChange={toggle('galleryViaQr')} />
+          <span>Galerija se vidi i preko QR linka<br /><span className="xs muted">QR link može da se prosledi bilo kome. Isključite ako želite da galeriju vide samo gosti sa ličnim linkom.</span></span></label>
+        <p className="xs muted">Trenutno: galerija je {isGalleryOpen({ date: wedding.date, settings: f }) ? 'otvorena' : 'zatvorena'} za goste.</p>
 
         <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} disabled={saving}>{saving ? <Spinner light /> : 'Sačuvaj'}</button>
       </form>
