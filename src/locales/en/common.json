@@ -1,0 +1,124 @@
+{
+  "language": {
+    "label": "Language"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "delete": "Delete",
+    "copy": "Copy",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "loading": "Loading",
+    "previous": "Previous",
+    "next": "Next",
+    "retry": "Try again",
+    "refresh": "Refresh",
+    "ok": "OK",
+    "logout": "Log out",
+    "change": "Change",
+    "details": "Details",
+    "remove": "Remove"
+  },
+  "rsvp": {
+    "yes": "Attending",
+    "pending": "Awaiting reply",
+    "no": "Not attending"
+  },
+  "photoStatus": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "hidden": "Hidden"
+  },
+  "side": {
+    "mlada": "Bride's side",
+    "mladozenja": "Groom's side",
+    "zajednicki": "Both"
+  },
+  "category": {
+    "memories": "Shared memories",
+    "wedding": "From the wedding"
+  },
+  "requestStatus": {
+    "received": "Received",
+    "in_progress": "In progress",
+    "review": "Awaiting your approval",
+    "done": "Done"
+  },
+  "requestType": {
+    "invitation": "Invitation",
+    "album": "Album",
+    "both": "Invitation and album",
+    "big_album": "Big album"
+  },
+  "count": {
+    "persons_one": "{{count}} person",
+    "persons_other": "{{count}} people",
+    "personsAcc_one": "{{count}} person",
+    "personsAcc_other": "{{count}} people",
+    "photos_one": "{{count}} photo",
+    "photos_other": "{{count}} photos",
+    "pictures_one": "{{count}} photo",
+    "pictures_other": "{{count}} photos",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "server": "Server error",
+    "network": "Cannot connect to the server",
+    "weddingNotLoaded": "Wedding is not loaded",
+    "saveFailed": "Saving failed.",
+    "sendFailed": "Sending failed. Please try again."
+  },
+  "phone": {
+    "label": "Phone number",
+    "hint": "We use this number to contact you about custom design, album printing and similar.",
+    "error": "Enter a valid phone number, e.g. +381 64 123 4567.",
+    "willSave": "Will be saved as {{phone}}",
+    "contactOn": "We will contact you at",
+    "saved": "Phone number saved"
+  },
+  "phoneRequired": {
+    "title": "Add a phone number",
+    "text": "A phone number is required for every account. We only use it to contact you about custom design, album printing and similar questions.",
+    "save": "Save number"
+  },
+  "lightbox": {
+    "label": "Photo preview",
+    "photoFrom": "Photo from {{name}}"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "shown": "Showing",
+    "of": "of {{total}}",
+    "page": "Page {{page}}",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "perPage": "Per page"
+  },
+  "nav": {
+    "mainMenu": "Main menu",
+    "overview": "Overview",
+    "guests": "Guests",
+    "invitation": "Invitation",
+    "photos": "Photos",
+    "bigAlbum": "Big album",
+    "customDesign": "Custom design",
+    "settings": "Settings",
+    "qrUpload": "QR upload page"
+  },
+  "layout": {
+    "loadFailed": "We couldn't load your data."
+  },
+  "notFound": {
+    "eyebrow": "Oops",
+    "title": "Page not found",
+    "text": "Check the link or go back to the home page.",
+    "home": "Go home"
+  },
+  "meta": {
+    "title": "Uspomena · wedding invitations and album"
+  }
+}

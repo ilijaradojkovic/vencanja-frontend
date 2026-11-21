@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, SERIF } from './shared';
+import { tt, Occasion } from './shared';
 
 export default function Rustik({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
@@ -18,10 +19,10 @@ export default function Rustik({ wedding, guestName, children }) {
     <div style={{ ...paper, color: ink, padding: 12 }}>
       <div style={{ border: `2px dashed ${ink}55`, borderRadius: 10, padding: '44px 22px 26px' }}>
         <header className="stack" style={{ textAlign: 'center', alignItems: 'center' }}>
-          {guestName && <p style={{ fontFamily: SERIF, fontSize: 17 }}>Za: <u style={{ textDecorationStyle: 'dotted', textUnderlineOffset: 4 }}>{guestName}</u></p>}
+          {guestName && <p style={{ fontFamily: SERIF, fontSize: 17 }}>{tt('forLabel')} <u style={{ textDecorationStyle: 'dotted', textUnderlineOffset: 4 }}>{guestName}</u></p>}
           <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 19 }}>{x.inv.headline}</p>
           <h1 style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 'clamp(42px, 12vw, 60px)', lineHeight: 1, letterSpacing: '0.01em' }}>
-            {wedding.partner1} <span style={{ fontWeight: 400, fontStyle: 'italic', color: stamp }}>&amp;</span> {wedding.partner2}
+            {wedding.partner1}{wedding.partner2 && (<> <span style={{ fontWeight: 400, fontStyle: 'italic', color: stamp }}>&amp;</span> {wedding.partner2}</>)}<Occasion wedding={wedding} />
           </h1>
 
           <div style={{ marginTop: 14, width: 120, height: 120, borderRadius: '50%', border: `2px solid ${stamp}`, color: stamp, display: 'grid', placeItems: 'center', transform: 'rotate(-8deg)', position: 'relative' }}>
@@ -41,8 +42,8 @@ export default function Rustik({ wedding, guestName, children }) {
 
         <Twine />
 
-        <section style={{ marginTop: 16 }} className="stack" aria-label="Raspored dana">
-          <h2 style={{ fontFamily: SERIF, textAlign: 'center' }}>Raspored dana</h2>
+        <section style={{ marginTop: 16 }} className="stack" aria-label={tt('schedule')}>
+          <h2 style={{ fontFamily: SERIF, textAlign: 'center' }}>{tt('schedule')}</h2>
           {x.schedule.map((e, i) => (
             <div key={e.id} style={{ background: '#FBF5E9', padding: '14px 16px', borderRadius: 4, boxShadow: '0 2px 0 rgba(62,47,34,0.15)', transform: `rotate(${i % 2 ? 0.6 : -0.6}deg)` }}>
               <div className="row" style={{ gap: 12, alignItems: 'baseline' }}>

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../../../components/LanguageSwitcher';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { fetchGallery, fetchInvitation, fetchPublicWedding } from '../services/invite.service';
 import NotifyEmailForm from '../components/NotifyEmailForm';
@@ -8,8 +10,10 @@ import Icon from '../../../components/Icon';
 import { Lightbox, PageLoading } from '../../../components/ui';
 import { CATEGORIES, photosLabel } from '../../../utils/format';
 import NotFound from '../../common/pages/not-found.page';
+import { eventNames } from '../../../utils/event';
 
 export default function GuestGallery() {
+  const { t } = useTranslation('invite');
   const { token, slug } = useParams();
   const dispatch = useAppDispatch();
   const { guest, wedding, status, error, gallery } = useAppSelector((s) => s.invite);
@@ -29,8 +33,8 @@ export default function GuestGallery() {
   );
 
   const loaded = status === 'succeeded' && (token ? guest?.token === token : wedding?.slug === slug && !guest);
-  if (status === 'failed') return <NotFound title="Link nije ispravan" text={error} />;
-  if (gallery.status === 'failed') return <NotFound title="Galerija nije dostupna" text={gallery.error} />;
+  if (status === 'failed') return <NotFound title={t('errors.badLink')} text={error} />;
+  if (gallery.status === 'failed') return <NotFound title={t('gallery.unavailable')} text={gallery.error} />;
   if (!loaded || gallery.status !== 'succeeded') return <PageLoading />;
 
   const backTo = token ? `/i/${token}` : null;
@@ -43,13 +47,16 @@ export default function GuestGallery() {
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <header className="row between" style={{ padding: '14px 16px', borderBottom: '1px solid var(--line)' }}>
           {backTo ? (
-            <Link to={backTo} className="icon-btn" aria-label="Nazad na pozivnicu"><Icon name="chevronLeft" /></Link>
+            <Link to={backTo} className="icon-btn" aria-label={t('backToInvitation')}><Icon name="chevronLeft" /></Link>
           ) : <span style={{ width: 44 }} />}
           <div className="stack" style={{ '--gap': '0', textAlign: 'center' }}>
-            <span className="serif" style={{ fontSize: 24, fontWeight: 600, lineHeight: 1.1 }}>{wedding.partner1} &amp; {wedding.partner2}</span>
-            <span className="xs muted" style={{ letterSpacing: '0.08em', textTransform: 'uppercase' }}>Galerija</span>
+            <span className="serif" style={{ fontSize: 24, fontWeight: 600, lineHeight: 1.1 }}>{eventNames(wedding)}</span>
+            <span className="xs muted" style={{ letterSpacing: '0.08em', textTransform: 'uppercase' }}>{t('gallery.title')}</span>
           </div>
-          <Link to={uploadTo} className="icon-btn" aria-label="Pošalji slike"><Icon name="upload" /></Link>
+          <div className="row" style={{ '--gap': '6px', flexWrap: 'nowrap' }}>
+            <LanguageSwitcher />
+            <Link to={uploadTo} className="icon-btn" aria-label={t('sendPhotos')}><Icon name="upload" /></Link>
+          </div>
         </header>
 
         {!gallery.data.open ? (
@@ -57,36 +64,36 @@ export default function GuestGallery() {
             <span style={{ alignSelf: 'center', width: 72, height: 72, borderRadius: '50%', background: 'var(--surface-2)', display: 'grid', placeItems: 'center', color: 'var(--gold)' }}>
               <Icon name="lock" size={30} />
             </span>
-            <h1 style={{ fontSize: 32 }}>Galerija još nije otvorena</h1>
+            <h1 style={{ fontSize: 32 }}>{t('gallery.notOpen')}</h1>
             <p style={{ color: 'var(--ink-2)' }}>{galleryStatusText(gallery.data)}</p>
             {notifyEmail ? (
               <p className="small muted" style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="mail" size={16} /> Obavestićemo vas na {notifyEmail}.
+                <Icon name="mail" size={16} /> {t('gallery.willNotify', { email: notifyEmail })}
               </p>
             ) : (
               <div className="card stack" style={{ textAlign: 'left' }}>
-                <strong style={{ fontWeight: 500 }}>Javite mi kad bude otvorena</strong>
+                <strong style={{ fontWeight: 500 }}>{t('gallery.notifyTitle')}</strong>
                 <NotifyEmailForm token={token} slug={slug} initialEmail={guest?.prefillEmail || ''} onDone={setSubscribed} />
               </div>
             )}
-            <Link to={uploadTo} className="btn btn-outline btn-lg"><Icon name="upload" /> Pošalji svoje slike</Link>
+            <Link to={uploadTo} className="btn btn-outline btn-lg"><Icon name="upload" /> {t('gallery.sendYours')}</Link>
           </div>
         ) : (
           <div className="stack" style={{ padding: '20px 16px 48px', '--gap': '16px' }}>
             <div className="row between">
-              <span className="small muted">{photosLabel(all.length)} od gostiju</span>
-              <div className="chips" role="group" aria-label="Kategorija">
-                {[['all', 'Sve'], ...Object.entries(CATEGORIES)].map(([k, label]) => (
+              <span className="small muted">{t('gallery.fromGuests', { photos: photosLabel(all.length) })}</span>
+              <div className="chips" role="group" aria-label={t('gallery.categoryAria')}>
+                {[['all', t('gallery.all')], ...Object.entries(CATEGORIES)].map(([k, label]) => (
                   <button key={k} className="chip" aria-pressed={cat === k} onClick={() => setCat(k)}>{label}</button>
                 ))}
               </div>
             </div>
             {photos.length === 0 ? (
-              <div className="empty"><strong>Još nema slika{cat !== 'all' ? ' u ovoj kategoriji' : ''}.</strong></div>
+              <div className="empty"><strong>{cat !== 'all' ? t('gallery.emptyCategory') : t('gallery.empty')}</strong></div>
             ) : (
               <div className="photo-grid">
                 {photos.map((p, i) => (
-                  <button key={p.id} className="photo-thumb" onClick={() => setIndex(i)} aria-label={`Uvećaj fotografiju od ${p.senderName}`}>
+                  <button key={p.id} className="photo-thumb" onClick={() => setIndex(i)} aria-label={t('gallery.zoom', { name: p.senderName })}>
                     <img src={p.url} alt="" loading="lazy" />
                   </button>
                 ))}

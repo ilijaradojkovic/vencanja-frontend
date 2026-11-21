@@ -1,0 +1,17 @@
+{
+  "eyebrow": "Premium",
+  "newTitle": "Novi zahtev",
+  "newText": "Naš dizajner pravi pozivnicu ili veliki album samo za vas. Prvo dobijate predlog i cenu, a tek onda potvrđujete.",
+  "describeError": "Opišite šta želite.",
+  "important": "Šta vam je važno?",
+  "importantPlaceholder": "Npr. naša priča od upoznavanja, više slika sa bakama i dekama, boje kao na pozivnici…",
+  "listTitle": "Vaši zahtevi",
+  "listEmpty": "Još niste poslali nijedan zahtev.",
+  "progress": "Napredak",
+  "designer": "Dizajner:",
+  "meta": "Poslato {{date}} · budžet {{budget}}",
+  "pages_one": "{{count}} strana",
+  "pages_few": "{{count}} strane",
+  "pages_other": "{{count}} strana",
+  "contact": "kontakt {{phone}}"
+}

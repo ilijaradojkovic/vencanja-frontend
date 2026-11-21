@@ -5,11 +5,6 @@ export async function Login(email, password) {
   return response.data;
 }
 
-export async function Register(payload) {
-  const response = await axiosInstance.post('/auth/register', payload);
-  return response.data;
-}
-
 export async function UpdateMe(payload) {
   const response = await axiosInstance.patch('/auth/me', payload);
   return response.data;

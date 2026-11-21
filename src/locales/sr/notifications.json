@@ -1,0 +1,37 @@
+{
+  "notifyButton": "Obavesti goste da su slike spremne",
+  "readyIntro": "Dragi {{name}}, slike sa našeg venčanja su spremne! Pogledajte šta su gosti uslikali:",
+  "signature": "{{p1}} i {{p2}}",
+  "subject": "Slike sa venčanja {{p1}} i {{p2}} su spremne",
+  "to": "Za: {{email}}",
+  "sentToast_one": "Obaveštenje je poslato na {{count}} adresu",
+  "sentToast_few": "Obaveštenje je poslato na {{count}} adrese",
+  "sentToast_other": "Obaveštenje je poslato na {{count}} adresa",
+  "send": "Pošalji ({{count}})",
+  "nobody": "Nema kome da se pošalje",
+  "closedEmail": "Galerija je trenutno zatvorena za goste, pa link iz mejla ne bi prikazao slike.",
+  "openInSettings": "Otvorite je u podešavanjima",
+  "stats": {
+    "willGet": "Dobiće mejl",
+    "guests": "{{count}} gostiju",
+    "viaQr": "{{count}} preko QR",
+    "alreadySent": "Već obavešteno",
+    "notAgain": "ne šaljemo im ponovo",
+    "withoutEmail": "Bez emaila",
+    "useWhatsapp": "pošaljite im preko WhatsApp-a"
+  },
+  "subscribersBlocked": "{{count}} adresa ostavljenih preko QR koda ne dobija mejl jer galerija nije dostupna preko QR linka.",
+  "preview": "Pregled mejla",
+  "previewHint": "Svaki gost dobija svoj lični link. Mejl se šalje samo onima koji ga još nisu dobili.",
+  "share": {
+    "title": "Pošalji preko WhatsApp-a ili Vibera",
+    "done": "Gotovo",
+    "intro": "Gosti koji nisu ostavili email. Svako dobija svoj lični link ka galeriji, sa gotovom porukom.",
+    "closed": "Galerija je trenutno zatvorena za goste.",
+    "onlyComing": "Samo oni koji dolaze",
+    "empty": "Nema gostiju za ovaj izbor.",
+    "noPhone": "bez telefona – izaberite kontakt u aplikaciji",
+    "whatsappAria": "WhatsApp poruka za {{name}}",
+    "viberAria": "Viber poruka za {{name}}"
+  }
+}

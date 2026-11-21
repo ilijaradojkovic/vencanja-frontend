@@ -1,0 +1,99 @@
+{
+  "layout": {
+    "role": "Superadmin",
+    "accounts": "Nalozi"
+  },
+  "eyebrow_one": "{{count}} nalog",
+  "eyebrow_few": "{{count}} naloga",
+  "eyebrow_other": "{{count}} naloga",
+  "title": "Nalozi",
+  "newAccount": "Novi nalog",
+  "search": "Pretraga",
+  "searchPlaceholder": "Ime, email, telefon ili adresa",
+  "filterAria": "Filter po statusu",
+  "filters": {
+    "all": "Svi",
+    "active": "Aktivni",
+    "inactive": "Deaktivirani"
+  },
+  "empty": "Još nema nijednog naloga.",
+  "emptyFilter": "Nijedan nalog ne odgovara pretrazi.",
+  "addFirst": "Napravi prvi nalog",
+  "table": {
+    "couple": "Proslava",
+    "contact": "Kontakt",
+    "date": "Datum",
+    "usage": "Korišćenje",
+    "status": "Status",
+    "lastLogin": "Poslednja prijava",
+    "actions": "Akcije"
+  },
+  "usage": "Gosti: {{guests}} · Slike: {{photos}}",
+  "status": {
+    "active": "Aktivan",
+    "inactive": "Deaktiviran"
+  },
+  "neverLoggedIn": "Nikad",
+  "actions": {
+    "edit": "Izmeni",
+    "resetPassword": "Nova lozinka",
+    "deactivate": "Deaktiviraj",
+    "activate": "Aktiviraj"
+  },
+  "aria": {
+    "edit": "Izmeni nalog {{email}}",
+    "reset": "Nova lozinka za {{email}}",
+    "deactivate": "Deaktiviraj nalog {{email}}",
+    "activate": "Aktiviraj nalog {{email}}",
+    "delete": "Obriši nalog {{email}}"
+  },
+  "fields": {
+    "partner1": "Mlada",
+    "partner2": "Mladoženja",
+    "date": "Datum venčanja",
+    "email": "Email za prijavu",
+    "password": "Lozinka",
+    "type": "Tip",
+    "celebrant": "Slavljenik",
+    "occasion": "Naziv proslave",
+    "occasionPlaceholder": "npr. 18. rođendan",
+    "celebrationDate": "Datum proslave"
+  },
+  "modal": {
+    "newTitle": "Novi nalog",
+    "editTitle": "Izmena naloga",
+    "create": "Napravi nalog",
+    "emailHint": "Mladenci se prijavljuju ovim emailom.",
+    "passwordPlaceholder": "Ostavite prazno za automatsku lozinku",
+    "passwordHint": "Najmanje 6 znakova. Ako ostavite prazno, aplikacija smišlja lozinku.",
+    "emailHintCelebration": "Slavljenik ili organizator se prijavljuje ovim emailom."
+  },
+  "credentials": {
+    "createdTitle": "Nalog je napravljen",
+    "resetTitle": "Nova lozinka je postavljena",
+    "hint": "Pošaljite ove podatke korisniku. Lozinka se prikazuje samo sada.",
+    "copy": "Kopiraj poruku sa podacima",
+    "message": "Vaš Uspomena nalog je spreman.\nPrijava: {{url}}\nEmail: {{email}}\nLozinka: {{password}}"
+  },
+  "confirm": {
+    "resetTitle": "Nova lozinka?",
+    "resetText": "Za {{email}} će biti napravljena nova lozinka. Stara prestaje da važi i korisnik se odjavljuje.",
+    "deactivateTitle": "Deaktivirati nalog?",
+    "deactivateText": "{{email}} više neće moći da se prijavi. Pozivnice i galerija za goste ostaju dostupne. Nalog možete ponovo aktivirati.",
+    "deleteTitle": "Obrisati nalog?",
+    "deleteText": "Trajno se brišu nalog {{email}}, proslava, {{guests}} gostiju i {{photos}} slika. Ovo ne može da se vrati."
+  },
+  "toast": {
+    "deactivated": "Nalog je deaktiviran.",
+    "activated": "Nalog je ponovo aktivan.",
+    "deleted": "Nalog je obrisan."
+  },
+  "type": {
+    "wedding": "Svadba",
+    "celebration": "Proslava"
+  },
+  "typeHint": {
+    "wedding": "Mlada i mladoženja, jedan zajednički nalog.",
+    "celebration": "Jedan slavljenik: rođendan, krštenje, godišnjica, matura… Sve radi isto kao za svadbu."
+  }
+}

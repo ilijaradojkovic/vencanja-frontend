@@ -1,0 +1,98 @@
+{
+  "layout": {
+    "role": "Superadmin",
+    "accounts": "Accounts"
+  },
+  "eyebrow_one": "{{count}} account",
+  "eyebrow_other": "{{count}} accounts",
+  "title": "Accounts",
+  "newAccount": "New account",
+  "search": "Search",
+  "searchPlaceholder": "Name, email, phone or address",
+  "filterAria": "Filter by status",
+  "filters": {
+    "all": "All",
+    "active": "Active",
+    "inactive": "Deactivated"
+  },
+  "empty": "There are no accounts yet.",
+  "emptyFilter": "No account matches your search.",
+  "addFirst": "Create the first account",
+  "table": {
+    "couple": "Event",
+    "contact": "Contact",
+    "date": "Date",
+    "usage": "Usage",
+    "status": "Status",
+    "lastLogin": "Last login",
+    "actions": "Actions"
+  },
+  "usage": "Guests: {{guests}} · Photos: {{photos}}",
+  "status": {
+    "active": "Active",
+    "inactive": "Deactivated"
+  },
+  "neverLoggedIn": "Never",
+  "actions": {
+    "edit": "Edit",
+    "resetPassword": "New password",
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "aria": {
+    "edit": "Edit account {{email}}",
+    "reset": "New password for {{email}}",
+    "deactivate": "Deactivate account {{email}}",
+    "activate": "Activate account {{email}}",
+    "delete": "Delete account {{email}}"
+  },
+  "fields": {
+    "partner1": "Bride",
+    "partner2": "Groom",
+    "date": "Wedding date",
+    "email": "Login email",
+    "password": "Password",
+    "type": "Type",
+    "celebrant": "Guest of honour",
+    "occasion": "Occasion",
+    "occasionPlaceholder": "e.g. 18th birthday",
+    "celebrationDate": "Celebration date"
+  },
+  "modal": {
+    "newTitle": "New account",
+    "editTitle": "Edit account",
+    "create": "Create account",
+    "emailHint": "The couple logs in with this email.",
+    "passwordPlaceholder": "Leave empty to generate a password",
+    "passwordHint": "At least 6 characters. If left empty, the app generates a password.",
+    "emailHintCelebration": "The guest of honour or organiser logs in with this email."
+  },
+  "credentials": {
+    "createdTitle": "Account created",
+    "resetTitle": "New password set",
+    "hint": "Send these details to the user. The password is shown only now.",
+    "copy": "Copy message with login details",
+    "message": "Your Uspomena account is ready.\nLog in: {{url}}\nEmail: {{email}}\nPassword: {{password}}"
+  },
+  "confirm": {
+    "resetTitle": "New password?",
+    "resetText": "A new password will be created for {{email}}. The old one stops working and the user is logged out.",
+    "deactivateTitle": "Deactivate account?",
+    "deactivateText": "{{email}} will no longer be able to log in. Guest invitations and the gallery stay available. You can reactivate the account later.",
+    "deleteTitle": "Delete account?",
+    "deleteText": "The account {{email}}, the event, {{guests}} guests and {{photos}} photos will be permanently deleted. This cannot be undone."
+  },
+  "toast": {
+    "deactivated": "Account deactivated.",
+    "activated": "Account is active again.",
+    "deleted": "Account deleted."
+  },
+  "type": {
+    "wedding": "Wedding",
+    "celebration": "Celebration"
+  },
+  "typeHint": {
+    "wedding": "Bride and groom, one shared account.",
+    "celebration": "One guest of honour: birthday, christening, anniversary, graduation… Everything works the same as for a wedding."
+  }
+}

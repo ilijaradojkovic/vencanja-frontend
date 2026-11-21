@@ -1,0 +1,129 @@
+{
+  "language": {
+    "label": "Jezik"
+  },
+  "actions": {
+    "cancel": "Odustani",
+    "save": "Sačuvaj",
+    "close": "Zatvori",
+    "delete": "Obriši",
+    "copy": "Kopiraj",
+    "copyLink": "Kopiraj link",
+    "copied": "Kopirano",
+    "loading": "Učitavanje",
+    "previous": "Prethodna",
+    "next": "Sledeća",
+    "retry": "Pokušaj ponovo",
+    "refresh": "Osveži",
+    "ok": "U redu",
+    "logout": "Odjavi se",
+    "change": "Promeni",
+    "details": "Detalji",
+    "remove": "Ukloni"
+  },
+  "rsvp": {
+    "yes": "Dolazi",
+    "pending": "Čeka odgovor",
+    "no": "Ne dolazi"
+  },
+  "photoStatus": {
+    "pending": "Na čekanju",
+    "approved": "Odobrena",
+    "hidden": "Sakrivena"
+  },
+  "side": {
+    "mlada": "Mladina strana",
+    "mladozenja": "Mladoženjina strana",
+    "zajednicki": "Zajednički"
+  },
+  "category": {
+    "memories": "Zajedničke uspomene",
+    "wedding": "Sa venčanja"
+  },
+  "requestStatus": {
+    "received": "Primljen",
+    "in_progress": "U izradi",
+    "review": "Čeka vašu potvrdu",
+    "done": "Završen"
+  },
+  "requestType": {
+    "invitation": "Pozivnica",
+    "album": "Album",
+    "both": "Pozivnica i album",
+    "big_album": "Veliki album"
+  },
+  "count": {
+    "persons_one": "{{count}} osoba",
+    "persons_few": "{{count}} osobe",
+    "persons_other": "{{count}} osoba",
+    "personsAcc_one": "{{count}} osobu",
+    "personsAcc_few": "{{count}} osobe",
+    "personsAcc_other": "{{count}} osoba",
+    "photos_one": "{{count}} fotografija",
+    "photos_few": "{{count}} fotografije",
+    "photos_other": "{{count}} fotografija",
+    "pictures_one": "{{count}} slika",
+    "pictures_few": "{{count}} slike",
+    "pictures_other": "{{count}} slika",
+    "days_one": "{{count}} dan",
+    "days_few": "{{count}} dana",
+    "days_other": "{{count}} dana"
+  },
+  "errors": {
+    "generic": "Došlo je do greške",
+    "server": "Greška na serveru",
+    "network": "Nema konekcije sa serverom",
+    "weddingNotLoaded": "Venčanje nije učitano",
+    "saveFailed": "Čuvanje nije uspelo.",
+    "sendFailed": "Slanje nije uspelo. Pokušajte ponovo."
+  },
+  "phone": {
+    "label": "Broj telefona",
+    "hint": "Na ovaj broj vas kontaktiramo za custom dizajn, štampu albuma i slično.",
+    "error": "Unesite ispravan broj telefona, npr. 064 123 4567.",
+    "willSave": "Biće sačuvan kao {{phone}}",
+    "contactOn": "Kontaktiraćemo vas na",
+    "saved": "Broj telefona je sačuvan"
+  },
+  "phoneRequired": {
+    "title": "Dodajte broj telefona",
+    "text": "Broj je obavezan za svaki nalog. Koristimo ga samo da vas kontaktiramo za custom dizajn, štampu albuma i slična pitanja.",
+    "save": "Sačuvaj broj"
+  },
+  "lightbox": {
+    "label": "Pregled fotografije",
+    "photoFrom": "Fotografija od {{name}}"
+  },
+  "pagination": {
+    "label": "Straničenje",
+    "shown": "Prikazano",
+    "of": "od {{total}}",
+    "page": "Strana {{page}}",
+    "prevPage": "Prethodna strana",
+    "nextPage": "Sledeća strana",
+    "perPage": "Po strani"
+  },
+  "nav": {
+    "mainMenu": "Glavni meni",
+    "overview": "Pregled",
+    "guests": "Gosti",
+    "invitation": "Pozivnica",
+    "photos": "Fotografije",
+    "bigAlbum": "Veliki album",
+    "customDesign": "Custom dizajn",
+    "settings": "Podešavanja",
+    "qrUpload": "Stranica za QR upload"
+  },
+  "layout": {
+    "loadFailed": "Nismo uspeli da učitamo podatke."
+  },
+  "notFound": {
+    "eyebrow": "Ups",
+    "title": "Stranica nije pronađena",
+    "text": "Proverite link ili se vratite na početnu.",
+    "home": "Na početnu"
+  },
+  "meta": {
+    "title": "Uspomena · pozivnice i album venčanja"
+  }
+}

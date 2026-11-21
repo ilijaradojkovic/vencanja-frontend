@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { jitter } from '../utils/polaroid';
 import Polaroid from './Polaroid';
 
 const STEP = 60;
 
 export default function WallView({ photos, width, showMessages, onOpen }) {
+  const { t } = useTranslation('bigAlbum');
   const [limit, setLimit] = useState(STEP);
   const cell = Math.round(width * 0.74);
   const overlapY = Math.round(width * (showMessages ? 0.16 : 0.24));
@@ -28,7 +30,7 @@ export default function WallView({ photos, width, showMessages, onOpen }) {
       {photos.length > limit && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: overlapY + 24, position: 'relative', zIndex: 200 }}>
           <button className="btn btn-champagne" onClick={() => setLimit(limit + STEP)}>
-            Prikaži još {Math.min(STEP, photos.length - limit)} od {photos.length - limit}
+            {t('showMore', { count: Math.min(STEP, photos.length - limit), rest: photos.length - limit })}
           </button>
         </div>
       )}

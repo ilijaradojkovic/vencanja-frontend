@@ -1,3 +1,13 @@
+export const UserRole = Object.freeze({
+  SUPERADMIN: 'superadmin',
+  COUPLE: 'couple',
+});
+
+export const EventType = Object.freeze({
+  WEDDING: 'wedding',
+  CELEBRATION: 'celebration',
+});
+
 export const RsvpStatus = Object.freeze({
   YES: 'yes',
   NO: 'no',

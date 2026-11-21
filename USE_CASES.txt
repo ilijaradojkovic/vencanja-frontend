@@ -1,0 +1,1530 @@
+============================================================================================
+                                  USPOMENA – USE CASE-OVI
+============================================================================================
+
+Stanje: 21. novembar 2026.
+
+Uspomena pokriva 76 use case-ova za četiri aktera (posetilac, superadmin, organizator, gost)
+u 12 oblasti, plus 8 sistemskih pravila. Aplikacija radi za dve vrste događaja: svadbu
+(organizuju je mladenci) i proslavu sa jednim slavljenikom (rođendan, krštenje, godišnjica,
+matura…). Spisak opisuje aplikaciju onakvu kakva je sada u kodu; pravo slanje mejlova,
+plaćanje i admin deo za obradu zahteva za dizajn još ne postoje.
+
+Svaki use case ima isti oblik:
+
+  - Akter: ko ga izvršava.
+  - Cilj: šta akter želi da postigne.
+  - Preduslov: šta mora da važi pre početka (ako nešto mora).
+  - Glavni tok: koraci kada sve prođe kako treba.
+  - Alternative i greške: šta se dešava kada nešto nije po glavnom toku.
+  - Rezultat: stanje posle uspešnog završetka.
+
+SADRŽAJ
+-------
+
+  · Akteri
+  · Svadba i proslava
+  · Na prvi pogled
+  · A. Posetilac, nalog i jezik
+  · B. Pregled (dashboard)
+  · C. Gosti i pratioci
+  · D. Pozivnica i izgledi
+  · E. Fotografije
+  · F. Galerija i obaveštenja gostima
+  · G. Veliki album
+  · H. Custom dizajn
+  · I. Podešavanja
+  · J. Gost: pozivnica i potvrda dolaska
+  · K. Gost: slanje slika i galerija
+  · L. Superadmin: nalozi
+  · Sistemska pravila
+  · Otvorena pitanja
+
+
+############################################################################################
+AKTERI
+############################################################################################
+
+Četiri ljudska aktera i sistem. Gost nikad ne pravi nalog: identifikuje ga lični link ili QR
+kod.
+
+  Posetilac
+      Ko je:         Neko ko još nema nalog
+      Kako pristupa: Početna strana, demo nalog
+      Use case-ovi:  UC-01 – UC-03
+
+  Superadmin
+      Ko je:         Tim Uspomene koji otvara i vodi naloge
+      Kako pristupa: Email + lozinka, /admin
+      Use case-ovi:  UC-71 – UC-76
+
+  Organizator
+      Ko je:         Onaj ko organizuje događaj i vodi nalog. Svadba: mladenci (jedan
+                     zajednički nalog). Proslava: slavljenik ili neko ko organizuje za njega
+                     (npr. roditelji). Nalog dobija od superadmina
+      Kako pristupa: Email + lozinka, /app
+      Use case-ovi:  UC-04 – UC-57
+
+  Gost sa ličnim linkom
+      Ko je:         Pozvana osoba ili domaćinstvo
+      Kako pristupa: /i/:token (pozivnica, slanje slika, galerija)
+      Use case-ovi:  UC-58 – UC-70
+
+  Gost preko QR koda
+      Ko je:         Bilo ko na proslavi
+      Kako pristupa: /w/:slug/upload i /w/:slug/galerija
+      Use case-ovi:  UC-66 – UC-70
+
+  Sistem
+      Ko je:         Pravila koja rade sama
+      Kako pristupa: –
+      Use case-ovi:  SYS-1 – SYS-8
+
+Izbor jezika (UC-10) važi za sve aktere.
+
+
+############################################################################################
+SVADBA I PROSLAVA
+############################################################################################
+
+Superadmin pri pravljenju naloga bira tip događaja (UC-72), a može ga promeniti i kasnije
+(UC-73). Oba tipa imaju iste funkcije: pozivnicu, goste i pratioce, potvrdu dolaska, slike,
+galeriju, obaveštenja, veliki album i custom dizajn. Razlikuju se samo imena i tekstovi.
+
+Kako čitati ovaj dokument: use case-ovi su pisani za organizatora i važe za oba tipa;
+primeri su sa svadbe. Gde u tekstu piše „venčanje“, kod proslave se misli na proslavu. Mesta
+gde se ponašanje stvarno razlikuje navedena su u samom use case-u, kao „Kod proslave: …“.
+
+  Ko je organizator
+      Svadba:   Mlada i mladoženja
+      Proslava: Jedan slavljenik
+
+  Podaci pri pravljenju
+      Svadba:   Ime mlade, ime mladoženje, datum venčanja
+      Proslava: Ime slavljenika, naziv proslave (nije obavezan, npr. „18. rođendan“), datum
+                proslave
+
+  Adresa (QR link)
+      Svadba:   Od oba imena: ana-i-marko
+      Proslava: Od imena i naziva: luka-18-rodjendan; bez naziva luka-proslava
+
+  Ime na pozivnici
+      Svadba:   „Ana & Marko“ u svakom izgledu
+      Proslava: „Luka“ i ispod njega naziv proslave
+
+  Inicijali na koverti
+      Svadba:   „A&M“
+      Proslava: „L“
+
+  Uvodna rečenica (početna)
+      Svadba:   „sa radošću vas pozivamo na naše venčanje“
+      Proslava: „sa radošću vas pozivam na 18. rođendan“ (ili „…na proslavu“)
+
+  Pozdrav na pregledu
+      Svadba:   „Zdravo, Ana i Marko“
+      Proslava: „Zdravo, Luka“
+
+  Strane gostiju
+      Svadba:   Mladina / Mladoženjina / Zajednički
+      Proslava: Porodica / Prijatelji / Ostali
+
+  Vrste slika gostiju
+      Svadba:   „Sa venčanja“ i „Naše zajedničke“ (poglavlje „Pre venčanja“)
+      Proslava: „Sa proslave“ i „Stare uspomene“ (poglavlje „Uspomene“)
+
+  Poruke gostima (WhatsApp, mejl, koverta)
+      Svadba:   U ime para, pominju venčanje
+      Proslava: U ime slavljenika, pominju proslavu
+
+  Demo nalog
+      Svadba:   demo@uspomena.rs / demo123
+      Proslava: rodjendan@uspomena.rs / demo123
+
+Tekstovi su prevedeni i za proslavu na sva tri jezika (SYS-8).
+
+
+############################################################################################
+NA PRVI POGLED
+############################################################################################
+
+  Posetilac
+      Oblasti koje koristi: A. Posetilac, nalog i jezik
+      Broj use case-ova:    3
+
+  Superadmin
+      Oblasti koje koristi: L. Superadmin: nalozi · A. prijava i jezik
+      Broj use case-ova:    6
+
+  Organizator
+      Oblasti koje koristi: A. Posetilac, nalog i jezik · B. Pregled · C. Gosti i pratioci ·
+                            D. Pozivnica i izgledi · E. Fotografije · F. Galerija i
+                            obaveštenja · G. Veliki album · H. Custom dizajn · I.
+                            Podešavanja
+      Broj use case-ova:    54
+
+  Gost sa ličnim linkom
+      Oblasti koje koristi: J. Gost: pozivnica i potvrda dolaska · K. Gost: slanje slika i
+                            galerija
+      Broj use case-ova:    13
+
+  Gost preko QR koda
+      Oblasti koje koristi: K. Gost: slanje slika i galerija
+      Broj use case-ova:    5
+
+  Oblast                                 Use case-ovi    Broj
+  ------------------------------------   -------------   ----
+  A. Posetilac, nalog i jezik            UC-01 – UC-10   10
+  B. Pregled                             UC-11 – UC-16   6
+  C. Gosti i pratioci                    UC-17 – UC-26   10
+  D. Pozivnica i izgledi                 UC-27 – UC-33   7
+  E. Fotografije                         UC-34 – UC-40   7
+  F. Galerija i obaveštenja              UC-41 – UC-45   5
+  G. Veliki album                        UC-46 – UC-51   6
+  H. Custom dizajn                       UC-52 – UC-53   2
+  I. Podešavanja                         UC-54 – UC-57   4
+  J. Gost: pozivnica i potvrda dolaska   UC-58 – UC-64   7
+  K. Gost: slanje slika i galerija       UC-65 – UC-70   6
+  L. Superadmin: nalozi                  UC-71 – UC-76   6
+  Ukupno                                                 76
+
+Organizator koristi skoro celu aplikaciju; gost sa ličnim linkom vidi pozivnicu, šalje slike
+i gleda galeriju, a gost preko QR koda samo šalje slike i gleda galeriju.
+
+
+############################################################################################
+A. POSETILAC, NALOG I JEZIK
+############################################################################################
+
+UC-01  Pregled početne strane
+-----------------------------
+
+  Akter:                Posetilac
+  Cilj:                 Da razume šta aplikacija nudi i odluči da li mu treba.
+  Glavni tok:
+                        1. Posetilac otvara početnu stranu (/).
+                        2. Vidi naslov „Album koji prave vaši gosti.“, kratak opis i primer
+                           pozivnice.
+                        3. Čita četiri mogućnosti: lična pozivnica za svakog gosta, slike
+                           skupljaju gosti, veliki album koji se pravi sam, custom dizajn.
+                        4. Bira jednu od akcija: Isprobaj demo, Pogledaj kao gost ili
+                           Prijava. Dugmeta za pravljenje naloga nema, jer naloge otvara
+                           superadmin.
+  Alternative i greške: Posetilac može prvo da promeni jezik (UC-10).
+  Rezultat:             Prelazi na prijavu (UC-05), demo (UC-02) ili primer pozivnice
+                        (UC-03).
+
+UC-02  Isprobavanje demo naloga
+-------------------------------
+
+  Akter:                Posetilac
+  Cilj:                 Da vidi aplikaciju iznutra bez pravljenja naloga.
+  Glavni tok:
+                        1. Bira „Isprobaj demo“.
+                        2. Na prijavi su već upisani demo@uspomena.rs / demo123. Dugmićima
+                           „Demo mladenci“, „Demo proslava“ i „Demo superadmin“ bira se koji
+                           demo nalog se upisuje (proslava: rodjendan@uspomena.rs / demo123;
+                           superadmin: admin@uspomena.rs / admin123).
+                        3. Klikće „Prijavi se“.
+                        4. Ulazi u aplikaciju sa demo venčanjem Ana i Marko (100 gostiju,
+                           108 slika, jedan zahtev za dizajn u izradi) ili sa demo
+                           proslavom: Luka, 18. rođendan, 5 gostiju, izgled Noć.
+  Alternative i greške: Ako su demo podaci ranije menjani u istom browseru, vide se ti
+                        izmenjeni podaci; mogu se vratiti na početak (UC-57).
+  Rezultat:             Posetilac radi sve što i organizator, nad demo podacima.
+
+UC-03  Pregled pozivnice kao gost
+---------------------------------
+
+  Akter:                Posetilac
+  Cilj:                 Da vidi šta gosti dobijaju.
+  Glavni tok:
+                        1. Bira „Pogledaj kao gost“.
+                        2. Otvara se demo pozivnica gosta „Jelena i Nikola“
+                           (/i/demo-jelena).
+                        3. Prolazi isti tok kao pravi gost (UC-58 – UC-64).
+  Rezultat:             Vidi kovertu, pozivnicu, potvrdu dolaska i deo za slike.
+
+UC-04  Dobijanje naloga
+-----------------------
+
+  Akter:                Organizator
+  Cilj:                 Da dobije nalog i venčanje (ili proslavu) u aplikaciji.
+  Preduslov:            Organizator (mladenci ili slavljenik) se javio timu Uspomene i rekao
+                        da li je u pitanju svadba ili proslava. Javne registracije nema.
+  Glavni tok:
+                        1. Superadmin pravi nalog za organizatora (UC-72).
+                        2. Organizator dobija poruku sa linkom za prijavu, emailom i
+                           lozinkom.
+                        3. Prijavljuje se (UC-05).
+  Alternative i greške: Ako izgubi lozinku, superadmin mu pravi novu (UC-74).
+  Rezultat:             Nalog i venčanje postoje sa adresom napravljenom od imena (npr.
+                        ana-i-marko), izgledom pozivnice Klasik i podrazumevanim
+                        podešavanjima: slike se ručno odobravaju, slanje preko QR koda je
+                        uključeno, galerija se otvara dan posle venčanja i vidi se preko QR
+                        linka.
+
+UC-05  Prijava
+--------------
+
+  Akter:                Organizator
+  Cilj:                 Da uđe u svoj nalog.
+  Glavni tok:
+                        1. Otvara „Prijava“ (/login), ili ga aplikacija tamo pošalje kad
+                           pokuša da otvori stranicu za organizatora bez prijave.
+                        2. Unosi email i lozinku i klikće „Prijavi se“.
+                        3. Sistem ga vraća na stranicu koju je pokušao da otvori, a ako
+                           takve nema, na pregled. Superadmin uvek ide na /admin.
+  Alternative i greške:
+                        - Pogrešan email ili lozinka → „Pogrešan email ili lozinka.“, ostaje
+                          na formi.
+                        - Nalog je deaktiviran (UC-75) → „Nalog je deaktiviran. Javite se
+                          administratoru.“
+                        - Organizator koji otvori /admin vraća se na /app; superadmin koji
+                          otvori /app šalje se na /admin.
+  Rezultat:             Korisnik je prijavljen.
+
+UC-06  Ostanak prijavljen
+-------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da ne mora da se prijavljuje svaki put.
+  Glavni tok:
+                        1. Posle prijave token ostaje sačuvan u browseru.
+                        2. Kad korisnik ponovo otvori sajt, aplikacija proverava token kod
+                           servera; za to vreme prikazuje učitavanje.
+                        3. Token je važeći → korisnik je odmah u aplikaciji.
+  Alternative i greške: Istekao ili nevažeći token se briše; korisnik koji otvara stranicu
+                        za organizatora šalje se na prijavu.
+  Rezultat:             Sesija je vraćena bez nove prijave.
+
+UC-07  Obavezan broj telefona
+-----------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da nalog ima broj na koji ga tim može kontaktirati.
+  Preduslov:            Prijavljeni nalog nema broj telefona (npr. nalog napravljen pre nego
+                        što je broj postao obavezan).
+  Glavni tok:
+                        1. Preko aplikacije se otvara prozor „Dodajte broj telefona“ koji ne
+                           može da se zatvori.
+                        2. Korisnik unosi broj i klikće „Sačuvaj broj“.
+                        3. Prozor se zatvara uz poruku „Broj telefona je sačuvan“.
+  Alternative i greške: Nevažeći broj → greška ispod polja. Korisnik može i da se odjavi.
+  Rezultat:             Nalog ima broj telefona.
+
+UC-08  Promena telefona
+-----------------------
+
+  Akter:                Organizator
+  Cilj:                 Da promeni broj za kontakt.
+  Glavni tok:
+                        1. Otvara Podešavanja → Nalog (do tamo vodi i „Promeni“ pored broja
+                           u zahtevima za dizajn).
+                        2. Menja broj; ispod polja piše kako će biti sačuvan (npr. „Biće
+                           sačuvan kao +381 64 123 4567“).
+                        3. Klikće „Sačuvaj broj“ (dugme je aktivno samo kada je broj
+                           promenjen).
+  Alternative i greške: Nevažeći broj → greška; broj ne može da se obriše.
+  Rezultat:             Novi broj važi za ceo nalog i upisuje se u svaki sledeći zahtev za
+                        dizajn. Email za prijavu se ne menja.
+
+UC-09  Odjava
+-------------
+
+  Akter:                Organizator
+  Cilj:                 Da izađe iz naloga.
+  Glavni tok:
+                        1. Klikće „Odjavi se“ u meniju.
+                        2. Token se briše iz browsera, a podaci o venčanju, gostima, slikama
+                           i zahtevima iz memorije.
+  Rezultat:             Korisnik je na prijavi.
+
+UC-10  Izbor jezika
+-------------------
+
+  Akter:                Svi
+  Cilj:                 Da koriste sajt na srpskom, engleskom ili ruskom.
+  Glavni tok:
+                        1. Bira SR, EN ili RU na prekidaču jezika (meni za organizatora,
+                           početna, prijava, koverta i pozivnica gosta, superadmin, slanje
+                           slika, galerija).
+                        2. Sav tekst interfejsa se odmah menja.
+  Alternative i greške: Podrazumevani jezik je srpski. Tekst koji je organizator sam upisao
+                        (uvodna rečenica, poruka, raspored) ostaje kako je upisan.
+  Rezultat:             Interfejs, datumi, oblici množine, naslov taba i poruke grešaka sa
+                        servera su na izabranom jeziku; izbor se pamti u browseru.
+
+
+############################################################################################
+B. PREGLED (DASHBOARD)
+############################################################################################
+
+Sve use case-ove u ovoj oblasti izvršava organizator, na stranici /app. Preduslov za sve:
+korisnik je prijavljen i venčanje je učitano.
+
+UC-11  Odbrojavanje i pozdrav
+-----------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da odmah vidi koliko je ostalo do venčanja.
+  Glavni tok:
+                        1. Otvara pregled.
+                        2. Vidi „Do venčanja još N dana“ i pozdrav sa imenima („Zdravo, Ana
+                           i Marko“).
+                        3. Ima prečice „Uredi pozivnicu“ i „Dodaj goste“.
+  Alternative i greške:
+                        - Posle venčanja umesto odbrojavanja piše „Venčanje je prošlo –
+                          vreme je za album“.
+                        - Kod proslave: „Do proslave još N dana“, „Zdravo, Luka“ i „Proslava
+                          je prošla – vreme je za album“.
+  Rezultat:             Organizator zna gde je u pripremi.
+
+UC-12  Statistika
+-----------------
+
+  Akter:                Organizator
+  Cilj:                 Da na jednom mestu vidi brojke o gostima i slikama.
+  Glavni tok:           Četiri kartice na vrhu prikazuju:
+                        1. Pozvano osoba (zbir najvećeg broja osoba po pozivnici) i broj
+                           pozivnica.
+                        2. Koliko osoba dolazi i koliko pozivnica je odbijeno.
+                        3. Koliko odgovora se čeka i koliko gostiju je otvorilo pozivnicu.
+                        4. Ukupno fotografija i koliko čeka odobrenje.
+  Rezultat:             Brojke se menjaju čim se promene gosti ili slike.
+
+UC-13  Odgovori gostiju
+-----------------------
+
+  Akter:                Organizator
+  Cilj:                 Da prati ko je odgovorio.
+  Glavni tok:
+                        1. Sekcija „Odgovori gostiju“ prikazuje „X od Y (Z%)“ i traku
+                           napretka.
+                        2. Ispod je 5 poslednjih odgovora: ime, vreme odgovora, napomena,
+                           broj osoba i status.
+                        3. „Svi gosti“ vodi na stranicu Gosti.
+  Alternative i greške: Bez odgovora → „Još nema odgovora.“
+  Rezultat:             Organizator vidi najnovije odgovore bez pretrage.
+
+UC-14  Brzo odobravanje slika
+-----------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da obradi nove slike bez odlaska na Fotografije.
+  Glavni tok:
+                        1. Sekcija „Nove fotografije“ prikazuje do 4 slike na čekanju, sa
+                           imenom pošiljaoca.
+                        2. Kod svake bira „Odobri“ ili „Sakrij“.
+                        3. Status se menja odmah, pre odgovora servera.
+  Alternative i greške: Ako server odbije promenu, status se vraća i prikazuje se greška.
+                        Bez slika na čekanju → „Sve je pregledano“.
+  Rezultat:             Odobrena slika ulazi u veliki album i galeriju; sakrivena se ne
+                        prikazuje gostima.
+
+UC-15  QR kod za stolove
+------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da gosti na proslavi šalju slike jednim skeniranjem.
+  Glavni tok:
+                        1. Kartica „QR za stolove“ prikazuje QR kod za opšti link venčanja
+                           (/w/<adresa>/upload) i sam link.
+                        2. „Preuzmi PNG“ preuzima sliku QR koda (qr-<adresa>.png) za štampu.
+                        3. „Kopiraj“ kopira link.
+  Alternative i greške: Ako je slanje preko QR koda isključeno (UC-56), link vodi na poruku
+                        da je slanje isključeno.
+  Rezultat:             QR spreman za štampu. Stranicu za QR upload organizator može da
+                        otvori i iz menija.
+
+UC-16  Stanje slika za goste
+----------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da zna da li su gosti obavešteni o slikama.
+  Glavni tok:
+                        1. Kartica „Slike za goste“ prikazuje oznaku „Galerija otvorena“ ili
+                           „Galerija zatvorena“.
+                        2. Prikazuje koliko adresa čeka mejl (od toga koliko preko QR koda),
+                           koliko je već obavešteno i koliko gostiju nema email.
+                        3. Dugmad vode na obaveštenje mejlom (UC-43) i na WhatsApp / Viber
+                           (UC-44).
+  Alternative i greške: Dok je galerija zatvorena, ispod piše da se obaveštenje šalje kad se
+                        galerija otvori, sa linkom na podešavanja.
+  Rezultat:             Organizator zna kome još treba javiti.
+
+
+############################################################################################
+C. GOSTI I PRATIOCI
+############################################################################################
+
+Sve use case-ove u ovoj oblasti izvršava organizator, na stranici Gosti.
+
+UC-17  Dodavanje gosta
+----------------------
+
+  Akter:                Organizator
+  Cilj:                 Da gost dobije svoju pozivnicu.
+  Glavni tok:
+                        1. Klikće „Novi gost“.
+                        2. Unosi ime kako piše na pozivnici (npr. „Jelena Nikolić“ ili
+                           „Porodica Petrović“), po želji telefon i email.
+                        3. Bira stranu: mladina, mladoženjina ili zajednički (podrazumevano
+                           zajednički). Kod proslave iste tri opcije se zovu Porodica,
+                           Prijatelji i Ostali.
+                        4. Podešava pratioce (UC-18); podrazumevano je „Bez pratioca“.
+                        5. Klikće „Sačuvaj“.
+  Alternative i greške: Bez imena → „Ime je obavezno.“
+  Rezultat:             Gost je u tabeli sa statusom „Čeka odgovor“ i ima svoj lični link
+                        (poruka „Gost je dodat, lični link je spreman“).
+
+UC-18  Podešavanje pratilaca
+----------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da odredi da li i koga gost sme da povede.
+  Glavni tok:           U prozoru gosta, u delu „Pratioci“, bira jednu od tri opcije:
+                        1. Bez pratioca: dolazi samo gost.
+                        2. + pratioci bez imena: upisuje najveći broj pratilaca (1–19); gost
+                           sam bira koga vodi i može da upiše njihova imena.
+                        3. Tačno navedene osobe: upisuje imena („Dodaj pratioca“ dodaje novo
+                           polje, kanta ga uklanja); gost samo potvrđuje ko od njih dolazi.
+  Alternative i greške: Navedene osobe bez ijednog imena → „Upišite bar jedno ime
+                        pratioca.“; broj van 1–19 → „Broj pratilaca mora biti između 1 i
+                        19.“
+  Rezultat:             Najveći broj osoba za gosta = 1 + broj pratilaca. Ako gost već ima
+                        odgovor, primenjuje se SYS-5.
+
+UC-19  Uvoz spiska
+------------------
+
+  Akter:                Organizator
+  Cilj:                 Da doda mnogo gostiju odjednom.
+  Glavni tok:
+                        1. Klikće „Uvezi spisak“.
+                        2. Nalepi redove u obliku Ime; broj osoba; telefon (deliti se može i
+                           zarezom ili tabom, pa rade i kolone iz Excela).
+                        3. Dugme pokazuje koliko će gostiju biti uvezeno; klikće „Uvezi
+                           (N)“.
+  Alternative i greške: Prazni redovi se preskaču. Broj osoba i telefon nisu obavezni (bez
+                        broja = 1 osoba).
+  Rezultat:             Svi gosti su dodati (poruka „Dodato gostiju: N“). Broj osoba veći od
+                        1 postaje „pratioci bez imena“ (npr. 4 osobe = gost + do 3
+                        pratioca).
+
+UC-20  Pretraga i filteri
+-------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da brzo nađe gosta u dugom spisku.
+  Glavni tok:
+                        1. Kuca deo imena u pretragu.
+                        2. Bira stranu (sve, mladina, mladoženjina, zajednički).
+                        3. Bira filter po odgovoru: Svi, Dolaze, Čekamo, Ne dolaze (uz broj
+                           gostiju u svakom).
+                        4. Lista stranice i bira koliko gostiju po strani (10, 25, 50, 100).
+  Alternative i greške: Promena pretrage ili filtera vraća na prvu stranu. Nema rezultata →
+                        „Nema gostiju za ovaj filter“.
+  Rezultat:             Prikazani su samo traženi gosti; broj gostiju po strani se pamti.
+
+UC-21  Praćenje stanja gosta
+----------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da za svakog gosta vidi gde je.
+  Glavni tok:           Tabela prikazuje za svakog gosta:
+                        1. Ime i napomenu iz odgovora.
+                        2. Stranu.
+                        3. Odgovor (Dolazi, Čeka odgovor, Ne dolazi).
+                        4. Koliko osoba dolazi od najviše dozvoljenih, i pratioce („sa: …“
+                           ko dolazi, ili „pozvani: …“ za navedene osobe).
+                        5. Da li je pozivnica otvorena.
+                        6. Obaveštenje o slikama: „–“ (nema email), „Čeka“ (ostavio email)
+                           ili „Poslato <datum>“.
+  Rezultat:             Organizator zna koga treba podsetiti.
+
+UC-22  Slanje ličnog linka
+--------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da gost dobije svoju pozivnicu.
+  Glavni tok:           Kod gosta bira jedno od:
+                        1. „Link“: kopira lični link.
+                        2. WhatsApp: otvara WhatsApp sa gotovom porukom („Dragi …, sa
+                           radošću vas pozivamo na naše venčanje! Vaša pozivnica: …“). Kod
+                           proslave: „…sa radošću vas pozivam na proslavu!“, potpisano
+                           imenom slavljenika.
+                        3. Ikona veze: otvara pozivnicu tog gosta u novom tabu, da vidi šta
+                           gost vidi.
+  Rezultat:             Gost dobija link; aplikacija ne šalje poruke sama.
+
+UC-23  Ručni unos odgovora
+--------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da zabeleži odgovor gosta koji se javio telefonom ili uživo.
+  Preduslov:            Gost postoji.
+  Glavni tok:
+                        1. Otvara izmenu gosta.
+                        2. U delu „Odgovor (ako se gost javio telefonom)“ bira status: Čeka
+                           odgovor, Dolazi ili Ne dolazi.
+                        3. Kod „Dolazi“: za navedene osobe štiklira ko dolazi, a za pratioce
+                           bez imena upisuje broj osoba sa gostom.
+                        4. Klikće „Sačuvaj“.
+  Alternative i greške: Vraćanje na „Čeka odgovor“ briše vreme odgovora.
+  Rezultat:             Odgovor je upisan kao da ga je gost dao.
+
+UC-24  Izmena gosta
+-------------------
+
+  Akter:                Organizator
+  Cilj:                 Da ispravi podatke o gostu.
+  Glavni tok:
+                        1. Klikće ikonu za izmenu.
+                        2. Menja ime, telefon, email, stranu ili pratioce.
+                        3. Klikće „Sačuvaj“ (poruka „Gost je sačuvan“).
+  Alternative i greške: Iste greške kao u UC-17 i UC-18. Ako se promene pratioci a gost je
+                        već odgovorio, važi SYS-5.
+  Rezultat:             Podaci su sačuvani; lični link ostaje isti.
+
+UC-25  Brisanje gosta
+---------------------
+
+  Akter:                Organizator
+  Cilj:                 Da ukloni gosta sa spiska.
+  Glavni tok:
+                        1. Klikće ikonu za brisanje.
+                        2. Potvrđuje u prozoru koji upozorava da link prestaje da radi.
+  Rezultat:             Gost je obrisan i njegov lični link vodi na „Pozivnica nije
+                        pronađena“. Slike koje je poslao ostaju.
+
+UC-26  CSV izvoz
+----------------
+
+  Akter:                Organizator
+  Cilj:                 Da spisak ima u Excelu ili ga pošalje nekome.
+  Glavni tok:
+                        1. Klikće „CSV“.
+                        2. Preuzima se fajl sa svim gostima.
+  Rezultat:             Fajl sadrži ime, stranu, vrstu pratilaca, pozvane pratioce, najviše
+                        osoba, odgovor, broj osoba, pratioce koji dolaze, napomenu, telefon,
+                        email, email za slike, datum obaveštenja i lični link. Nazivi kolona
+                        su na izabranom jeziku, a fajl se ispravno otvara u Excelu sa našim
+                        slovima.
+
+
+############################################################################################
+D. POZIVNICA I IZGLEDI
+############################################################################################
+
+Sve use case-ove u ovoj oblasti izvršava organizator, na stranici Pozivnica. Jedna pozivnica
+važi za sve goste, a svaki gost vidi svoje ime. Izmene se ne vide gostima dok se ne sačuvaju
+(UC-32).
+
+UC-27  Izbor izgleda
+--------------------
+
+  Akter:                Organizator
+  Cilj:                 Da pozivnica izgleda kako želi.
+  Glavni tok:
+                        1. U delu „Izgled“ vidi 11 kartica sa umanjenim pregledom svoje
+                           pozivnice: Klasik, Minimal, Botanika, Romantika, Editorijal, Noć,
+                           Rustik, Akvarel, Zlatna geometrija, Boho, Bordo. Novi izgledi
+                           imaju oznaku „NOVO“.
+                        2. Klikom bira izgled.
+  Alternative i greške:
+                        - Ako trenutna akcentna boja nije u paleti novog izgleda, uzima se
+                          prva boja iz te palete.
+                        - Kod proslave svaki izgled prikazuje samo ime slavljenika, bez „&“,
+                          a ispod imena naziv proslave.
+  Rezultat:             Pregled odmah prikazuje izabrani izgled.
+
+UC-28  Akcentna boja
+--------------------
+
+  Akter:                Organizator
+  Cilj:                 Da pozivnica bude u njegovim bojama.
+  Glavni tok:
+                        1. Bira jednu od ponuđenih boja izgleda, ili
+                        2. bira „Svoja boja“ i bilo koju boju.
+  Alternative i greške: Neki izgledi (npr. Noć) imaju sopstvenu paletu i tada izbor boje ne
+                        postoji.
+  Rezultat:             Pozivnica i koverta gosta su u izabranoj boji.
+
+UC-29  Tekst i datumi
+---------------------
+
+  Akter:                Organizator
+  Cilj:                 Da upiše sadržaj pozivnice.
+  Glavni tok:           U delu „Tekst i datum“ menja:
+                        1. ime mlade i mladoženje (kod proslave: ime slavljenika i naziv
+                           proslave),
+                        2. datum venčanja (kod proslave: datum proslave),
+                        3. rok za odgovor („Odgovor do“),
+                        4. uvodnu rečenicu,
+                        5. poruku gostima.
+  Rezultat:             Promene se odmah vide u pregledu. Datum venčanja utiče i na
+                        odbrojavanje i na otvaranje galerije „dan posle venčanja“.
+
+UC-30  Raspored dana
+--------------------
+
+  Akter:                Organizator
+  Cilj:                 Da gosti znaju gde i kada da dođu.
+  Glavni tok:
+                        1. „Dodaj“ dodaje novu stavku.
+                        2. Za svaku stavku upisuje vreme, naziv (npr. „Svečana večera“),
+                           mesto i, po želji, link za mapu.
+                        3. Kanta briše stavku.
+  Alternative i greške: Bez linka za mapu, dugme „Otvori mapu“ kod gosta traži mesto po
+                        nazivu na Google mapama.
+  Rezultat:             Gosti vide program dana sa mapom za svako mesto; prva stavka se
+                        koristi za događaj u kalendaru.
+
+UC-31  Pregled uživo
+--------------------
+
+  Akter:                Organizator
+  Cilj:                 Da vidi tačno ono što gost vidi.
+  Glavni tok:
+                        1. Desno je pregled pozivnice u okviru telefona, sa imenom prvog
+                           gosta sa spiska.
+                        2. Svaka izmena se odmah vidi u pregledu.
+                        3. „Otvori kao gost“ otvara pravu pozivnicu tog gosta u novom tabu.
+  Alternative i greške: „Otvori kao gost“ prikazuje sačuvanu pozivnicu, ne nesačuvane
+                        izmene.
+  Rezultat:             Organizator proverava izgled pre čuvanja.
+
+UC-32  Čuvanje izmena
+---------------------
+
+  Akter:                Organizator
+  Cilj:                 Da izmene postanu vidljive gostima.
+  Glavni tok:
+                        1. Dok ima nesačuvanih izmena, dugme glasi „Sačuvaj izmene“.
+                        2. Klikom se čuva (poruka „Pozivnica je sačuvana“), a dugme prelazi
+                           u „Sačuvano“.
+  Alternative i greške: „Poništi“ vraća poslednju sačuvanu verziju. Oba dugmeta su neaktivna
+                        dok nema izmena.
+  Rezultat:             Svi gosti vide novu pozivnicu.
+
+UC-33  Zahtev za custom pozivnicu
+---------------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da dobije pozivnicu koju dizajner pravi samo za njega.
+  Preduslov:            Nalog ima broj telefona.
+  Glavni tok:
+                        1. Klikće karticu „Samo vaša / Custom dizajn“ na kraju liste
+                           izgleda.
+                        2. Bira izglede koji mu se sviđaju (opciono, više njih), stil,
+                           okvirni budžet, rok i boje (opciono).
+                        3. Opisuje kakvu pozivnicu želi.
+                        4. Klikće „Pošalji zahtev“.
+  Alternative i greške: Bez opisa → „Opišite kakvu pozivnicu želite.“
+  Rezultat:             Zahtev je poslat (izabrani izgledi, boje i rok se dodaju u opis).
+                        Prozor potvrđuje da se dizajner javlja u roku od 48 sati i na koji
+                        broj. U editoru se vidi „Vaš zahtev za custom pozivnicu: <status>“
+                        sa linkom „Detalji“.
+
+
+############################################################################################
+E. FOTOGRAFIJE
+############################################################################################
+
+Sve use case-ove u ovoj oblasti izvršava organizator, na stranici Fotografije.
+
+UC-34  Pregled slika
+--------------------
+
+  Akter:                Organizator
+  Cilj:                 Da vidi sve što su gosti poslali.
+  Glavni tok:
+                        1. Otvara Fotografije; podrazumevano se vide slike na čekanju.
+                        2. Svaka kartica ima sliku, oznaku statusa, ime pošiljaoca,
+                           kategoriju, vreme i poruku.
+                        3. Lista stranice (10, 20, 50 ili 100 po strani).
+                        4. „Osveži“ ponovo učitava slike.
+  Alternative i greške: Bez slika → objašnjenje da će se slike pojaviti kad ih gosti
+                        pošalju.
+  Rezultat:             Organizator ima pregled svih slika.
+
+UC-35  Filtriranje
+------------------
+
+  Akter:                Organizator
+  Cilj:                 Da brže pregleda slike.
+  Glavni tok:
+                        1. Bira status: Na čekanju, Odobrene, Sakrivene ili Sve (uz broj
+                           slika).
+                        2. Bira kategoriju: sve, sa venčanja ili zajedničke uspomene.
+  Rezultat:             Prikazane su samo tražene slike; promena statusa poništava izbor
+                        slika.
+
+UC-36  Odobravanje ili sakrivanje jedne slike
+---------------------------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da odluči šta ulazi u album.
+  Glavni tok:
+                        1. Kod slike klikće „Odobri“ ili „Sakrij“.
+                        2. Status se menja odmah.
+  Alternative i greške: Ako server odbije, status se vraća i prikazuje se greška.
+  Rezultat:             Odobrena slika je u velikom albumu i galeriji gostiju; sakrivena
+                        nije nigde kod gostiju.
+
+UC-37  Grupno odobravanje ili sakrivanje
+----------------------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da obradi mnogo slika odjednom.
+  Glavni tok:
+                        1. Štiklira slike, ili „Izaberi sve (N)“ za sve prikazane.
+                        2. Klikće „Odobri“ ili „Sakrij“ u traci iznad slika.
+  Rezultat:             Sve izabrane slike su promenjene (poruka „Odobreno: N“ ili
+                        „Sakriveno: N“), izbor se poništava.
+
+UC-38  Uvećan prikaz
+--------------------
+
+  Akter:                Organizator
+  Cilj:                 Da pogleda sliku u punoj veličini.
+  Glavni tok:
+                        1. Klikće sliku.
+                        2. Slika se otvara preko celog ekrana, sa imenom pošiljaoca, porukom
+                           i rednim brojem.
+                        3. Lista strelicama na ekranu ili na tastaturi; Esc ili klik pored
+                           slike zatvara prikaz.
+  Rezultat:             Slika je pregledana bez napuštanja stranice.
+
+UC-39  Brisanje slike
+---------------------
+
+  Akter:                Organizator
+  Cilj:                 Da trajno ukloni neodgovarajuću sliku.
+  Glavni tok:
+                        1. Klikće kantu kod slike.
+                        2. Potvrđuje brisanje.
+  Alternative i greške: Za sliku koja samo ne treba da se vidi bolje je „Sakrij“, jer
+                        brisanje ne može da se vrati.
+  Rezultat:             Slika je trajno obrisana i uklonjena iz albuma (poruka „Fotografija
+                        je obrisana“).
+
+UC-40  Broj slika na čekanju
+----------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da zna kad ima novih slika.
+  Glavni tok:           Pored „Fotografije“ u meniju stoji broj slika na čekanju.
+  Alternative i greške: Kad nema slika na čekanju, broja nema.
+  Rezultat:             Organizator vidi da ima posla sa bilo koje stranice.
+
+
+############################################################################################
+F. GALERIJA I OBAVEŠTENJA GOSTIMA
+############################################################################################
+
+Sve use case-ove u ovoj oblasti izvršava organizator. Organizator odlučuje kada gosti vide
+slike i kada im se javlja.
+
+UC-41  Kada se galerija otvara
+------------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da odluči od kada gosti vide odobrene slike.
+  Glavni tok:
+                        1. Otvara Podešavanja → Galerija za goste.
+                        2. Bira jednu od opcija:
+                           - Odmah: gosti vide odobrene slike čim se odobre.
+                           - Dan posle venčanja: galerija se otvara sama (pored opcije piše
+                             tačan datum).
+                           - Ručno: pojavljuje se prekidač „Galerija je otvorena za goste“
+                             koji uključuje kad hoće.
+                        3. Klikće „Sačuvaj“.
+  Rezultat:             Ispod opcija piše da li je galerija trenutno otvorena ili zatvorena.
+                        Gosti dobijaju galeriju ili poruku kada se otvara (UC-68, UC-69).
+
+UC-42  Galerija preko QR linka
+------------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da odluči da li galeriju vide samo pozvani gosti.
+  Glavni tok:
+                        1. U Podešavanjima uključuje ili isključuje „Galerija se vidi i
+                           preko QR linka“.
+                        2. Klikće „Sačuvaj“.
+  Alternative i greške: QR link može da se prosledi bilo kome, pa je isključivanje
+                        sigurnije.
+  Rezultat:             Uključeno: galeriju vidi svako sa QR linkom. Isključeno: samo gosti
+                        sa ličnim linkom; preko QR linka galerija i prijava za obaveštenje
+                        vraćaju poruku da je galerija dostupna samo preko ličnih linkova.
+
+UC-43  Obaveštenje mejlom
+-------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da javi gostima da su slike spremne, kada on to odluči.
+  Preduslov:            Galerija je otvorena za goste.
+  Glavni tok:
+                        1. Na pregledu klikće „Obavesti goste da su slike spremne“.
+                        2. Prozor prikazuje tri broja: koliko adresa dobija mejl (gosti +
+                           adrese ostavljene preko QR koda), koliko je već obavešteno i
+                           koliko gostiju nema email.
+                        3. Prikazuje i pregled mejla: primalac, naslov, tekst sa imenom
+                           gosta, dugme „Pogledaj galeriju“ i lični link. Kod proslave
+                           naslov glasi „Luka: slike sa proslave su spremne“, a mejl
+                           potpisuje slavljenik.
+                        4. Klikće „Pošalji (N)“.
+  Alternative i greške:
+                        - Galerija zatvorena → upozorenje sa linkom na podešavanja, dugme je
+                          neaktivno.
+                        - Niko ne čeka mejl → dugme „Nema kome da se pošalje“.
+                        - Ako je galerija isključena preko QR linka, adrese ostavljene preko
+                          QR koda ne dobijaju mejl i prozor to kaže.
+  Rezultat:             Svim primaocima se beleži da je obaveštenje poslato, sa datumom
+                        (poruka „Obaveštenje je poslato na N adresa“). Svaki gost dobija
+                        svoj lični link ka galeriji.
+
+UC-44  Slanje preko WhatsApp-a ili Vibera
+-----------------------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da javi i gostima koji nisu ostavili email.
+  Glavni tok:
+                        1. Na pregledu klikće „WhatsApp / Viber“.
+                        2. Vidi spisak gostiju bez emaila; podrazumevano samo oni koji
+                           dolaze, uz pretragu po imenu.
+                        3. Kod svakog gosta bira: WhatsApp (otvara razgovor sa porukom, na
+                           broj gosta ako ga ima), Viber (otvara izbor kontakta sa porukom)
+                           ili Kopiraj.
+  Alternative i greške: Ako je galerija zatvorena, prozor upozorava pre slanja.
+  Rezultat:             Gost dobija poruku sa svojim ličnim linkom ka galeriji. Ova slanja
+                        se ne beleže kao „poslato“.
+
+UC-45  Praćenje obaveštenja
+---------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da niko ne dobije mejl dvaput i da zna kome treba javiti.
+  Glavni tok:
+                        1. U tabeli gostiju kolona „Slike“ pokazuje: „–“, „Čeka“ (email
+                           ostavljen, mejl nije poslat) ili „Poslato <datum>“; prelaz mišem
+                           preko pokazuje adresu.
+                        2. CSV izvoz sadrži email za slike i datum slanja.
+  Rezultat:             Organizator vidi stanje za svakog gosta; slanje uvek ide samo onima
+                        sa „Čeka“ (SYS-4).
+
+
+############################################################################################
+G. VELIKI ALBUM
+############################################################################################
+
+Sve use case-ove u ovoj oblasti izvršava organizator, na stranici Veliki album.
+
+UC-46  Tabla polaroida
+----------------------
+
+  Akter:                Organizator
+  Cilj:                 Da vidi sve odobrene slike kao jedan album.
+  Glavni tok:
+                        1. Otvara Veliki album.
+                        2. Na vrhu je ceduljica sa imenima (kod proslave samo ime
+                           slavljenika), datumom i „N uspomena od M dragih ljudi“.
+                        3. Ispod su sve odobrene slike kao polaroidi sa imenom gosta (i
+                           porukom, ako je uključena), poređane od najstarije.
+  Alternative i greške: Bez odobrenih slika → poruka da će se pojaviti čim se slike odobre.
+  Rezultat:             Tabla se sama dopunjuje svakom novom odobrenom slikom.
+
+UC-47  Izbor prikaza
+--------------------
+
+  Akter:                Organizator
+  Cilj:                 Da album gleda na način koji mu odgovara.
+  Glavni tok:           Bira jedan od tri prikaza:
+                        1. Zid: polaroidi raspoređeni kao na oglasnoj tabli, po 60, uz
+                           „Prikaži još“.
+                        2. Po gostima: gomilica slika za svakog gosta, sa brojem slika; klik
+                           otvara sve slike tog gosta.
+                        3. Prezentacija: jedna po jedna slika (UC-49).
+  Rezultat:             Isti album, tri načina gledanja; klik na polaroid otvara uvećan
+                        prikaz.
+
+UC-48  Podešavanje izgleda
+--------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da album izgleda kako želi.
+  Glavni tok:           Podešava:
+                        1. koje slike: sve, pre venčanja ili venčanje,
+                        2. pozadinu: lan, pluta, drvo ili noć,
+                        3. veličinu polaroida: S, M ili L (ne važi za prezentaciju),
+                        4. da li se vide poruke gostiju.
+  Rezultat:             Izgled se odmah menja i pamti u browseru.
+
+UC-49  Prikaz na ekranu
+-----------------------
+
+  Akter:                Organizator
+  Cilj:                 Da album pusti na TV-u ili projektoru na svadbi.
+  Glavni tok:
+                        1. Klikće „Prikaži na ekranu“; tabla prelazi preko celog ekrana.
+                        2. U prezentaciji slike se smenjuju same; bira brzinu (Brzo,
+                           Normalno, Sporo), pauzira ili lista strelicama.
+                        3. „Zatvori“ ili Esc vraća normalan prikaz.
+  Alternative i greške: Dugme je neaktivno dok nema slika.
+  Rezultat:             Album se prikazuje gostima uživo; nove odobrene slike ulaze u
+                        prikaz.
+
+UC-50  Zahtev za štampu
+-----------------------
+
+  Akter:                Organizator
+  Cilj:                 Da tim napravi veliki album za zid.
+  Preduslov:            Postoji bar jedna odobrena slika; nalog ima broj telefona.
+  Glavni tok:
+                        1. Klikće „Uradite ovo za nas“.
+                        2. Bira proizvod: poster (mat papir), platno (na drvenom ramu) ili
+                           fajl za štampu (PDF).
+                        3. Bira veličinu (npr. 70 × 100 cm), okvirni budžet, rok (opciono) i
+                           piše napomenu (opciono).
+                        4. Vidi šta se šalje: trenutni izbor slika, broj slika, pozadina i
+                           da li su poruke uključene.
+                        5. Klikće „Pošalji zahtev“.
+  Rezultat:             Zahtev je poslat; tim slaže album i javlja se sa predlogom i cenom,
+                        a plaća se tek posle potvrde. Slike poslate u međuvremenu takođe
+                        ulaze u album. Zahtev se prati u Custom dizajnu (UC-53).
+
+UC-51  Upozorenja
+-----------------
+
+  Akter:                Organizator
+  Cilj:                 Da ne propusti slike na čekanju i stanje zahteva.
+  Glavni tok:
+                        1. Ako ima slika na čekanju, iznad table piše koliko ih čeka
+                           odobrenje, sa dugmetom „Pregledaj“.
+                        2. Ako postoji aktivan zahtev za veliki album, piše njegov status,
+                           sa linkom „Detalji“.
+  Rezultat:             Organizator zna šta još nije u albumu.
+
+
+############################################################################################
+H. CUSTOM DIZAJN
+############################################################################################
+
+Oba use case-a izvršava organizator, na stranici Custom dizajn.
+
+UC-52  Novi zahtev
+------------------
+
+  Akter:                Organizator
+  Cilj:                 Da naruči pozivnicu ili veliki album po meri.
+  Preduslov:            Nalog ima broj telefona.
+  Glavni tok:
+                        1. Bira šta želi: Pozivnica ili Veliki album.
+                        2. Bira stil (romantičan, moderan, boho, editorial, ilustracije) i
+                           okvirni budžet.
+                        3. Opisuje šta mu je važno.
+                        4. Proverava broj za kontakt i klikće „Pošalji zahtev“.
+  Alternative i greške: Bez opisa → „Opišite šta želite.“; nalog bez telefona → server
+                        odbija zahtev.
+  Rezultat:             Zahtev je na vrhu liste sa statusom „Primljen“; dizajner se javlja u
+                        roku od 48 sati.
+
+UC-53  Praćenje zahteva
+-----------------------
+
+  Akter:                Organizator
+  Cilj:                 Da zna dokle je stigao njegov zahtev.
+  Glavni tok:           Za svaki zahtev (najnoviji prvi) vidi:
+                        1. vrstu i stil,
+                        2. opis,
+                        3. korake Primljen → U izradi → Čeka vašu potvrdu → Završen, sa
+                           označenim trenutnim korakom,
+                        4. napomenu dizajnera, ako postoji,
+                        5. datum slanja, budžet i broj za kontakt.
+  Alternative i greške: Bez zahteva → „Još niste poslali nijedan zahtev.“
+  Rezultat:             Organizator prati zahtev; status menja tim (van aplikacije).
+
+
+############################################################################################
+I. PODEŠAVANJA
+############################################################################################
+
+Sve use case-ove u ovoj oblasti izvršava organizator, na stranici Podešavanja. Telefon
+(UC-08) i galerija (UC-41, UC-42) su opisani u svojim oblastima.
+
+UC-54  Adresa i grad
+--------------------
+
+  Akter:                Organizator
+  Cilj:                 Da QR link ima lepu adresu.
+  Glavni tok:
+                        1. Menja adresu venčanja (kod proslave: adresu proslave); ispod
+                           polja se vidi kako izgleda QR link.
+                        2. Menja grad.
+                        3. Klikće „Sačuvaj“.
+  Alternative i greške:
+                        - Adresa sme da ima samo mala slova, brojeve i crtice, 3–40 znakova;
+                          inače greška.
+                        - Promena adrese menja QR link i link galerije preko QR koda: već
+                          odštampani QR kodovi prestaju da rade.
+  Rezultat:             Nova adresa važi za QR link (poruka „Podešavanja su sačuvana“).
+
+UC-55  Automatsko odobravanje slika
+-----------------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da ne mora da pregleda svaku sliku.
+  Glavni tok:
+                        1. Uključuje „Automatski odobri nove fotografije“.
+                        2. Klikće „Sačuvaj“.
+  Rezultat:             Nove slike odmah ulaze u veliki album i galeriju (SYS-2). Slike
+                        poslate ranije ostaju u statusu koji imaju.
+
+UC-56  Slanje slika preko QR koda
+---------------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da odluči da li slike mogu da šalju i ljudi bez ličnog linka.
+  Glavni tok:
+                        1. Uključuje ili isključuje „Dozvoli slanje preko QR koda“.
+                        2. Klikće „Sačuvaj“.
+  Rezultat:             Isključeno: QR link prikazuje „Slanje je isključeno“. Gosti sa
+                        ličnim linkom mogu da šalju slike uvek.
+
+UC-57  Reset demo podataka
+--------------------------
+
+  Akter:                Organizator
+  Cilj:                 Da demo vrati na početno stanje.
+  Preduslov:            Aplikacija radi u demo režimu (bez pravog backenda).
+  Glavni tok:
+                        1. U delu „Demo režim“ klikće „Vrati demo podatke na početak“.
+                        2. Potvrđuje.
+  Rezultat:             Gosti, slike, album i zahtevi su vraćeni na početne demo podatke;
+                        korisnik ostaje prijavljen.
+
+
+############################################################################################
+J. GOST: POZIVNICA I POTVRDA DOLASKA
+############################################################################################
+
+Sve use case-ove u ovoj oblasti izvršava gost sa ličnim linkom (/i/:token), bez prijave i
+bez aplikacije.
+
+UC-58  Otvaranje lične pozivnice
+--------------------------------
+
+  Akter:                Gost sa ličnim linkom
+  Cilj:                 Da otvori pozivnicu koja mu je poslata.
+  Glavni tok:
+                        1. Otvara lični link.
+                        2. Vidi kovertu u boji pozivnice, sa inicijalima para i tekstom
+                           „<ime gosta>, imate poziv“. Kod proslave na koverti je samo
+                           inicijal slavljenika i tekst „Luka vam šalje pozivnicu za
+                           proslavu“.
+                        3. Klikće „Otvori pozivnicu“; koverta se otvara.
+  Alternative i greške: Nevažeći ili obrisan link → „Pozivnica nije pronađena“. Jezik može
+                        da promeni na koverti (UC-10).
+  Rezultat:             Gost vidi pozivnicu; organizator vidi da je pozivnica otvorena
+                        (beleži se prvi put).
+
+UC-59  Detalji venčanja ili proslave
+------------------------------------
+
+  Akter:                Gost sa ličnim linkom
+  Cilj:                 Da sazna kada i gde je venčanje.
+  Glavni tok:           Na pozivnici (raspored zavisi od izgleda) gost vidi:
+                        1. obraćanje sa svojim imenom i uvodnu rečenicu,
+                        2. imena para, dan i datum venčanja i odbrojavanje (kod proslave:
+                           ime slavljenika i naziv proslave),
+                        3. poruku organizatora,
+                        4. raspored dana; „Otvori mapu“ kod svakog mesta,
+                        5. „Dodaj u kalendar“, koje preuzima događaj (.ics) sa vremenom i
+                           mestom prve stavke rasporeda.
+  Rezultat:             Gost ima sve informacije i podsetnik u kalendaru.
+
+UC-60  Potvrda dolaska
+----------------------
+
+  Akter:                Gost sa ličnim linkom
+  Cilj:                 Da javi da li dolazi i sa kim.
+  Glavni tok:
+                        1. U delu „Potvrdite dolazak“ (sa rokom za odgovor, ako postoji)
+                           bira „Dolazim“ ili „Ne mogu“.
+                        2. Kod „Dolazim“, zavisno od toga šta je organizator odredio
+                           (UC-18):
+                           - bez pratioca: nema dodatnih pitanja;
+                           - pratioci bez imena: bira broj osoba (podrazumevano puno: gost +
+                             svi dozvoljeni pratioci) i po želji upisuje imena pratilaca;
+                           - navedene osobe: štiklira koji od navedenih dolaze, a ukupno se
+                             vidi ispod.
+                        3. Po želji upisuje napomenu (ishrana, alergije, pesma za žurku…).
+                        4. Klikće „Potvrdi“.
+  Alternative i greške:
+                        - Bez izbora dolaska → „Izaberite da li dolazite.“
+                        - Ništa se ne beleži dok gost ne klikne „Potvrdi“.
+                        - Server odbija broj osoba van dozvoljenog ili pratioca koji nije na
+                          spisku.
+  Rezultat:             Odgovor je upisan i vidi se organizatoru odmah. Sledi pitanje za
+                        email (UC-61), osim ako ga je gost već ostavio.
+
+UC-61  Email za obaveštenje posle potvrde
+-----------------------------------------
+
+  Akter:                Gost sa ličnim linkom
+  Cilj:                 Da dobije mejl kada slike budu spremne.
+  Preduslov:            Gost je upravo potvrdio odgovor i još nije ostavio email za
+                        obaveštenje.
+  Glavni tok:
+                        1. Posle potvrde (i kad dolazi i kad ne dolazi) pojavljuje se
+                           pitanje „Želite li da vas obavestimo kada slike sa venčanja budu
+                           spremne?“.
+                        2. Polje za email je već popunjeno ako je organizator upisao email
+                           gosta.
+                        3. Gost klikće „Obavesti me“.
+  Alternative i greške: „Preskoči“ zatvara pitanje bez emaila. Nevažeći email → „Unesite
+                        ispravan email.“
+  Rezultat:             Email je sačuvan; gost dobija mejl kad organizator pošalje
+                        obaveštenje (UC-43).
+
+UC-62  Kasnija prijava za obaveštenje
+-------------------------------------
+
+  Akter:                Gost sa ličnim linkom
+  Cilj:                 Da ostavi email i ako ga je ranije preskočio.
+  Glavni tok:
+                        1. Ispod svog odgovora gost vidi „Obavesti me kad slike budu
+                           spremne“.
+                        2. Klikom se otvara polje za email; gost upisuje adresu i potvrđuje.
+  Alternative i greške: „Odustani“ zatvara polje. Isto se može i na stranici galerije dok je
+                        zatvorena (UC-69).
+  Rezultat:             Umesto dugmeta piše „Obavestićemo vas na <email> kad slike budu
+                        spremne.“
+
+UC-63  Izmena odgovora
+----------------------
+
+  Akter:                Gost sa ličnim linkom
+  Cilj:                 Da promeni odgovor (npr. ipak dolazi, ili dolazi jedna osoba manje).
+  Glavni tok:
+                        1. Ispod svog odgovora klikće „Izmeni odgovor“.
+                        2. Forma je popunjena prethodnim odgovorom, brojem osoba, imenima
+                           pratilaca i napomenom.
+                        3. Menja šta treba i klikće „Potvrdi“.
+  Alternative i greške: Gost koji je već ostavio email ne dobija ponovo pitanje za email.
+  Rezultat:             Novi odgovor zamenjuje stari.
+
+UC-64  Prelaz na slike
+----------------------
+
+  Akter:                Gost sa ličnim linkom
+  Cilj:                 Da pošalje slike ili pogleda galeriju.
+  Glavni tok:           Na dnu pozivnice je kartica „Album uspomena“:
+                        1. dok je galerija zatvorena: poziv da pošalje zajedničke slike,
+                           „Pošalji slike“ i informacija kada se galerija otvara;
+                        2. kad je galerija otvorena: „Slike su spremne“, „Pogledaj galeriju“
+                           i „Pošalji slike“.
+  Rezultat:             Gost prelazi na slanje slika (UC-65) ili galeriju (UC-68).
+
+
+############################################################################################
+K. GOST: SLANJE SLIKA I GALERIJA
+############################################################################################
+
+UC-65  Slanje slika
+-------------------
+
+  Akter:                Gost sa ličnim linkom
+  Cilj:                 Da pošalje svoje slike organizatoru.
+  Glavni tok:
+                        1. Otvara „Pošalji slike“ (/i/:token/upload).
+                        2. Bira vrstu slika: „Sa venčanja“ ili „Naše zajedničke“ (stare
+                           slike sa mladencima, za poglavlje „Pre venčanja“). Kod proslave:
+                           „Sa proslave“ ili stare slike sa slavljenikom, za poglavlje
+                           „Uspomene“.
+                        3. Bira slike iz galerije telefona, kamerom ili prevlačenjem; vidi
+                           sličice i može da ukloni pojedinačne ili sve.
+                        4. Ime pošiljaoca je već upisano; po želji piše poruku za
+                           organizatora.
+                        5. Klikće „Pošalji N fotografija“ i prati napredak u procentima.
+  Alternative i greške:
+                        - Najviše 50 slika odjednom; višak se ne dodaje uz poruku.
+                        - Fajlovi koji nisu slike se preskaču uz poruku.
+  Rezultat:             Zahvalnica sa brojem poslatih slika i dugmetom „Pošalji još“. Slike
+                        su u originalnoj rezoluciji kod organizatora, sa statusom po SYS-2.
+
+UC-66  Slanje preko QR koda
+---------------------------
+
+  Akter:                Gost preko QR koda
+  Cilj:                 Da pošalje slike i bez lične pozivnice.
+  Preduslov:            Organizator nije isključio slanje preko QR koda (UC-56).
+  Glavni tok:
+                        1. Skenira QR kod na stolu; otvara se /w/<adresa>/upload.
+                        2. Prolazi isti tok kao UC-65; ime pošiljaoca upisuje sam.
+  Alternative i greške: Slanje isključeno → „Slanje je isključeno“. Pogrešna adresa → „Link
+                        nije ispravan“.
+  Rezultat:             Slike stignu organizatoru, potpisane imenom koje je gost upisao.
+
+UC-67  Obaveštenje uz slanje slika
+----------------------------------
+
+  Akter:                Gost (lični link ili QR kod)
+  Cilj:                 Da ga obaveste kada se galerija otvori.
+  Preduslov:            Galerija još nije otvorena; gost preko QR koda vidi ovu opciju samo
+                        ako je galerija vidljiva preko QR linka.
+  Glavni tok:
+                        1. Na stranici za slanje štiklira „Obavesti me kad galerija bude
+                           otvorena“ (ispod piše kada se galerija otvara).
+                        2. Upisuje email (gostu sa ličnim linkom je već popunjen ako ga
+                           organizator ima).
+                        3. Šalje slike.
+  Alternative i greške: Nevažeći email → slike se ne šalju dok se email ne ispravi ili
+                        opcija isključi. Gost koji je već ostavio email vidi samo
+                        „Obavestićemo vas na <email>…“.
+  Rezultat:             Posle uspešnog slanja email je sačuvan, a zahvalnica kaže na koju
+                        adresu stiže obaveštenje.
+
+UC-68  Pregled galerije
+-----------------------
+
+  Akter:                Gost (lični link ili QR kod)
+  Cilj:                 Da vidi slike sa venčanja.
+  Preduslov:            Galerija je otvorena (UC-41); gost preko QR koda — samo ako je
+                        galerija vidljiva preko QR linka (UC-42).
+  Glavni tok:
+                        1. Otvara galeriju (/i/:token/galerija ili /w/<adresa>/galerija), sa
+                           pozivnice, zahvalnice ili linka iz mejla.
+                        2. Vidi broj slika i mrežu svih odobrenih slika.
+                        3. Filtrira po kategoriji: Sve, Zajedničke uspomene, Sa venčanja.
+                        4. Klikom otvara sliku u punoj veličini sa imenom i porukom
+                           pošiljaoca.
+  Alternative i greške: Ikona za slanje vodi na slanje slika. Prazna kategorija → poruka da
+                        još nema slika.
+  Rezultat:             Gost vidi sve odobrene slike; sakrivene i one na čekanju se ne
+                        prikazuju.
+
+UC-69  Zatvorena galerija
+-------------------------
+
+  Akter:                Gost (lični link ili QR kod)
+  Cilj:                 Da zna kada može da vidi slike.
+  Preduslov:            Galerija još nije otvorena.
+  Glavni tok:
+                        1. Otvara galeriju i vidi „Galerija još nije otvorena“.
+                        2. Ispod piše kada se otvara: tačan datum (dan posle venčanja) ili
+                           „kada je mladenci otvore“.
+                        3. Upisuje email u „Javite mi kad bude otvorena“ i potvrđuje.
+  Alternative i greške: Gost koji je već ostavio email vidi samo „Obavestićemo vas na
+                        <email>“. Može da pređe i na slanje svojih slika.
+  Rezultat:             Email je sačuvan za obaveštenje (gost sa ličnim linkom kod sebe,
+                        gost preko QR koda kao QR pretplatnik).
+
+UC-70  Jasne poruke o grešci
+----------------------------
+
+  Akter:                Gost (lični link ili QR kod)
+  Cilj:                 Da razume zašto ne može dalje.
+  Glavni tok:           Umesto prazne ili pokvarene stranice gost dobija stranicu sa
+                        naslovom, objašnjenjem i dugmetom „Na početnu“:
+                        1. nevažeći lični link → „Pozivnica nije pronađena“ / „Link nije
+                           ispravan“;
+                        2. slanje preko QR koda isključeno → „Slanje je isključeno“;
+                        3. galerija preko QR linka isključena → „Galerija nije dostupna“
+                           (samo preko ličnih linkova);
+                        4. nepostojeća stranica → „Stranica nije pronađena“.
+  Rezultat:             Gost zna šta se desilo; poruke su na izabranom jeziku.
+
+
+############################################################################################
+L. SUPERADMIN: NALOZI
+############################################################################################
+
+Sve use case-ove u ovoj oblasti izvršava superadmin, na /admin.
+
+UC-71  Pregled naloga
+---------------------
+
+  Akter:                Superadmin
+  Cilj:                 Da vidi sve svadbe i proslave koje koriste aplikaciju.
+  Glavni tok:
+                        1. Prijavljuje se (UC-05) i dolazi na „Nalozi“.
+                        2. Tabela prikazuje za svaki nalog: imena (svadba „Ana & Marko“,
+                           proslava „Luka“), tip ili naziv proslave i adresu (npr. „Svadba ·
+                           /ana-i-marko“, „18. rođendan · /luka-18-rodjendan“), email i
+                           telefon, datum, broj gostiju i slika, status (Aktivan /
+                           Deaktiviran) i poslednju prijavu („Nikad“ ako se još nisu
+                           prijavili).
+                        3. Pretražuje po imenu, emailu, telefonu, adresi ili nazivu proslave
+                           i filtrira na Svi / Aktivni / Deaktivirani (sa brojem uz svaki
+                           filter).
+  Alternative i greške: Nema naloga → „Još nema nijednog naloga.“ i dugme „Napravi prvi
+                        nalog“; ništa ne odgovara pretrazi → „Nijedan nalog ne odgovara
+                        pretrazi.“
+  Rezultat:             Superadmin ima pregled svih naloga; najnoviji su na vrhu.
+
+UC-72  Pravljenje naloga (svadba ili proslava)
+----------------------------------------------
+
+  Akter:                Superadmin
+  Cilj:                 Da otvori nalog paru ili slavljeniku koji se javio.
+  Glavni tok:
+                        1. Klikće „Novi nalog“.
+                        2. Bira tip: Svadba ili Proslava.
+                        3. Za svadbu unosi ime mlade i mladoženje; za proslavu ime
+                           slavljenika i, po želji, naziv proslave (npr. „18. rođendan“,
+                           „Krštenje“). Zatim datum, email za prijavu i broj telefona.
+                        4. Lozinku upisuje sam ili ostavlja prazno.
+                        5. Klikće „Napravi nalog“.
+                        6. Otvara se prozor sa emailom i lozinkom i dugmetom „Kopiraj poruku
+                           sa podacima“ (link za prijavu, email, lozinka).
+  Alternative i greške:
+                        - Prazna lozinka → sistem smišlja lozinku od 10 znakova.
+                        - Lozinka kraća od 6 znakova, nevažeći email ili telefon, prazna
+                          imena ili datum → poruka greške.
+                        - Proslava bez imena → „Unesite ime slavljenika.“; proslava bez
+                          datuma → „Unesite datum proslave.“
+                        - Svadba bez oba imena → „Unesite imena mladenaca.“
+                        - Email je već zauzet → „Nalog sa ovim emailom već postoji.“
+  Rezultat:             Proslava radi isto kao svadba: ista pozivnica, gosti, slike i album.
+                        Razlika je u tome što se svuda prikazuje samo slavljenik, tekstovi
+                        pominju proslavu umesto venčanja, a strane gostiju su Porodica /
+                        Prijatelji / Ostali. Adresa se pravi od imena i naziva (npr.
+                        luka-18-rodjendan). Nalog i venčanje su napravljeni sa
+                        podrazumevanim podešavanjima (vidi UC-04). Lozinka se vidi samo u
+                        tom prozoru.
+
+UC-73  Izmena naloga
+--------------------
+
+  Akter:                Superadmin
+  Cilj:                 Da ispravi podatke naloga ili promeni tip događaja.
+  Glavni tok:
+                        1. Klikće ikonu za izmenu u redu naloga.
+                        2. Po potrebi menja tip (Svadba / Proslava); forma odmah prikazuje
+                           polja za izabrani tip.
+                        3. Menja imena (ili ime slavljenika i naziv proslave), datum, email
+                           ili telefon.
+                        4. Klikće „Sačuvaj“.
+  Alternative i greške:
+                        - Ista pravila kao u UC-72; zauzet email → „Nalog sa ovim emailom
+                          već postoji.“
+                        - Prelaz sa svadbe na proslavu briše ime mladoženje; prelaz sa
+                          proslave na svadbu briše naziv proslave i traži oba imena.
+  Rezultat:             Podaci su izmenjeni i u nalogu i u događaju; od sledećeg učitavanja
+                        organizator i gosti vide tekstove za novi tip, a organizator se od
+                        sledeće prijave prijavljuje novim emailom. Adresa (link) i uvodna
+                        rečenica pozivnice se ne menjaju same.
+
+UC-74  Nova lozinka
+-------------------
+
+  Akter:                Superadmin
+  Cilj:                 Da pomogne paru koji je zaboravio lozinku.
+  Glavni tok:
+                        1. Klikće ikonu katanca u redu naloga.
+                        2. Potvrđuje „Nova lozinka“.
+                        3. Dobija prozor sa novom lozinkom i porukom za kopiranje, kao u
+                           UC-72.
+  Rezultat:             Stara lozinka više ne važi i organizator je odjavljen sa svih
+                        uređaja.
+
+UC-75  Deaktivacija i ponovna aktivacija
+----------------------------------------
+
+  Akter:                Superadmin
+  Cilj:                 Da privremeno zabrani pristup nalogu, npr. zbog neplaćanja.
+  Glavni tok:
+                        1. Klikće ikonu oka u redu aktivnog naloga i potvrđuje
+                           „Deaktiviraj“.
+                        2. Za ponovnu aktivaciju klikće istu ikonu na deaktiviranom nalogu
+                           (bez potvrde).
+  Alternative i greške: Deaktiviran organizator pri prijavi dobija „Nalog je deaktiviran.
+                        Javite se administratoru.“
+  Rezultat:             Deaktiviran organizator je odmah odjavljen i ne može da se prijavi.
+                        Pozivnice, slanje slika i galerija za goste i dalje rade. Podaci
+                        ostaju sačuvani.
+
+UC-76  Brisanje naloga
+----------------------
+
+  Akter:                Superadmin
+  Cilj:                 Da trajno ukloni nalog para.
+  Glavni tok:
+                        1. Klikće ikonu kante u redu naloga.
+                        2. Prozor upozorava koliko gostiju i slika će biti obrisano.
+                        3. Potvrđuje „Obriši“.
+  Rezultat:             Trajno su obrisani nalog, venčanje, gosti, slike i zahtevi za
+                        dizajn. Lični linkovi i QR kodovi tog venčanja prestaju da rade. Ne
+                        može da se vrati.
+
+
+############################################################################################
+SISTEMSKA PRAVILA
+############################################################################################
+
+Pravila koja aplikacija i backend primenjuju sami, bez akcije korisnika.
+
+  SYS-1
+      Pravilo:     Svaka greška sa servera se prikazuje kao poruka (toast); odgovor 401
+                   odjavljuje korisnika. Greške koje forma sama prikazuje (prijava, nevažeća
+                   pozivnica) ne prave dodatnu poruku
+      Gde se vidi: Ceo deo za organizatora
+
+  SYS-2
+      Pravilo:     Nova slika dobija status „odobrena“ ako je uključeno automatsko
+                   odobravanje, inače „na čekanju“
+      Gde se vidi: UC-55, UC-65
+
+  SYS-3
+      Pravilo:     Galerija se otvara sama dan posle venčanja kad je izabran taj način; do
+                   tada gosti dobijaju datum otvaranja
+      Gde se vidi: UC-41, UC-68, UC-69
+
+  SYS-4
+      Pravilo:     Obaveštenje mejlom ide samo onima koji ga još nisu dobili; kad gost
+                   ostavi novu email adresu, oznaka „poslato“ se poništava i on ponovo čeka
+                   mejl
+      Gde se vidi: UC-43, UC-45
+
+  SYS-5
+      Pravilo:     Kad organizator promeni pratioce, u odgovoru gosta ostaju samo pratioci
+                   koji su i dalje na spisku, a broj osoba se smanjuje ako prelazi novi
+                   maksimum
+      Gde se vidi: UC-18, UC-24
+
+  SYS-6
+      Pravilo:     Svaki zahtev šalje izabrani jezik (Accept-Language), a server vraća
+                   poruke grešaka na tom jeziku
+      Gde se vidi: UC-10
+
+  SYS-7
+      Pravilo:     U demo režimu podaci se čuvaju u browseru i svaki posetilac ima svoje
+                   demo venčanje i demo proslavu
+      Gde se vidi: UC-02, UC-57
+
+  SYS-8
+      Pravilo:     Kad se učita proslava (organizatoru posle prijave, gostu kad otvori
+                   pozivnicu, slanje slika ili galeriju), svi tekstovi koji pominju venčanje
+                   ili mladence se zamenjuju verzijom za proslavu, na izabranom jeziku. Kad
+                   se zatim učita svadba, vraćaju se tekstovi za svadbu
+      Gde se vidi: Ceo deo za organizatora i goste
+
+
+############################################################################################
+OTVORENA PITANJA
+############################################################################################
+
+  - Mejl „slike su spremne“ se za sada samo beleži kao poslat; pravo slanje treba da uradi
+    backend.
+  - Zahteve za custom dizajn niko ne obrađuje u aplikaciji: ne postoji deo za dizajnere koji
+    menja status.
+  - Tekst koji organizator unosi (uvodna rečenica, poruka, raspored) postoji samo na jednom
+    jeziku.
+  - Plaćanje za štampu i dizajn nije deo aplikacije.
+  - Kod proslave tekstovi pišu „slavljenik“ u muškom rodu; ne postoji izbor „slavljenica“ ni
+    tekst za više slavljenika (npr. blizanci).
+  - Poruke grešaka sa servera (npr. „Venčanje nije pronađeno.“) i dalje pominju venčanje i
+    kod proslave.
+  - Promena tipa ne menja adresu ni uvodnu rečenicu pozivnice; organizator ih menja sam
+    (UC-29, UC-54).

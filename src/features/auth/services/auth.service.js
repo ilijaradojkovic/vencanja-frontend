@@ -1,22 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { GetMe, Login, Register, UpdateMe } from '../api/auth.api';
+import { GetMe, Login, UpdateMe } from '../api/auth.api';
 import { clearAuthToken, getAuthToken, setAuthToken } from '../../../app/config/api';
 import { toRejectValue } from '../../../utils/thunk.utils';
 
 export const login = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
   try {
     const response = await Login(email, password);
-    setAuthToken(response.token);
-    return response;
-  } catch (error) {
-    clearAuthToken();
-    return rejectWithValue(toRejectValue(error));
-  }
-});
-
-export const register = createAsyncThunk('auth/register', async (payload, { rejectWithValue }) => {
-  try {
-    const response = await Register(payload);
     setAuthToken(response.token);
     return response;
   } catch (error) {

@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, SERIF } from './shared';
+import { tt, Occasion } from './shared';
 
 export default function Klasik({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
@@ -6,10 +7,10 @@ export default function Klasik({ wedding, guestName, children }) {
   return (
     <div style={{ background: '#FBF8F2', color: '#1E2A24' }}>
       <header style={{ background: x.accent, color: '#F6F3EE', padding: '56px 28px 48px', textAlign: 'center' }} className="stack">
-        {guestName && <p className="eyebrow" style={{ color: gold }}>Pozivnica za: {guestName}</p>}
+        {guestName && <p className="eyebrow" style={{ color: gold }}>{tt('invitationFor', { name: guestName })}</p>}
         <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 22, color: '#E6DCC6' }}>{x.inv.headline}</p>
         <h1 style={{ fontFamily: SERIF, fontWeight: 500, fontSize: 'clamp(46px, 12vw, 64px)', lineHeight: 1 }}>
-          {wedding.partner1} <span style={{ fontStyle: 'italic', color: gold }}>&amp;</span> {wedding.partner2}
+          {wedding.partner1}{wedding.partner2 && (<> <span style={{ fontStyle: 'italic', color: gold }}>&amp;</span> {wedding.partner2}</>)}<Occasion wedding={wedding} />
         </h1>
         <div className="row" style={{ justifyContent: 'center', gap: 14 }}>
           <span style={{ width: 36, height: 1, background: gold }} />
@@ -25,8 +26,8 @@ export default function Klasik({ wedding, guestName, children }) {
         </section>
       )}
 
-      <section style={{ padding: 24 }} className="stack" aria-label="Raspored dana">
-        <h2 style={{ fontFamily: SERIF }}>Raspored dana</h2>
+      <section style={{ padding: 24 }} className="stack" aria-label={tt('schedule')}>
+        <h2 style={{ fontFamily: SERIF }}>{tt('schedule')}</h2>
         {x.schedule.map((e) => (
           <div key={e.id} className="row" style={{ alignItems: 'flex-start', gap: 16, padding: 16, borderRadius: 14, background: '#FFFFFF', border: '1px solid #E6DFD3' }}>
             <div style={{ minWidth: 62, fontFamily: SERIF, fontSize: 24, fontWeight: 600, color: '#7A5C24' }}>{e.time}</div>

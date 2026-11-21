@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Icon from '../../../components/Icon';
 import { HAND, jitter } from '../utils/polaroid';
 import Polaroid from './Polaroid';
 
-const SPEEDS = { 3000: 'Brzo', 5000: 'Normalno', 8000: 'Sporo' };
+const SPEEDS = { 3000: 'fast', 5000: 'normal', 8000: 'slow' };
 
 export default function SlideshowView({ photos, showMessages, dark, fullscreen }) {
+  const { t } = useTranslation('bigAlbum');
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState(5000);
@@ -17,8 +19,8 @@ export default function SlideshowView({ photos, showMessages, dark, fullscreen }
 
   useEffect(() => {
     if (!playing || n < 2) return undefined;
-    const t = setTimeout(() => setI((x) => (x + 1) % n), speed);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setI((x) => (x + 1) % n), speed);
+    return () => clearTimeout(timer);
   }, [playing, speed, i, n]);
 
   useEffect(() => {
@@ -52,13 +54,13 @@ export default function SlideshowView({ photos, showMessages, dark, fullscreen }
       </div>
 
       <div className="row" style={{ justifyContent: 'center', '--gap': '10px', color: ink, position: 'relative', zIndex: 5, marginTop: 8 }}>
-        <button className="icon-btn" onClick={() => setI((i - 1 + n) % n)} aria-label="Prethodna"><Icon name="chevronLeft" /></button>
-        <button className="btn btn-champagne" onClick={() => setPlaying(!playing)} style={{ minWidth: 120 }}>{playing ? 'Pauza' : 'Pusti'}</button>
-        <button className="icon-btn" onClick={() => setI((i + 1) % n)} aria-label="Sledeća"><Icon name="chevronRight" /></button>
+        <button className="icon-btn" onClick={() => setI((i - 1 + n) % n)} aria-label={t('common:actions.previous')}><Icon name="chevronLeft" /></button>
+        <button className="btn btn-champagne" onClick={() => setPlaying(!playing)} style={{ minWidth: 120 }}>{playing ? t('slideshow.pause') : t('slideshow.play')}</button>
+        <button className="icon-btn" onClick={() => setI((i + 1) % n)} aria-label={t('common:actions.next')}><Icon name="chevronRight" /></button>
         <span style={{ fontFamily: HAND, fontSize: 20, minWidth: 80, textAlign: 'center' }} aria-live="polite">{(i % n) + 1} / {n}</span>
-        <div className="segmented" role="group" aria-label="Brzina">
+        <div className="segmented" role="group" aria-label={t('slideshow.speed')}>
           {Object.entries(SPEEDS).map(([ms, label]) => (
-            <button key={ms} type="button" aria-pressed={speed === Number(ms)} onClick={() => setSpeed(Number(ms))}>{label}</button>
+            <button key={ms} type="button" aria-pressed={speed === Number(ms)} onClick={() => setSpeed(Number(ms))}>{t(`slideshow.speeds.${label}`)}</button>
           ))}
         </div>
       </div>

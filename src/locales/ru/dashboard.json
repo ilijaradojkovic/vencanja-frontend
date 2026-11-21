@@ -1,0 +1,54 @@
+{
+  "daysLeft": "До свадьбы осталось {{days}}",
+  "weddingPassed": "Свадьба позади – время для альбома",
+  "hello": "Здравствуйте, {{p1}} и {{p2}}",
+  "editInvitation": "Редактировать приглашение",
+  "addGuests": "Добавить гостей",
+  "stats": {
+    "label": "Статистика",
+    "invited": "Приглашено человек",
+    "invitations_one": "{{count}} приглашение",
+    "invitations_few": "{{count}} приглашения",
+    "invitations_many": "{{count}} приглашений",
+    "invitations_other": "{{count}} приглашения",
+    "coming": "Придут",
+    "declined": "{{count}} не придут",
+    "waiting": "Ждём ответа",
+    "opened": "{{count}} открыли приглашение",
+    "pendingPhotos": "{{count}} ждут одобрения"
+  },
+  "replies": {
+    "title": "Ответы гостей",
+    "progress": "{{answered}} из {{total}} ({{pct}}%)",
+    "empty": "Ответов пока нет.",
+    "allGuests": "Все гости"
+  },
+  "newPhotos": {
+    "title": "Новые фото",
+    "all": "Все ({{count}})",
+    "allReviewed": "Всё просмотрено",
+    "emptyHint": "Новые фото гостей появятся здесь.",
+    "from": "От {{name}}",
+    "fromLabel": "От: {{name}}"
+  },
+  "qr": {
+    "eyebrow": "QR для столов",
+    "title": "Гости отправляют фото одним сканированием",
+    "download": "Скачать PNG"
+  },
+  "notify": {
+    "title": "Фото для гостей",
+    "galleryOpen": "Галерея открыта",
+    "galleryClosed": "Галерея закрыта",
+    "toSend": "ждут уведомления по email",
+    "viaQr": "({{count}} через QR)",
+    "alreadySent": "уже уведомлены",
+    "withoutEmail": "гостей без email",
+    "openFirst": "Уведомление можно отправить после того, как откроете галерею в",
+    "openFirstLink": "настройках"
+  },
+  "album": {
+    "text": "{{count}} одобренных фото уже на доске в виде полароидов. Посмотрите их или попросите нас сделать альбом за вас.",
+    "open": "Открыть большой альбом"
+  }
+}

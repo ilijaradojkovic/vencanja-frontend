@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, SANS, SERIF } from './shared';
+import { tt, Occasion } from './shared';
 
 export default function Editorijal({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
@@ -10,8 +11,8 @@ export default function Editorijal({ wedding, guestName, children }) {
     <div style={{ background: paper, color: ink, fontFamily: SANS }}>
       <header style={{ background: block, color: '#FFFFFF', padding: '28px 22px 26px', position: 'relative', overflow: 'hidden' }}>
         <div className="row between" style={{ fontSize: 11, letterSpacing: '0.24em', textTransform: 'uppercase', opacity: 0.85 }}>
-          <span>Save the date</span>
-          <span>{guestName || 'Pozivnica'}</span>
+          <span>{tt('saveTheDate')}</span>
+          <span>{guestName || tt('invitation')}</span>
         </div>
         <div style={{ fontFamily: SANS, fontWeight: 500, fontSize: 'clamp(84px, 30vw, 132px)', lineHeight: 0.85, letterSpacing: '-0.05em', marginTop: 26 }}>
           {x.day}
@@ -26,9 +27,9 @@ export default function Editorijal({ wedding, guestName, children }) {
 
       <section style={{ padding: '30px 22px 10px' }}>
         <h1 style={{ fontFamily: SANS, fontWeight: 500, fontSize: 'clamp(40px, 12vw, 60px)', lineHeight: 0.92, textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
-          {wedding.partner1}
+          {wedding.partner1}{wedding.partner2 && (<>
           <br />
-          <span style={{ fontFamily: SERIF, fontStyle: 'italic', textTransform: 'none', fontWeight: 400, color: block }}>&amp;</span> {wedding.partner2}
+          <span style={{ fontFamily: SERIF, fontStyle: 'italic', textTransform: 'none', fontWeight: 400, color: block }}>&amp;</span> {wedding.partner2}</>)}<Occasion wedding={wedding} />
         </h1>
         <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 20, marginTop: 16 }}>{x.inv.headline}</p>
       </section>
@@ -40,9 +41,9 @@ export default function Editorijal({ wedding, guestName, children }) {
         </section>
       )}
 
-      <section style={{ padding: '28px 22px' }} aria-label="Raspored dana">
+      <section style={{ padding: '28px 22px' }} aria-label={tt('schedule')}>
         <div className="row between" style={{ borderBottom: `3px solid ${ink}`, paddingBottom: 8, marginBottom: 4 }}>
-          <span style={{ fontWeight: 500, fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase' }}>Program</span>
+          <span style={{ fontWeight: 500, fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase' }}>{tt('program')}</span>
           {x.countdown && <span style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: block }}>{x.countdown}</span>}
         </div>
         {x.schedule.map((e, i) => (

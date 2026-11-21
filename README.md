@@ -11,7 +11,12 @@ npm run dev        # http://localhost:5173
 npm run build      # produkcijski build u dist/
 ```
 
-Demo nalog: **demo@uspomena.rs / demo123**.
+Demo nalozi:
+- mladenci (svadba): **demo@uspomena.rs / demo123**
+- slavljenik (proslava, 18. rođendan): **rodjendan@uspomena.rs / demo123**
+- superadmin: **admin@uspomena.rs / admin123**
+
+Javne registracije nema: nalog za mladence pravi superadmin na `/admin`.
 Pozivnica gosta: `/i/demo-jelena` (ostali tokeni: `milica`, `kum`, `petrovic`…). QR upload: `/w/ana-i-marko/upload`.
 
 ## Šta postoji
@@ -20,6 +25,9 @@ Pozivnica gosta: `/i/demo-jelena` (ostali tokeni: `milica`, `kum`, `petrovic`…
 - `/i/:token` – lična pozivnica: koverta koja se otvara, raspored, mapa, `.ics` za kalendar, potvrda dolaska (RSVP)
 - `/i/:token/upload` – slanje slika sa ličnog linka (pravi izbor fajlova, drag & drop, pregled, napredak)
 - `/w/:slug/upload` – isto, preko opšteg linka / QR koda na stolovima
+
+**Superadmin (`/admin`, samo uloga `superadmin`)**
+- Nalozi – pravljenje naloga tipa **svadba** (mlada i mladoženja) ili **proslava** (jedan slavljenik + naziv, npr. „18. rođendan“), izmena, nova lozinka, deaktivacija, brisanje; poruka sa podacima za prijavu za kopiranje
 
 **Mladenci (`/app`, zaštićeno prijavom)**
 - Pregled – statistika, odgovori, nove slike, QR kod (preuzimanje PNG)
@@ -57,6 +65,19 @@ src/
 ```
 
 Tok podataka: **page → dispatch(service thunk) → api → axiosInstance → (mock adapter | pravi BE) → store → page**.
+
+## Svadba i proslava
+
+`Wedding.type` je `wedding` ili `celebration`. Proslava ima jedno ime (`partner1`), prazan `partner2` i opcioni `occasion`. Šabloni tada prikazuju samo slavljenika i naziv proslave. Tekstovi se menjaju preko prevoda u `src/locales/<jezik>/celebration/*.json`: ti fajlovi sadrže samo ključeve koji se razlikuju od svadbe, a `setEventType` u `i18n.js` ih uključuje kad se učita proslava.
+
+## Jezici
+
+Sajt je na srpskom (podrazumevano), engleskom i ruskom. Izbor jezika je u meniju, na početnoj strani, prijavi i stranicama za goste i pamti se u browseru.
+
+- Prevodi su u `src/locales/{sr,en,ru}/<oblast>.json` (common, landing, auth, dashboard, guests, invite, templates, photos, bigAlbum, requests, settings, notifications).
+- U komponenti: `const { t } = useTranslation('guests'); t('title')`; van komponente: `i18n.t('guests:title')` iz `src/app/config/i18n.js`.
+- Novi tekst se dodaje u sva tri jezika pod istim ključem. Množina koristi sufikse `_one/_few/_other` (srpski), `_one/_other` (engleski) i `_one/_few/_many/_other` (ruski).
+- Datumi se formatiraju po izabranom jeziku (`utils/format.js`).
 
 ## Prelazak na pravi backend
 

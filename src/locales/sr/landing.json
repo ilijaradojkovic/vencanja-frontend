@@ -1,0 +1,40 @@
+{
+  "nav": {
+    "guestInvitation": "Pozivnica gosta",
+    "login": "Prijava"
+  },
+  "hero": {
+    "eyebrow": "Pozivnice i album venčanja",
+    "title": "Album koji prave vaši gosti.",
+    "text": "Pošaljite svakom gostu ličnu digitalnu pozivnicu. Posle venčanja svi njihovi kadrovi i poruke slažu se u jedan unikatan album.",
+    "tryDemo": "Isprobaj demo",
+    "viewAsGuest": "Pogledaj kao gost",
+    "demoAccount": "Demo nalog",
+    "adminAccount": "Superadmin"
+  },
+  "art": {
+    "invitationFor": "Pozivnica za",
+    "date": "Subota · 12. jun 2027.",
+    "yes": "Dolazimo",
+    "no": "Ne možemo"
+  },
+  "features": {
+    "label": "Mogućnosti",
+    "invitation": {
+      "title": "Lična pozivnica za svakog gosta",
+      "text": "Svaki gost dobija svoj link sa imenom, rasporedom dana, mapom i potvrdom dolaska."
+    },
+    "photos": {
+      "title": "Slike skupljaju gosti",
+      "text": "Preko ličnog linka ili QR koda na stolu, bez aplikacije i bez prijave, u punoj rezoluciji."
+    },
+    "bigAlbum": {
+      "title": "Veliki album koji se pravi sam",
+      "text": "Svaka odobrena slika odmah stiže na tablu kao polaroid sa imenom gosta. Pustite je na TV-u na svadbi ili naručite poster."
+    },
+    "custom": {
+      "title": "Ili potpuno unikatno",
+      "text": "Pošaljite zahtev i naš dizajner pravi pozivnicu ili veliki album samo za vas."
+    }
+  }
+}

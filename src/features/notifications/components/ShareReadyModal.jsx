@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '../../../app/hooks';
 import { guestsSelectors } from '../../guests/store/guests.store';
 import Icon from '../../../components/Icon';
@@ -13,6 +14,7 @@ const waHref = (phone, text) => `https://wa.me/${String(phone || '').replace(/\D
 const viberHref = (text) => `viber://forward?text=${encodeURIComponent(text)}`;
 
 export default function ShareReadyModal({ onClose }) {
+  const { t } = useTranslation('notifications');
   const wedding = useAppSelector((s) => s.wedding.data);
   const guests = useAppSelector(guestsSelectors.selectAll);
   const [q, setQ] = useState('');
@@ -25,23 +27,23 @@ export default function ShareReadyModal({ onClose }) {
     .filter((g) => g.name.toLowerCase().includes(q.toLowerCase().trim())), [guests, onlyComing, q]);
 
   return (
-    <Modal title="Pošalji preko WhatsApp-a ili Vibera" onClose={onClose} wide
-      footer={<button className="btn btn-primary" onClick={onClose}>Gotovo</button>}>
+    <Modal title={t('share.title')} onClose={onClose} wide
+      footer={<button className="btn btn-primary" onClick={onClose}>{t('share.done')}</button>}>
       <div className="stack" style={{ '--gap': '14px' }}>
-        <p className="muted small">Gosti koji nisu ostavili email. Svako dobija svoj lični link ka galeriji, sa gotovom porukom.</p>
+        <p className="muted small">{t('share.intro')}</p>
         {!open && (
           <div className="form-error" role="alert">
-            Galerija je trenutno zatvorena za goste. <Link to="/app/podesavanja">Otvorite je u podešavanjima</Link> pre slanja.
+            {t('share.closed')} <Link to="/app/podesavanja">{t('openInSettings')}</Link>.
           </div>
         )}
         <div className="row between">
-          <input className="input grow" style={{ maxWidth: 320 }} placeholder="Pretraži goste…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Pretraga" />
+          <input className="input grow" style={{ maxWidth: 320 }} placeholder={t('guests:searchPlaceholder')} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t('guests:search')} />
           <label className="check" style={{ minHeight: 0 }}>
-            <input type="checkbox" checked={onlyComing} onChange={(e) => setOnlyComing(e.target.checked)} /> Samo oni koji dolaze
+            <input type="checkbox" checked={onlyComing} onChange={(e) => setOnlyComing(e.target.checked)} /> {t('share.onlyComing')}
           </label>
         </div>
         {list.length === 0 ? (
-          <div className="empty"><span className="muted">Nema gostiju za ovaj izbor.</span></div>
+          <div className="empty"><span className="muted">{t('share.empty')}</span></div>
         ) : (
           <ul className="stack" style={{ listStyle: 'none', margin: 0, padding: 0, '--gap': '0', maxHeight: 420, overflowY: 'auto' }}>
             {list.map((g) => {
@@ -50,14 +52,14 @@ export default function ShareReadyModal({ onClose }) {
                 <li key={g.id} className="row between" style={{ padding: '10px 0', borderBottom: '1px solid #f0ebe2', '--gap': '10px' }}>
                   <div className="stack grow" style={{ '--gap': '0', minWidth: 160 }}>
                     <strong style={{ fontWeight: 500 }}>{g.name}</strong>
-                    <span className="xs muted">{g.phone || 'bez telefona – izaberite kontakt u aplikaciji'}</span>
+                    <span className="xs muted">{g.phone || t('share.noPhone')}</span>
                   </div>
                   <div className="row" style={{ '--gap': '6px', flexWrap: 'nowrap' }}>
-                    <a className="btn btn-soft btn-sm" href={waHref(g.phone, text)} target="_blank" rel="noreferrer" aria-label={`WhatsApp poruka za ${g.name}`}>
+                    <a className="btn btn-soft btn-sm" href={waHref(g.phone, text)} target="_blank" rel="noreferrer" aria-label={t('share.whatsappAria', { name: g.name })}>
                       <Icon name="whatsapp" size={16} /> WhatsApp
                     </a>
-                    <a className="btn btn-soft btn-sm" href={viberHref(text)} aria-label={`Viber poruka za ${g.name}`}>Viber</a>
-                    <CopyButton text={text} label="Kopiraj" className="btn btn-ghost btn-sm" />
+                    <a className="btn btn-soft btn-sm" href={viberHref(text)} aria-label={t('share.viberAria', { name: g.name })}>Viber</a>
+                    <CopyButton text={text} label={t('common:actions.copy')} className="btn btn-ghost btn-sm" />
                   </div>
                 </li>
               );

@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../../app/config/i18n';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { deleteGuest, importGuests } from '../services/guests.service';
 import GuestModal from '../components/GuestModal';
@@ -13,6 +15,7 @@ import Pagination from '../../../components/Pagination';
 import { usePagination } from '../../../utils/usePagination';
 
 function ImportModal({ onClose }) {
+  const { t } = useTranslation('guests');
   const dispatch = useAppDispatch();
   const saving = useAppSelector((s) => s.guests.saving);
   const [text, setText] = useState('');
@@ -23,57 +26,58 @@ function ImportModal({ onClose }) {
   const submit = async () => {
     const res = await dispatch(importGuests(parsed));
     if (res.meta.requestStatus === 'fulfilled') {
-      toast.success(`Dodato gostiju: ${res.payload.length}`);
+      toast.success(t('import.done', { count: res.payload.length }));
       onClose();
     }
   };
   return (
-    <Modal title="Uvoz gostiju" onClose={onClose} footer={<>
-      <button className="btn btn-soft" onClick={onClose}>Odustani</button>
+    <Modal title={t('import.title')} onClose={onClose} footer={<>
+      <button className="btn btn-soft" onClick={onClose}>{t('common:actions.cancel')}</button>
       <button className="btn btn-primary" onClick={submit} disabled={!parsed.length || saving}>
-        {saving ? <Spinner light /> : `Uvezi (${parsed.length})`}
+        {saving ? <Spinner light /> : t('import.submit', { count: parsed.length })}
       </button>
     </>}>
-      <p className="muted small">Jedan gost po redu, u formatu <code>Ime; broj osoba; telefon</code>. Možete i nalepiti kolone iz Excela.</p>
+      <p className="muted small">{t('import.hintBefore')} <code>{t('import.format')}</code>. {t('import.hintAfter')}</p>
       <textarea className="textarea" rows={8} value={text} onChange={(e) => setText(e.target.value)}
-        placeholder={'Porodica Nikolić; 4; +381641234567\nMarija Đurić; 1\nKum Petar; 2'} aria-label="Spisak gostiju" />
+        placeholder={t('import.placeholder')} aria-label={t('import.aria')} />
     </Modal>
   );
 }
 
-const COMPANION_LABEL = { [CompanionType.NONE]: 'Bez pratioca', [CompanionType.OPEN]: 'Bez imena', [CompanionType.NAMED]: 'Navedeni' };
+const companionLabel = (type) => (type ? i18n.t(`guests:csv.companionType.${type}`) : '');
 
 function companionsLine(g) {
   const coming = g.rsvp.companions || [];
-  if (g.rsvp.status === 'yes' && coming.length) return `sa: ${coming.join(', ')}`;
-  if (g.companions?.type === CompanionType.NAMED) return `pozvani: ${g.companions.names.join(', ')}`;
+  if (g.rsvp.status === 'yes' && coming.length) return i18n.t('guests:companionsComing', { names: coming.join(', ') });
+  if (g.companions?.type === CompanionType.NAMED) return i18n.t('guests:companionsInvited', { names: g.companions.names.join(', ') });
   return '';
 }
 
 function NotifyCell({ guest }) {
   const n = guest.photoNotify || {};
   if (n.sentAt) {
-    return <span className="row" style={{ '--gap': '4px', color: 'var(--green)' }} title={n.email}><Icon name="check" size={16} />Poslato {formatDate(n.sentAt, { day: 'numeric', month: 'numeric' })}</span>;
+    return <span className="row" style={{ '--gap': '4px', color: 'var(--green)' }} title={n.email}><Icon name="check" size={16} />{i18n.t('guests:notify.sent', { date: formatDate(n.sentAt, { day: 'numeric', month: 'numeric' }) })}</span>;
   }
-  if (n.email) return <span className="row" style={{ '--gap': '4px' }} title={n.email}><Icon name="mail" size={16} />Čeka</span>;
+  if (n.email) return <span className="row" style={{ '--gap': '4px' }} title={n.email}><Icon name="mail" size={16} />{i18n.t('guests:notify.waiting')}</span>;
   return <span className="muted">–</span>;
 }
 
 function exportCsv(guests) {
-  const rows = [['Ime', 'Strana', 'Pratioci', 'Pozvani pratioci', 'Najviše osoba', 'Status', 'Dolazi osoba', 'Pratioci koji dolaze', 'Napomena', 'Telefon', 'Email', 'Email za slike', 'Obaveštenje poslato', 'Link']];
+  const rows = [['name', 'side', 'companions', 'invitedCompanions', 'maxPersons', 'status', 'persons', 'comingCompanions', 'note', 'phone', 'email', 'notifyEmail', 'notifiedAt', 'link'].map((k) => i18n.t(`guests:csv.${k}`))];
   guests.forEach((g) => rows.push([
-    g.name, SIDES[g.side], COMPANION_LABEL[g.companions?.type] || '', (g.companions?.names || []).join(', '), g.maxPersons,
-    g.rsvp.status, g.rsvp.persons, (g.rsvp.companions || []).join(', '), g.rsvp.note, g.phone, g.email,
+    g.name, SIDES[g.side], companionLabel(g.companions?.type), (g.companions?.names || []).join(', '), g.maxPersons,
+    i18n.t(`common:rsvp.${g.rsvp.status}`), g.rsvp.persons, (g.rsvp.companions || []).join(', '), g.rsvp.note, g.phone, g.email,
     g.photoNotify?.email || '', g.photoNotify?.sentAt || '', guestLink(g.token),
   ]));
   const csv = rows.map((r) => r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' }));
-  a.download = 'gosti.csv';
+  a.download = `${i18n.t('guests:csv.fileName')}.csv`;
   a.click();
 }
 
 export default function Guests() {
+  const { t } = useTranslation('guests');
   const dispatch = useAppDispatch();
   const guests = useAppSelector(guestsSelectors.selectAll);
   const status = useAppSelector((s) => s.guests.status);
@@ -98,7 +102,7 @@ export default function Guests() {
   const pager = usePagination(visible, { storageKey: 'gosti', defaultSize: 10, resetKey: `${q}|${filter}|${side}` });
 
   const waText = (g) => encodeURIComponent(
-    `Dragi ${g.name}, sa radošću vas pozivamo na naše venčanje! Vaša pozivnica: ${guestLink(g.token)}\n${wedding.partner1} i ${wedding.partner2}`,
+    t('whatsappInvite', { name: g.name, link: guestLink(g.token), p1: wedding.partner1, p2: wedding.partner2 }),
   );
 
   const confirmDelete = async () => {
@@ -106,7 +110,7 @@ export default function Guests() {
     const res = await dispatch(deleteGuest(modal.guest.id));
     setDeleting(false);
     if (res.meta.requestStatus === 'fulfilled') {
-      toast.success('Gost je obrisan');
+      toast.success(t('deleted'));
       setModal(null);
     }
   };
@@ -115,46 +119,46 @@ export default function Guests() {
     <>
       <div className="page-head">
         <div className="stack" style={{ '--gap': '6px' }}>
-          <p className="eyebrow">{guests.length} pozivnica</p>
-          <h1>Gosti i lični linkovi</h1>
+          <p className="eyebrow">{t('dashboard:stats.invitations', { count: guests.length })}</p>
+          <h1>{t('title')}</h1>
         </div>
         <div className="row">
           <button className="btn btn-soft" onClick={() => exportCsv(guests)} disabled={!guests.length}><Icon name="download" size={18} /> CSV</button>
-          <button className="btn btn-outline" onClick={() => setModal({ type: 'import' })}>Uvezi spisak</button>
-          <button className="btn btn-primary" onClick={() => setModal({ type: 'new' })}><Icon name="plus" size={18} /> Novi gost</button>
+          <button className="btn btn-outline" onClick={() => setModal({ type: 'import' })}>{t('importList')}</button>
+          <button className="btn btn-primary" onClick={() => setModal({ type: 'new' })}><Icon name="plus" size={18} /> {t('newGuest')}</button>
         </div>
       </div>
 
       <section className="card stack">
         <div className="row between">
           <label className="row grow" style={{ maxWidth: 360, position: 'relative' }}>
-            <span className="sr-only">Pretraga</span>
+            <span className="sr-only">{t('search')}</span>
             <Icon name="search" size={18} style={{ position: 'absolute', left: 14, color: 'var(--muted)' }} />
-            <input className="input" style={{ paddingLeft: 42 }} placeholder="Pretraži goste…" value={q} onChange={(e) => setQ(e.target.value)} />
+            <input className="input" style={{ paddingLeft: 42 }} placeholder={t('searchPlaceholder')} value={q} onChange={(e) => setQ(e.target.value)} />
           </label>
-          <select className="select" style={{ width: 'auto' }} value={side} onChange={(e) => setSide(e.target.value)} aria-label="Strana">
-            <option value="all">Sve strane</option>
+          <select className="select" style={{ width: 'auto' }} value={side} onChange={(e) => setSide(e.target.value)} aria-label={t('sideAria')}>
+            <option value="all">{t('allSides')}</option>
             {Object.entries(SIDES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
         </div>
-        <div className="chips" role="group" aria-label="Filter po odgovoru">
-          {[['all', 'Svi'], ['yes', 'Dolaze'], ['pending', 'Čekamo'], ['no', 'Ne dolaze']].map(([k, label]) => (
+        <div className="chips" role="group" aria-label={t('filterAria')}>
+          {['all', 'yes', 'pending', 'no'].map((k) => (
             <button key={k} className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>
-              {label} <span className="count">{counts[k]}</span>
+              {t(`filters.${k}`)} <span className="count">{counts[k]}</span>
             </button>
           ))}
         </div>
 
         {status === 'loading' && !guests.length ? <PageLoading /> : visible.length === 0 ? (
           <div className="empty">
-            <strong>{guests.length ? 'Nema gostiju za ovaj filter' : 'Još niste dodali goste'}</strong>
-            {!guests.length && <button className="btn btn-primary" onClick={() => setModal({ type: 'new' })}>Dodaj prvog gosta</button>}
+            <strong>{guests.length ? t('emptyFilter') : t('empty')}</strong>
+            {!guests.length && <button className="btn btn-primary" onClick={() => setModal({ type: 'new' })}>{t('addFirst')}</button>}
           </div>
         ) : (
           <div className="table-wrap" ref={pager.topRef} style={{ scrollMarginTop: 16 }}>
             <table className="table">
               <thead>
-                <tr><th>Gost</th><th>Strana</th><th>Odgovor</th><th>Dolazi</th><th>Pozivnica</th><th>Slike</th><th style={{ textAlign: 'right' }}>Akcije</th></tr>
+                <tr><th>{t('table.guest')}</th><th>{t('table.side')}</th><th>{t('table.reply')}</th><th>{t('table.coming')}</th><th>{t('table.invitation')}</th><th>{t('table.photos')}</th><th style={{ textAlign: 'right' }}>{t('table.actions')}</th></tr>
               </thead>
               <tbody>
                 {pager.pageItems.map((g) => (
@@ -171,15 +175,15 @@ export default function Guests() {
                       {g.rsvp.status === 'yes' ? persons(g.rsvp.persons) : '–'} <span className="xs muted">/ {g.maxPersons}</span>
                       {companionsLine(g) && <div className="xs muted" title={companionsLine(g)} style={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{companionsLine(g)}</div>}
                     </td>
-                    <td className="small">{g.openedAt ? <span className="row" style={{ '--gap': '4px', color: 'var(--green)' }}><Icon name="eye" size={16} />Otvorena</span> : <span className="muted">Nije otvorena</span>}</td>
+                    <td className="small">{g.openedAt ? <span className="row" style={{ '--gap': '4px', color: 'var(--green)' }}><Icon name="eye" size={16} />{t('opened')}</span> : <span className="muted">{t('notOpened')}</span>}</td>
                     <td className="small"><NotifyCell guest={g} /></td>
                     <td>
                       <div className="row" style={{ justifyContent: 'flex-end', '--gap': '6px', flexWrap: 'nowrap' }}>
-                        <CopyButton text={guestLink(g.token)} label="Link" />
-                        <a className="icon-btn icon-btn-sm" href={`https://wa.me/?text=${waText(g)}`} target="_blank" rel="noreferrer" aria-label={`Pošalji ${g.name} preko WhatsApp-a`}><Icon name="whatsapp" size={18} /></a>
-                        <Link className="icon-btn icon-btn-sm" to={`/i/${g.token}`} target="_blank" aria-label={`Otvori pozivnicu za ${g.name}`}><Icon name="link" size={18} /></Link>
-                        <button className="icon-btn icon-btn-sm" onClick={() => setModal({ type: 'edit', guest: g })} aria-label={`Izmeni ${g.name}`}><Icon name="edit" size={18} /></button>
-                        <button className="icon-btn icon-btn-sm" onClick={() => setModal({ type: 'delete', guest: g })} aria-label={`Obriši ${g.name}`}><Icon name="trash" size={18} /></button>
+                        <CopyButton text={guestLink(g.token)} label={t('link')} />
+                        <a className="icon-btn icon-btn-sm" href={`https://wa.me/?text=${waText(g)}`} target="_blank" rel="noreferrer" aria-label={t('aria.whatsapp', { name: g.name })}><Icon name="whatsapp" size={18} /></a>
+                        <Link className="icon-btn icon-btn-sm" to={`/i/${g.token}`} target="_blank" aria-label={t('aria.openInvitation', { name: g.name })}><Icon name="link" size={18} /></Link>
+                        <button className="icon-btn icon-btn-sm" onClick={() => setModal({ type: 'edit', guest: g })} aria-label={t('aria.edit', { name: g.name })}><Icon name="edit" size={18} /></button>
+                        <button className="icon-btn icon-btn-sm" onClick={() => setModal({ type: 'delete', guest: g })} aria-label={t('aria.delete', { name: g.name })}><Icon name="trash" size={18} /></button>
                       </div>
                     </td>
                   </tr>
@@ -188,15 +192,15 @@ export default function Guests() {
             </table>
           </div>
         )}
-        <Pagination page={pager.page} pageSize={pager.pageSize} total={pager.total} onPage={pager.setPage} onPageSize={pager.setPageSize} label="gostiju" />
+        <Pagination page={pager.page} pageSize={pager.pageSize} total={pager.total} onPage={pager.setPage} onPageSize={pager.setPageSize} />
       </section>
 
       {modal?.type === 'new' && <GuestModal onClose={() => setModal(null)} />}
       {modal?.type === 'edit' && <GuestModal guest={modal.guest} onClose={() => setModal(null)} />}
       {modal?.type === 'import' && <ImportModal onClose={() => setModal(null)} />}
       {modal?.type === 'delete' && (
-        <ConfirmModal title="Obriši gosta?" busy={deleting} onClose={() => setModal(null)} onConfirm={confirmDelete}
-          text={`${modal.guest.name} će biti obrisan, a njegov lični link prestaje da radi. Fotografije koje je poslao ostaju.`} />
+        <ConfirmModal title={t('deleteTitle')} busy={deleting} onClose={() => setModal(null)} onConfirm={confirmDelete}
+          text={t('deleteText', { name: modal.guest.name })} />
       )}
     </>
   );

@@ -1,0 +1,84 @@
+{
+  "eyebrow_one": "{{count}} polaroid · fills itself as guests send photos",
+  "eyebrow_other": "{{count}} polaroids · fills itself as guests send photos",
+  "showOnScreen": "Show on screen",
+  "doItForUs": "Do this for us",
+  "pendingBanner_one": "{{count}} photo is waiting for approval before it goes into the big album.",
+  "pendingBanner_other": "{{count}} photos are waiting for approval before they go into the big album.",
+  "review": "Review",
+  "activeRequest": "Your request “{{style}}”:",
+  "viewAria": "View",
+  "filterAria": "Which photos",
+  "backgroundAria": "Background",
+  "sizeAria": "Polaroid size",
+  "guestMessages": "Guest messages",
+  "views": {
+    "zid": "Wall",
+    "gosti": "By guest",
+    "prezentacija": "Slideshow"
+  },
+  "filters": {
+    "all": "All photos",
+    "memories": "Before the wedding",
+    "wedding": "The wedding"
+  },
+  "backgrounds": {
+    "linen": "Linen",
+    "cork": "Cork",
+    "wood": "Wood",
+    "night": "Night"
+  },
+  "boardCount": "{{photos}} memories from {{guests}} dear people ♥",
+  "empty": "No approved photos yet.",
+  "emptyCategory": "No approved photos in this category yet.",
+  "emptyHint": "As soon as you approve guest photos, they appear here as polaroids.",
+  "guestFallback": "Guest",
+  "slideshow": {
+    "play": "Play",
+    "pause": "Pause",
+    "speed": "Speed",
+    "speeds": {
+      "fast": "Fast",
+      "normal": "Normal",
+      "slow": "Slow"
+    }
+  },
+  "request": {
+    "title": "Make the big album for us",
+    "intro_one": "Our designer hand-arranges {{count}} polaroid, adjusts the colours and prepares the album for print. You get a proposal and price first.",
+    "intro_other": "Our designer hand-arranges all {{count}} polaroids, adjusts the colours and prepares the album for print. You get a proposal and price first.",
+    "what": "What would you like?",
+    "productAria": "Product",
+    "products": {
+      "poster": {
+        "label": "Poster",
+        "desc": "Matte paper, ready to frame"
+      },
+      "platno": {
+        "label": "Canvas",
+        "desc": "On a wooden frame, for the wall"
+      },
+      "digital": {
+        "label": "Print-ready file",
+        "desc": "High-resolution PDF"
+      }
+    },
+    "size": "Size",
+    "customSize": "Custom",
+    "selection": "We send your current selection:",
+    "selectionDetails_one": "{{count}} photo · {{background}} background",
+    "selectionDetails_other": "{{count}} photos · {{background}} background",
+    "selectionDetailsWithMessages_one": "{{count}} photo · {{background}} background · with messages",
+    "selectionDetailsWithMessages_other": "{{count}} photos · {{background}} background · with messages",
+    "note": "Note",
+    "notePlaceholder": "E.g. our photo in the middle, no photos from getting ready, title “Anna & Mark, 12 June 2027”…",
+    "lineProduct": "Big album – {{product}}, {{size}}.",
+    "linePhotos": "Photos: {{scope}} ({{count}} polaroids), background: {{background}}.",
+    "linePhotosWithMessages": "Photos: {{scope}} ({{count}} polaroids), background: {{background}}, with guest messages.",
+    "lineNote": "Note: {{note}}",
+    "sentToast": "Request sent. We'll get back to you within 48 hours.",
+    "sentText": "Our team will put together your big album from all the guest photos and get back to you with a proposal and price. You pay nothing until you confirm.",
+    "sentMeanwhile": "Photos guests send in the meantime will also go into the album."
+  },
+  "showMore": "Show {{count}} more of {{rest}}"
+}

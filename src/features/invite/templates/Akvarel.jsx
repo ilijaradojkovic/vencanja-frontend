@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, mix, useSvgId, SERIF } from './shared';
+import { tt, Occasion } from './shared';
 
 function Wash({ color, second, leaf, size = 190, style }) {
   const id = useSvgId('wash');
@@ -44,12 +45,12 @@ export default function Akvarel({ wedding, guestName, children }) {
       <Wash color={c} second={second} leaf={leaf} style={{ top: -50, right: -60, transform: 'scaleX(-1) rotate(10deg)' }} size={160} />
 
       <header style={{ position: 'relative', padding: '120px 26px 36px', textAlign: 'center' }} className="stack">
-        {guestName && <p style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: mix(c, ink, 0.4) }}>Dragi/a {guestName}</p>}
+        {guestName && <p style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: mix(c, ink, 0.4) }}>{tt('dear', { name: guestName })}</p>}
         <p style={{ fontFamily: SERIF, fontSize: 18, fontStyle: 'italic', opacity: 0.85 }}>{x.inv.headline}</p>
         <h1 style={{ fontFamily: SERIF, fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(48px, 13vw, 68px)', lineHeight: 1 }}>
-          {wedding.partner1}
+          {wedding.partner1}{wedding.partner2 && (<>
           <span style={{ display: 'block', fontSize: '0.55em', color: c, margin: '6px 0' }}>&amp;</span>
-          {wedding.partner2}
+          {wedding.partner2}</>)}<Occasion wedding={wedding} />
         </h1>
         <div style={{ alignSelf: 'center', marginTop: 10, padding: '10px 22px', background: soft, borderRadius: '40% 60% 55% 45% / 55% 45% 55% 45%' }}>
           <span style={{ fontSize: 14, letterSpacing: '0.16em', textTransform: 'uppercase' }}>{x.weekday}</span>
@@ -64,8 +65,8 @@ export default function Akvarel({ wedding, guestName, children }) {
         </section>
       )}
 
-      <section style={{ position: 'relative', padding: '24px 22px 40px', textAlign: 'center' }} aria-label="Raspored dana">
-        <h2 style={{ fontFamily: SERIF, fontStyle: 'italic', marginBottom: 14 }}>Raspored dana</h2>
+      <section style={{ position: 'relative', padding: '24px 22px 40px', textAlign: 'center' }} aria-label={tt('schedule')}>
+        <h2 style={{ fontFamily: SERIF, fontStyle: 'italic', marginBottom: 14 }}>{tt('schedule')}</h2>
         <div className="stack" style={{ '--gap': '18px' }}>
           {x.schedule.map((e) => (
             <div key={e.id} className="stack" style={{ '--gap': '2px', alignItems: 'center' }}>

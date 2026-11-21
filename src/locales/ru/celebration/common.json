@@ -1,0 +1,17 @@
+{
+  "side": {
+    "mlada": "Семья",
+    "mladozenja": "Друзья",
+    "zajednicki": "Остальные"
+  },
+  "category": {
+    "memories": "Старые воспоминания",
+    "wedding": "С праздника"
+  },
+  "errors": {
+    "weddingNotLoaded": "Праздник не загружен"
+  },
+  "meta": {
+    "title": "Uspomena · приглашения и альбом праздника"
+  }
+}

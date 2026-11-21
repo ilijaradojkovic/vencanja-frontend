@@ -1,3 +1,5 @@
+import i18n from '../app/config/i18n';
+
 export function normalizePhone(input) {
   let s = String(input || '').trim().replace(/[\s\-/().]/g, '');
   if (!s) return '';
@@ -16,5 +18,5 @@ export function formatPhone(phone) {
   return phone;
 }
 
-export const PHONE_HINT = 'Na ovaj broj vas kontaktiramo za custom dizajn, štampu albuma i slično.';
-export const PHONE_ERROR = 'Unesite ispravan broj telefona, npr. 064 123 4567.';
+export const phoneHint = () => i18n.t('common:phone.hint');
+export const phoneError = () => i18n.t('common:phone.error');

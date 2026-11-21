@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
 import { HAND, jitter } from '../utils/polaroid';
-import { plural } from '../../../utils/format';
+import { useTranslation } from 'react-i18next';
 import Polaroid from './Polaroid';
 
 export default function GuestStacksView({ photos, width, onOpenGroup, dark }) {
+  const { t } = useTranslation('bigAlbum');
   const groups = useMemo(() => {
     const m = new Map();
     photos.forEach((p) => {
       const key = p.guestId || p.senderName || 'nepoznato';
-      if (!m.has(key)) m.set(key, { key, name: p.senderName || 'Gost', photos: [] });
+      if (!m.has(key)) m.set(key, { key, name: p.senderName || t('guestFallback'), photos: [] });
       m.get(key).photos.push(p);
     });
     return [...m.values()].sort((a, b) => b.photos.length - a.photos.length || a.name.localeCompare(b.name));
@@ -23,7 +24,7 @@ export default function GuestStacksView({ photos, width, onOpenGroup, dark }) {
         const more = g.photos.length;
         return (
           <button key={g.key} type="button" className="ba-stack" onClick={() => onOpenGroup(g.photos)}
-            aria-label={`${g.name}: ${more} ${plural(more, 'slika', 'slike', 'slika')}`}
+            aria-label={`${g.name}: ${t('common:count.pictures', { count: more })}`}
             style={{ position: 'relative', background: 'none', border: 'none', padding: 0, cursor: 'zoom-in', justifySelf: 'center', width: w + 50 }}>
             <div style={{ position: 'relative', height: w * 1.28, width: w + 50 }}>
               {[...top].reverse().map((p, ri) => {
@@ -44,7 +45,7 @@ export default function GuestStacksView({ photos, width, onOpenGroup, dark }) {
               )}
             </div>
             <div style={{ fontFamily: HAND, fontSize: 15, marginTop: 4, color: dark ? '#E9E0CC' : '#4A3F33', opacity: 0.9 }}>
-              {more} {plural(more, 'slika', 'slike', 'slika')}
+              {t('common:count.pictures', { count: more })}
             </div>
           </button>
         );

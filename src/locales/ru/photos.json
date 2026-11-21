@@ -1,0 +1,29 @@
+{
+  "eyebrow_one": "{{count}} фотография от гостей",
+  "eyebrow_few": "{{count}} фотографии от гостей",
+  "eyebrow_many": "{{count}} фотографий от гостей",
+  "eyebrow_other": "{{count}} фотографии от гостей",
+  "tabs": {
+    "pending": "На проверке",
+    "approved": "Одобренные",
+    "hidden": "Скрытые",
+    "all": "Все"
+  },
+  "statusAria": "Статус",
+  "categoryAria": "Категория",
+  "allCategories": "Все категории",
+  "selected": "Выбрано: {{count}}",
+  "selectAll": "Выбрать все ({{count}})",
+  "select": "Выбрать",
+  "approve": "Одобрить",
+  "hide": "Скрыть",
+  "approvedToast": "Одобрено: {{count}}",
+  "hiddenToast": "Скрыто: {{count}}",
+  "deletedToast": "Фото удалено",
+  "allReviewed": "Всё просмотрено",
+  "none": "Нет фото",
+  "emptyHint": "Когда гости отправят фото через приглашение или QR-код, они появятся здесь.",
+  "deleteAria": "Удалить фото",
+  "deleteTitle": "Удалить фото?",
+  "deleteText": "Фото будет удалено навсегда и убрано из альбома."
+}

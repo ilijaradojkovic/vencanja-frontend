@@ -1,0 +1,40 @@
+{
+  "nav": {
+    "guestInvitation": "Guest invitation",
+    "login": "Log in"
+  },
+  "hero": {
+    "eyebrow": "Wedding invitations and album",
+    "title": "An album made by your guests.",
+    "text": "Send every guest a personal digital invitation. After the wedding, all their shots and messages come together in one unique album.",
+    "tryDemo": "Try the demo",
+    "viewAsGuest": "View as a guest",
+    "demoAccount": "Demo account",
+    "adminAccount": "Superadmin"
+  },
+  "art": {
+    "invitationFor": "Invitation for",
+    "date": "Saturday · 12 June 2027",
+    "yes": "We'll be there",
+    "no": "Can't make it"
+  },
+  "features": {
+    "label": "Features",
+    "invitation": {
+      "title": "A personal invitation for every guest",
+      "text": "Every guest gets their own link with their name, the day’s schedule, a map and RSVP."
+    },
+    "photos": {
+      "title": "Guests collect the photos",
+      "text": "Via their personal link or the QR code on the table, no app and no sign-up, in full resolution."
+    },
+    "bigAlbum": {
+      "title": "A big album that builds itself",
+      "text": "Every approved photo lands on the board as a polaroid with the guest’s name. Show it on a TV at the party or order a poster."
+    },
+    "custom": {
+      "title": "Or completely unique",
+      "text": "Send a request and our designer will create an invitation or big album just for you."
+    }
+  }
+}

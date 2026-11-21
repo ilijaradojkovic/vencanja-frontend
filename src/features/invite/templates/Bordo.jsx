@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, mix, useSvgId, SERIF, SANS } from './shared';
+import { tt, Occasion } from './shared';
 
 const BROWN = '#6B4A2F';
 const PAPER = '#F8F1E7';
@@ -99,14 +100,14 @@ export default function Bordo({ wedding, guestName, children }) {
       <header style={{ position: 'relative', padding: '6px 26px 30px', textAlign: 'center' }} className="stack">
         {guestName && (
           <p style={{ fontSize: 12, letterSpacing: '0.22em', textTransform: 'uppercase', color: mix(BROWN, PAPER, 0.15) }}>
-            Dragi/a {guestName}
+            {tt('dear', { name: guestName })}
           </p>
         )}
         <p style={{ fontFamily: SERIF, fontSize: 18, fontStyle: 'italic', color: mix(ink, PAPER, 0.15) }}>{x.inv.headline}</p>
         <h1 style={{ fontFamily: SERIF, fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(50px, 14vw, 72px)', lineHeight: 0.95, color: wine }}>
-          {wedding.partner1}
+          {wedding.partner1}{wedding.partner2 && (<>
           <span style={{ display: 'block', fontSize: '0.42em', fontStyle: 'normal', letterSpacing: '0.3em', color: BROWN, margin: '10px 0 8px' }}>&amp;</span>
-          {wedding.partner2}
+          {wedding.partner2}</>)}<Occasion wedding={wedding} />
         </h1>
         <Rule color={BROWN} />
         <div className="stack" style={{ '--gap': '2px', alignItems: 'center' }}>
@@ -127,12 +128,12 @@ export default function Bordo({ wedding, guestName, children }) {
         </section>
       )}
 
-      <section style={{ padding: '10px 18px 30px' }} aria-label="Raspored dana">
+      <section style={{ padding: '10px 18px 30px' }} aria-label={tt('schedule')}>
         <div className="stack" style={{
           '--gap': '18px', padding: '26px 20px', textAlign: 'center', background: card, borderRadius: 4,
           border: `1px solid ${mix(BROWN, PAPER, 0.6)}`, boxShadow: `0 0 0 5px ${card}, 0 0 0 6px ${mix(BROWN, PAPER, 0.75)}`,
         }}>
-          <h2 style={{ fontFamily: SERIF, fontStyle: 'italic', fontWeight: 400, fontSize: 28, color: wine }}>Raspored dana</h2>
+          <h2 style={{ fontFamily: SERIF, fontStyle: 'italic', fontWeight: 400, fontSize: 28, color: wine }}>{tt('schedule')}</h2>
           {x.schedule.map((e, i) => (
             <div key={e.id} className="stack" style={{ '--gap': '2px', alignItems: 'center' }}>
               {i > 0 && <span aria-hidden="true" style={{ width: 1, height: 16, background: mix(BROWN, PAPER, 0.5), marginBottom: 8 }} />}

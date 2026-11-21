@@ -1,0 +1,27 @@
+{
+  "eyebrow_one": "{{count}} photo from guests",
+  "eyebrow_other": "{{count}} photos from guests",
+  "tabs": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "hidden": "Hidden",
+    "all": "All"
+  },
+  "statusAria": "Status",
+  "categoryAria": "Category",
+  "allCategories": "All categories",
+  "selected": "Selected: {{count}}",
+  "selectAll": "Select all ({{count}})",
+  "select": "Select",
+  "approve": "Approve",
+  "hide": "Hide",
+  "approvedToast": "Approved: {{count}}",
+  "hiddenToast": "Hidden: {{count}}",
+  "deletedToast": "Photo deleted",
+  "allReviewed": "All reviewed",
+  "none": "No photos",
+  "emptyHint": "When guests send photos via the invitation or QR code, they will appear here.",
+  "deleteAria": "Delete photo",
+  "deleteTitle": "Delete photo?",
+  "deleteText": "The photo will be permanently deleted and removed from the album."
+}

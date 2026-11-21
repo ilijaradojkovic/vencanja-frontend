@@ -1,0 +1,114 @@
+{
+  "title": "Guests and personal links",
+  "importList": "Import list",
+  "newGuest": "New guest",
+  "search": "Search",
+  "searchPlaceholder": "Search guests…",
+  "sideAria": "Side",
+  "allSides": "All sides",
+  "filterAria": "Filter by reply",
+  "filters": {
+    "all": "All",
+    "yes": "Attending",
+    "pending": "Waiting",
+    "no": "Not attending"
+  },
+  "empty": "You haven't added any guests yet",
+  "emptyFilter": "No guests match this filter",
+  "addFirst": "Add the first guest",
+  "table": {
+    "guest": "Guest",
+    "side": "Side",
+    "reply": "Reply",
+    "coming": "Coming",
+    "invitation": "Invitation",
+    "photos": "Photos",
+    "actions": "Actions"
+  },
+  "opened": "Opened",
+  "notOpened": "Not opened",
+  "link": "Link",
+  "aria": {
+    "whatsapp": "Send to {{name}} via WhatsApp",
+    "openInvitation": "Open the invitation for {{name}}",
+    "edit": "Edit {{name}}",
+    "delete": "Delete {{name}}"
+  },
+  "whatsappInvite": "Dear {{name}}, we would love you to join us at our wedding! Your invitation: {{link}}\n{{p1}} & {{p2}}",
+  "deleted": "Guest deleted",
+  "deleteTitle": "Delete guest?",
+  "deleteText": "{{name}} will be deleted and their personal link will stop working. Photos they sent will stay.",
+  "companionsComing": "with: {{names}}",
+  "companionsInvited": "invited: {{names}}",
+  "notify": {
+    "sent": "Sent {{date}}",
+    "waiting": "Waiting"
+  },
+  "import": {
+    "title": "Import guests",
+    "submit": "Import ({{count}})",
+    "done": "Guests added: {{count}}",
+    "hintBefore": "One guest per line, in the format",
+    "format": "Name; number of people; phone",
+    "hintAfter": "You can also paste columns from Excel.",
+    "placeholder": "The Smith family; 4; +381641234567\nMary Jones; 1\nBest man Peter; 2",
+    "aria": "Guest list"
+  },
+  "csv": {
+    "fileName": "guests",
+    "name": "Name",
+    "side": "Side",
+    "companions": "Companions",
+    "invitedCompanions": "Invited companions",
+    "maxPersons": "Max people",
+    "status": "Status",
+    "persons": "People coming",
+    "comingCompanions": "Companions coming",
+    "note": "Note",
+    "phone": "Phone",
+    "email": "Email",
+    "notifyEmail": "Email for photos",
+    "notifiedAt": "Notification sent",
+    "link": "Link",
+    "companionType": {
+      "none": "No companions",
+      "open": "Unnamed",
+      "named": "Named"
+    }
+  },
+  "modal": {
+    "editTitle": "Edit guest",
+    "name": "Name (as shown on the invitation)",
+    "namePlaceholder": "e.g. Jane Smith",
+    "phone": "Phone",
+    "companions": "Companions",
+    "companionTypes": {
+      "none": {
+        "label": "No companions",
+        "hint": "Only the guest comes."
+      },
+      "open": {
+        "label": "+ unnamed companions",
+        "hint": "The guest chooses who and how many to bring (up to the set number)."
+      },
+      "named": {
+        "label": "Specific named people",
+        "hint": "The guest only confirms which of them are coming."
+      }
+    },
+    "maxCompanions": "Max companions",
+    "companionNames": "Companion names",
+    "companionPlaceholder": "e.g. Mary",
+    "removeCompanion": "Remove companion {{n}}",
+    "addCompanion": "Add companion",
+    "manualReply": "Reply (if the guest answered by phone)",
+    "status": "Status",
+    "whoComes": "Which companions are coming",
+    "personsWithGuest": "Number of people (incl. guest)",
+    "nameRequired": "Name is required.",
+    "namedRequired": "Enter at least one companion name.",
+    "maxRange": "The number of companions must be between 1 and 19.",
+    "saved": "Guest saved",
+    "added": "Guest added, personal link is ready"
+  }
+}

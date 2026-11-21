@@ -26,6 +26,7 @@ export async function mockAdapter(config) {
       data,
       params: config.params,
       token: tokenFrom(config.headers),
+      lang: config.headers?.get?.('Accept-Language') ?? config.headers?.['Accept-Language'],
       onUploadProgress,
     });
     return { data: result, status: 200, statusText: 'OK', headers: {}, config, request: null };

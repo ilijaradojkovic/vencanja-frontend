@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, mix, useSvgId, SERIF, SANS } from './shared';
+import { tt, Occasion } from './shared';
 
 export default function ZlatnaGeometrija({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
@@ -37,12 +38,12 @@ export default function ZlatnaGeometrija({ wedding, guestName, children }) {
             <line x1="60" y1="96" x2="240" y2="96" stroke={`url(#${gid})`} strokeWidth="0.8" />
           </svg>
           <div className="stack" style={{ position: 'absolute', inset: '14% 12%', justifyContent: 'center', alignItems: 'center', '--gap': '10px' }}>
-            <p style={{ ...caps, fontSize: 10.5, color: dark }}>{guestName ? `za ${guestName}` : 'Pozivnica'}</p>
+            <p style={{ ...caps, fontSize: 10.5, color: dark }}>{guestName ? tt('forLowerShort', { name: guestName }) : tt('invitation')}</p>
             <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 15, lineHeight: 1.3 }}>{x.inv.headline}</p>
             <h1 style={{ ...caps, fontWeight: 400, fontSize: 'clamp(26px, 8vw, 34px)', letterSpacing: '0.16em', lineHeight: 1.15 }}>
-              {wedding.partner1}
+              {wedding.partner1}{wedding.partner2 && (<>
               <span style={{ display: 'block', fontFamily: SERIF, fontStyle: 'italic', textTransform: 'none', letterSpacing: 0, fontSize: '1.3em', lineHeight: 1, ...metalText }}>&amp;</span>
-              {wedding.partner2}
+              {wedding.partner2}</>)}<Occasion wedding={wedding} />
             </h1>
           </div>
         </div>
@@ -64,8 +65,8 @@ export default function ZlatnaGeometrija({ wedding, guestName, children }) {
         </section>
       )}
 
-      <section style={{ padding: '24px 20px 34px' }} aria-label="Raspored dana">
-        <p style={{ ...caps, fontSize: 12, textAlign: 'center', marginBottom: 14, color: dark }}>Raspored</p>
+      <section style={{ padding: '24px 20px 34px' }} aria-label={tt('schedule')}>
+        <p style={{ ...caps, fontSize: 12, textAlign: 'center', marginBottom: 14, color: dark }}>{tt('scheduleShort')}</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
           {x.schedule.map((e) => (
             <div key={e.id} className="stack" style={{ '--gap': '4px', alignItems: 'center', textAlign: 'center', padding: '16px 12px', background: 'rgba(255,255,255,0.7)', border: `1px solid ${metal}`, outline: `1px solid ${metal}55`, outlineOffset: -5 }}>

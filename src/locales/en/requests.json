@@ -1,0 +1,16 @@
+{
+  "eyebrow": "Premium",
+  "newTitle": "New request",
+  "newText": "Our designer creates an invitation or big album just for you. You get a proposal and price first, and only then confirm.",
+  "describeError": "Describe what you would like.",
+  "important": "What matters to you?",
+  "importantPlaceholder": "E.g. our story since we met, more photos with grandparents, colours like on the invitation…",
+  "listTitle": "Your requests",
+  "listEmpty": "You haven't sent any requests yet.",
+  "progress": "Progress",
+  "designer": "Designer:",
+  "meta": "Sent {{date}} · budget {{budget}}",
+  "pages_one": "{{count}} page",
+  "pages_other": "{{count}} pages",
+  "contact": "contact {{phone}}"
+}

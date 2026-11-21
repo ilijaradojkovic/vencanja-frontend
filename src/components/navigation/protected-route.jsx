@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../../app/hooks';
 import AppLayout from '../AppLayout';
+import { isSuperadmin } from '../../utils/roles';
 import { PageLoading } from '../ui';
 
 export default function ProtectedRoute() {
@@ -9,5 +10,6 @@ export default function ProtectedRoute() {
 
   if (!restored) return <PageLoading />;
   if (!user) return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  if (isSuperadmin(user)) return <Navigate to="/admin" replace />;
   return <AppLayout />;
 }

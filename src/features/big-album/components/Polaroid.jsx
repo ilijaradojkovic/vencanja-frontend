@@ -1,3 +1,4 @@
+import i18n from '../../../app/config/i18n';
 import { HAND, jitter } from '../utils/polaroid';
 
 export const TAPES = ['rgba(240,214,160,0.8)', 'rgba(186,220,205,0.8)', 'rgba(240,190,196,0.8)', 'rgba(200,200,235,0.8)'];
@@ -9,7 +10,7 @@ export default function Polaroid({ photo, index = 0, width, showMessage, onOpen,
   const dy = jitter(photo.id, 3) * shift * 0.8;
   return (
     <Tag type={Tag === 'button' ? 'button' : undefined} onClick={onOpen} className={className}
-      aria-label={Tag === 'button' ? `Fotografija od ${photo.senderName}` : undefined}
+      aria-label={Tag === 'button' ? i18n.t('common:lightbox.photoFrom', { name: photo.senderName }) : undefined}
       style={{
         '--r': `${rot}deg`, '--dx': `${dx}px`, '--dy': `${dy}px`,
         width, containerType: 'inline-size', position: 'relative', display: 'block', padding: 0, border: 'none',

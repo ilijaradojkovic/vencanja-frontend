@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import Icon from './Icon';
 
 function pageList(page, pages) {
@@ -12,32 +13,33 @@ function pageList(page, pages) {
   return out;
 }
 
-export default function Pagination({ page, pageSize, total, onPage, onPageSize, sizes = [10, 25, 50, 100], label = 'stavki' }) {
+export default function Pagination({ page, pageSize, total, onPage, onPageSize, sizes = [10, 25, 50, 100] }) {
+  const { t } = useTranslation();
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (total === 0) return null;
   const from = (page - 1) * pageSize + 1;
   const to = Math.min(total, page * pageSize);
 
   return (
-    <nav className="pagination" aria-label="Straničenje">
+    <nav className="pagination" aria-label={t('pagination.label')}>
       <span className="small muted">
-        Prikazano <strong style={{ fontWeight: 500, color: 'var(--ink)' }}>{from}–{to}</strong> od {total} {label}
+        {t('pagination.shown')} <strong style={{ fontWeight: 500, color: 'var(--ink)' }}>{from}–{to}</strong> {t('pagination.of', { total })}
       </span>
 
       {pages > 1 && (
         <div className="row" style={{ '--gap': '4px', flexWrap: 'nowrap' }}>
-          <button className="icon-btn icon-btn-sm" onClick={() => onPage(page - 1)} disabled={page === 1} aria-label="Prethodna strana">
+          <button className="icon-btn icon-btn-sm" onClick={() => onPage(page - 1)} disabled={page === 1} aria-label={t('pagination.prevPage')}>
             <Icon name="chevronLeft" size={18} />
           </button>
           {pageList(page, pages).map((p, i) => (p === '…' ? (
             <span key={`gap-${i}`} className="pagination-gap" aria-hidden="true">…</span>
           ) : (
             <button key={p} className="pagination-page" aria-current={p === page ? 'page' : undefined} onClick={() => onPage(p)}
-              aria-label={`Strana ${p}`}>
+              aria-label={t('pagination.page', { page: p })}>
               {p}
             </button>
           )))}
-          <button className="icon-btn icon-btn-sm" onClick={() => onPage(page + 1)} disabled={page === pages} aria-label="Sledeća strana">
+          <button className="icon-btn icon-btn-sm" onClick={() => onPage(page + 1)} disabled={page === pages} aria-label={t('pagination.nextPage')}>
             <Icon name="chevronRight" size={18} />
           </button>
         </div>
@@ -45,7 +47,7 @@ export default function Pagination({ page, pageSize, total, onPage, onPageSize, 
 
       {onPageSize && (
         <label className="row small muted" style={{ '--gap': '8px', flexWrap: 'nowrap' }}>
-          Po strani
+          {t('pagination.perPage')}
           <select className="select" style={{ width: 'auto', minHeight: 36, padding: '0 30px 0 12px' }} value={pageSize}
             onChange={(e) => onPageSize(Number(e.target.value))}>
             {sizes.map((s) => <option key={s} value={s}>{s}</option>)}

@@ -1,0 +1,36 @@
+{
+  "notifyButton": "Tell guests the photos are ready",
+  "readyIntro": "Dear {{name}}, the photos from our wedding are ready! See what the guests captured:",
+  "signature": "{{p1}} & {{p2}}",
+  "subject": "Photos from {{p1}} & {{p2}}’s wedding are ready",
+  "to": "To: {{email}}",
+  "sentToast_one": "Notification sent to {{count}} address",
+  "sentToast_other": "Notification sent to {{count}} addresses",
+  "send": "Send ({{count}})",
+  "nobody": "Nobody to send to",
+  "closedEmail": "The gallery is currently closed to guests, so the link in the email wouldn't show any photos.",
+  "openInSettings": "Open it in settings",
+  "stats": {
+    "willGet": "Will get an email",
+    "guests": "{{count}} guests",
+    "viaQr": "{{count}} via QR",
+    "alreadySent": "Already notified",
+    "notAgain": "we won't send it again",
+    "withoutEmail": "Without email",
+    "useWhatsapp": "send it via WhatsApp"
+  },
+  "subscribersBlocked": "{{count}} addresses left via the QR code won't get the email because the gallery isn't available via the QR link.",
+  "preview": "Email preview",
+  "previewHint": "Each guest gets their own personal link. The email only goes to those who haven’t received it yet.",
+  "share": {
+    "title": "Send via WhatsApp or Viber",
+    "done": "Done",
+    "intro": "Guests who didn’t leave an email. Each gets their own personal gallery link with a ready-made message.",
+    "closed": "The gallery is currently closed to guests.",
+    "onlyComing": "Only those attending",
+    "empty": "No guests for this selection.",
+    "noPhone": "no phone – pick the contact in the app",
+    "whatsappAria": "WhatsApp message to {{name}}",
+    "viberAria": "Viber message to {{name}}"
+  }
+}

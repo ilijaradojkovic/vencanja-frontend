@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { updateWedding, fetchWedding } from '../services/wedding.service';
@@ -14,9 +15,10 @@ import { GalleryOpenMode } from '../../../app/config/enums';
 import { galleryOpensAt, isGalleryOpen } from '../../../utils/gallery';
 import { updateMe } from '../../auth/services/auth.service';
 import PhoneField from '../../../components/PhoneField';
-import { normalizePhone, PHONE_ERROR } from '../../../utils/phone';
+import { normalizePhone, phoneError } from '../../../utils/phone';
 
 function AccountSection() {
+  const { t } = useTranslation('settings');
   const dispatch = useAppDispatch();
   const user = useAppSelector((s) => s.auth.user);
   const saving = useAppSelector((s) => s.auth.savingMe);
@@ -27,29 +29,30 @@ function AccountSection() {
 
   const save = async (e) => {
     e.preventDefault();
-    if (!clean) return setError(PHONE_ERROR);
+    if (!clean) return setError(phoneError());
     const res = await dispatch(updateMe({ phone: clean }));
     if (res.meta.requestStatus === 'fulfilled') {
       setPhone(res.payload.phone);
-      toast.success('Broj telefona je sačuvan');
+      toast.success(t('common:phone.saved'));
     } else setError(res.payload?.message);
   };
 
   return (
     <form id="nalog" className="card stack" style={{ maxWidth: 720 }} onSubmit={save}>
-      <h2>Nalog</h2>
-      <label className="field"><span>Email za prijavu</span>
+      <h2>{t('account.title')}</h2>
+      <label className="field"><span>{t('account.email')}</span>
         <input className="input" value={user?.email || ''} readOnly disabled /></label>
       <PhoneField value={phone} onChange={(v) => { setPhone(v); setError(''); }} error={error}
-        hint="Obavezan. Jedan broj za ceo nalog – na njega vas kontaktiramo za custom dizajn, štampu albuma i slično." />
+        hint={t('account.phoneHint')} />
       <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} disabled={saving || !changed}>
-        {saving ? <Spinner light /> : 'Sačuvaj broj'}
+        {saving ? <Spinner light /> : t('common:phoneRequired.save')}
       </button>
     </form>
   );
 }
 
 export default function Settings() {
+  const { t } = useTranslation('settings');
   const dispatch = useAppDispatch();
   const wedding = useAppSelector((s) => s.wedding.data);
   const saving = useAppSelector((s) => s.wedding.saving);
@@ -63,7 +66,7 @@ export default function Settings() {
     setError('');
     const { slug, city, ...settings } = f;
     const res = await dispatch(updateWedding({ slug, city, settings }));
-    if (res.meta.requestStatus === 'fulfilled') toast.success('Podešavanja su sačuvana');
+    if (res.meta.requestStatus === 'fulfilled') toast.success(t('saved'));
     else setError(res.payload?.message);
   };
 
@@ -76,7 +79,7 @@ export default function Settings() {
     dispatch(fetchRequests());
     setResetting(false);
     setResetOpen(false);
-    toast.success('Demo podaci su vraćeni na početak');
+    toast.success(t('demo.resetDone'));
   };
 
   const toggle = (k) => (e) => setF({ ...f, [k]: e.target.checked });
@@ -88,30 +91,30 @@ export default function Settings() {
 
   return (
     <>
-      <div className="page-head"><h1>Podešavanja</h1></div>
+      <div className="page-head"><h1>{t('common:nav.settings')}</h1></div>
       <AccountSection />
       <form className="card stack" style={{ maxWidth: 720 }} onSubmit={save}>
         {error && <div className="form-error" role="alert">{error}</div>}
-        <h2>Venčanje</h2>
-        <label className="field"><span>Adresa venčanja (koristi se u QR linku)</span>
+        <h2>{t('wedding.title')}</h2>
+        <label className="field"><span>{t('wedding.slug')}</span>
           <input className="input" value={f.slug} onChange={(e) => setF({ ...f, slug: e.target.value })} />
           <span className="xs">{generalUploadLink(f.slug)}</span>
         </label>
-        <label className="field"><span>Grad</span><input className="input" value={f.city} onChange={(e) => setF({ ...f, city: e.target.value })} /></label>
+        <label className="field"><span>{t('wedding.city')}</span><input className="input" value={f.city} onChange={(e) => setF({ ...f, city: e.target.value })} /></label>
 
-        <h2 style={{ marginTop: 10 }}>Fotografije</h2>
+        <h2 style={{ marginTop: 10 }}>{t('common:nav.photos')}</h2>
         <label className="check"><input type="checkbox" checked={f.autoApprovePhotos} onChange={toggle('autoApprovePhotos')} />
-          <span>Automatski odobri nove fotografije<br /><span className="xs muted">Inače ih prvo pregledate vi.</span></span></label>
+          <span>{t('photos.autoApprove')}<br /><span className="xs muted">{t('photos.autoApproveHint')}</span></span></label>
         <label className="check"><input type="checkbox" checked={f.allowGeneralUpload} onChange={toggle('allowGeneralUpload')} />
-          <span>Dozvoli slanje preko QR koda<br /><span className="xs muted">Bilo ko sa linkom može da pošalje sliku, bez ličnog linka.</span></span></label>
+          <span>{t('photos.allowQr')}<br /><span className="xs muted">{t('photos.allowQrHint')}</span></span></label>
 
-        <h2 style={{ marginTop: 10 }}>Galerija za goste</h2>
+        <h2 style={{ marginTop: 10 }}>{t('gallery.title')}</h2>
         <fieldset className="stack" style={{ '--gap': '2px', border: 'none', padding: 0, margin: 0 }}>
-          <legend className="small" style={{ fontWeight: 500, color: 'var(--ink-2)', marginBottom: 4 }}>Kada se galerija otvara gostima?</legend>
+          <legend className="small" style={{ fontWeight: 500, color: 'var(--ink-2)', marginBottom: 4 }}>{t('gallery.when')}</legend>
           {[
-            [GalleryOpenMode.NOW, 'Odmah', 'Gosti vide odobrene slike čim ih odobrite.'],
-            [GalleryOpenMode.AFTER_WEDDING, 'Dan posle venčanja', `Automatski ${formatDate(galleryOpensAt({ date: wedding.date, settings: { galleryOpen: GalleryOpenMode.AFTER_WEDDING } }))}.`],
-            [GalleryOpenMode.MANUAL, 'Ručno', 'Vi odlučujete kada, jednim klikom.'],
+            [GalleryOpenMode.NOW, t('gallery.now'), t('gallery.nowHint')],
+            [GalleryOpenMode.AFTER_WEDDING, t('gallery.afterWedding'), t('gallery.afterWeddingHint', { date: formatDate(galleryOpensAt({ date: wedding.date, settings: { galleryOpen: GalleryOpenMode.AFTER_WEDDING } })) })],
+            [GalleryOpenMode.MANUAL, t('gallery.manual'), t('gallery.manualHint')],
           ].map(([value, label, hint]) => (
             <label key={value} className="check">
               <input type="radio" name="galleryOpen" checked={f.galleryOpen === value} onChange={() => setF({ ...f, galleryOpen: value })} />
@@ -121,25 +124,25 @@ export default function Settings() {
         </fieldset>
         {f.galleryOpen === GalleryOpenMode.MANUAL && (
           <label className="check" style={{ marginLeft: 32 }}><input type="checkbox" checked={!!f.galleryManualOpen} onChange={toggle('galleryManualOpen')} />
-            <span>Galerija je otvorena za goste</span></label>
+            <span>{t('gallery.manualOpen')}</span></label>
         )}
         <label className="check"><input type="checkbox" checked={!!f.galleryViaQr} onChange={toggle('galleryViaQr')} />
-          <span>Galerija se vidi i preko QR linka<br /><span className="xs muted">QR link može da se prosledi bilo kome. Isključite ako želite da galeriju vide samo gosti sa ličnim linkom.</span></span></label>
-        <p className="xs muted">Trenutno: galerija je {isGalleryOpen({ date: wedding.date, settings: f }) ? 'otvorena' : 'zatvorena'} za goste.</p>
+          <span>{t('gallery.viaQr')}<br /><span className="xs muted">{t('gallery.viaQrHint')}</span></span></label>
+        <p className="xs muted">{isGalleryOpen({ date: wedding.date, settings: f }) ? t('gallery.currentlyOpen') : t('gallery.currentlyClosed')}</p>
 
-        <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} disabled={saving}>{saving ? <Spinner light /> : 'Sačuvaj'}</button>
+        <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} disabled={saving}>{saving ? <Spinner light /> : t('common:actions.save')}</button>
       </form>
 
       {env.useMock && (
         <section className="card stack" style={{ maxWidth: 720 }}>
-          <h2>Demo režim</h2>
-          <p className="muted small">Aplikacija radi sa mock backendom (VITE_USE_MOCK=true). Podaci se čuvaju u ovom browseru.</p>
-          <button className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => setResetOpen(true)}>Vrati demo podatke na početak</button>
+          <h2>{t('demo.title')}</h2>
+          <p className="muted small">{t('demo.text')}</p>
+          <button className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => setResetOpen(true)}>{t('demo.reset')}</button>
         </section>
       )}
       {resetOpen && (
-        <ConfirmModal title="Resetovati demo podatke?" confirmLabel="Resetuj" busy={resetting} onClose={() => setResetOpen(false)} onConfirm={reset}
-          text="Sve izmene (gosti, slike, album, zahtevi) biće obrisane i vraćene na početne demo podatke." />
+        <ConfirmModal title={t('demo.confirmTitle')} confirmLabel={t('demo.confirm')} busy={resetting} onClose={() => setResetOpen(false)} onConfirm={reset}
+          text={t('demo.confirmText')} />
       )}
     </>
   );

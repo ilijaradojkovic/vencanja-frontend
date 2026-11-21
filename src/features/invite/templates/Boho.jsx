@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, mix, SERIF, SANS } from './shared';
+import { tt, Occasion } from './shared';
 
 function Pampas({ color, style, flip }) {
   const stems = Array.from({ length: 9 }, (_, i) => i);
@@ -53,9 +54,9 @@ export default function Boho({ wedding, guestName, children }) {
           {guestName && <p style={{ fontFamily: SANS, fontSize: 12, letterSpacing: '0.24em', textTransform: 'uppercase', color: t1 }}>{guestName}</p>}
           <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 19 }}>{x.inv.headline}</p>
           <h1 style={{ fontFamily: SERIF, fontWeight: 500, fontSize: 'clamp(44px, 12vw, 62px)', lineHeight: 1, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            {wedding.partner1}
+            {wedding.partner1}{wedding.partner2 && (<>
             <span style={{ display: 'block', fontStyle: 'italic', textTransform: 'lowercase', color: t1, fontSize: '0.6em', fontWeight: 400 }}>i</span>
-            {wedding.partner2}
+            {wedding.partner2}</>)}<Occasion wedding={wedding} />
           </h1>
           <div style={{ marginTop: 6, padding: '8px 20px', borderRadius: 999, border: `1px solid ${t1}`, fontFamily: SANS, fontSize: 13, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
             {x.weekday} · {x.day}.{x.month}.{x.year}
@@ -70,8 +71,8 @@ export default function Boho({ wedding, guestName, children }) {
         </section>
       )}
 
-      <section style={{ padding: '24px 18px 34px' }} aria-label="Raspored dana">
-        <h2 style={{ fontFamily: SERIF, textAlign: 'center', marginBottom: 16 }}>Raspored dana</h2>
+      <section style={{ padding: '24px 18px 34px' }} aria-label={tt('schedule')}>
+        <h2 style={{ fontFamily: SERIF, textAlign: 'center', marginBottom: 16 }}>{tt('schedule')}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
           {x.schedule.map((e, i) => (
             <div key={e.id} className="stack" style={{ '--gap': '4px', alignItems: 'center', textAlign: 'center', padding: '28px 14px 18px', borderRadius: '999px 999px 12px 12px', background: [t3, '#FFFFFF'][i % 2], border: `1px solid ${t2}` }}>

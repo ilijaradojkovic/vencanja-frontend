@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { guestsSelectors, selectGuestStats } from '../../guests/store/guests.store';
@@ -7,13 +8,14 @@ import { setPhotoStatus } from '../../photos/services/photos.service';
 import { photosSelectors, selectPhotoCounts } from '../../photos/store/photos.store';
 import Icon from '../../../components/Icon';
 import { CopyButton, RsvpBadge } from '../../../components/ui';
-import { daysUntil, formatDateTime, generalUploadLink, persons, plural } from '../../../utils/format';
+import { daysLabel, daysUntil, formatDateTime, generalUploadLink, persons } from '../../../utils/format';
 import { isGalleryOpen } from '../../../utils/gallery';
 import { notifyStats } from '../../notifications/components/notifyRecipients';
 import NotifyGuestsModal from '../../notifications/components/NotifyGuestsModal';
 import ShareReadyModal from '../../notifications/components/ShareReadyModal';
 
 export default function Dashboard() {
+  const { t } = useTranslation('dashboard');
   const dispatch = useAppDispatch();
   const wedding = useAppSelector((s) => s.wedding.data);
   const stats = useAppSelector(selectGuestStats);
@@ -44,32 +46,32 @@ export default function Dashboard() {
     <>
       <div className="page-head">
         <div className="stack" style={{ '--gap': '6px' }}>
-          <p className="eyebrow">{days > 0 ? `Do venčanja još ${days} ${plural(days, 'dan', 'dana', 'dana')}` : 'Venčanje je prošlo – vreme je za album'}</p>
-          <h1>Zdravo, {wedding.partner1} i {wedding.partner2}</h1>
+          <p className="eyebrow">{days > 0 ? t('daysLeft', { days: daysLabel(days) }) : t('weddingPassed')}</p>
+          <h1>{t('hello', { p1: wedding.partner1, p2: wedding.partner2 })}</h1>
         </div>
         <div className="row">
-          <Link to="/app/pozivnica" className="btn btn-outline">Uredi pozivnicu</Link>
-          <Link to="/app/gosti" className="btn btn-primary"><Icon name="plus" size={18} /> Dodaj goste</Link>
+          <Link to="/app/pozivnica" className="btn btn-outline">{t('editInvitation')}</Link>
+          <Link to="/app/gosti" className="btn btn-primary"><Icon name="plus" size={18} /> {t('addGuests')}</Link>
         </div>
       </div>
 
-      <section className="grid-cards" aria-label="Statistika">
-        <div className="card stat"><span className="muted small">Pozvano osoba</span><strong>{stats.invitedPeople}</strong><span className="xs muted">{stats.households} pozivnica</span></div>
-        <div className="card stat"><span className="muted small">Dolaze</span><strong style={{ color: 'var(--green)' }}>{stats.comingPeople}</strong><span className="xs muted">{stats.declined} ne dolazi</span></div>
-        <div className="card stat"><span className="muted small">Čekamo odgovor</span><strong style={{ color: 'var(--gold)' }}>{stats.waiting}</strong><span className="xs muted">{stats.opened} otvorilo pozivnicu</span></div>
-        <div className="card stat"><span className="muted small">Fotografije</span><strong>{counts.all}</strong><span className="xs muted">{counts.pending} čeka odobrenje</span></div>
+      <section className="grid-cards" aria-label={t('stats.label')}>
+        <div className="card stat"><span className="muted small">{t('stats.invited')}</span><strong>{stats.invitedPeople}</strong><span className="xs muted">{t('stats.invitations', { count: stats.households })}</span></div>
+        <div className="card stat"><span className="muted small">{t('stats.coming')}</span><strong style={{ color: 'var(--green)' }}>{stats.comingPeople}</strong><span className="xs muted">{t('stats.declined', { count: stats.declined })}</span></div>
+        <div className="card stat"><span className="muted small">{t('stats.waiting')}</span><strong style={{ color: 'var(--gold)' }}>{stats.waiting}</strong><span className="xs muted">{t('stats.opened', { count: stats.opened })}</span></div>
+        <div className="card stat"><span className="muted small">{t('common:nav.photos')}</span><strong>{counts.all}</strong><span className="xs muted">{t('stats.pendingPhotos', { count: counts.pending })}</span></div>
       </section>
 
       <div className="two-col">
         <div className="main stack" style={{ '--gap': '24px' }}>
           <section className="card stack" aria-labelledby="rsvp-h">
             <div className="row between">
-              <h2 id="rsvp-h">Odgovori gostiju</h2>
-              <span className="small muted">{answered} od {stats.households} ({pct}%)</span>
+              <h2 id="rsvp-h">{t('replies.title')}</h2>
+              <span className="small muted">{t('replies.progress', { answered, total: stats.households, pct })}</span>
             </div>
             <div className="progress" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${pct}%` }} /></div>
             {recent.length === 0 ? (
-              <div className="empty"><span className="muted">Još nema odgovora.</span></div>
+              <div className="empty"><span className="muted">{t('replies.empty')}</span></div>
             ) : (
               <ul className="stack" style={{ listStyle: 'none', margin: 0, padding: 0, '--gap': '0' }}>
                 {recent.map((g) => (
@@ -84,25 +86,25 @@ export default function Dashboard() {
                 ))}
               </ul>
             )}
-            <Link to="/app/gosti" className="btn btn-ghost" style={{ alignSelf: 'flex-start' }}>Svi gosti <Icon name="chevronRight" size={16} /></Link>
+            <Link to="/app/gosti" className="btn btn-ghost" style={{ alignSelf: 'flex-start' }}>{t('replies.allGuests')} <Icon name="chevronRight" size={16} /></Link>
           </section>
 
           <section className="card stack" aria-labelledby="pend-h">
             <div className="row between">
-              <h2 id="pend-h">Nove fotografije</h2>
-              <Link to="/app/fotografije" className="btn btn-ghost btn-sm">Sve ({counts.pending})</Link>
+              <h2 id="pend-h">{t('newPhotos.title')}</h2>
+              <Link to="/app/fotografije" className="btn btn-ghost btn-sm">{t('newPhotos.all', { count: counts.pending })}</Link>
             </div>
             {pending.length === 0 ? (
-              <div className="empty"><strong>Sve je pregledano</strong><span className="small muted">Nove slike gostiju pojaviće se ovde.</span></div>
+              <div className="empty"><strong>{t('newPhotos.allReviewed')}</strong><span className="small muted">{t('newPhotos.emptyHint')}</span></div>
             ) : (
               <div className="photo-grid">
                 {pending.map((p) => (
                   <div className="photo-card" key={p.id}>
-                    <div className="photo-thumb" style={{ cursor: 'default' }}><img src={p.url} alt={p.message || `Od ${p.senderName}`} loading="lazy" /></div>
-                    <span className="xs muted">Od: {p.senderName}</span>
+                    <div className="photo-thumb" style={{ cursor: 'default' }}><img src={p.url} alt={p.message || t('newPhotos.from', { name: p.senderName })} loading="lazy" /></div>
+                    <span className="xs muted">{t('newPhotos.fromLabel', { name: p.senderName })}</span>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                      <button className="btn btn-primary btn-sm" onClick={() => dispatch(setPhotoStatus({ id: p.id, status: 'approved' }))}>Odobri</button>
-                      <button className="btn btn-soft btn-sm" onClick={() => dispatch(setPhotoStatus({ id: p.id, status: 'hidden' }))}>Sakrij</button>
+                      <button className="btn btn-primary btn-sm" onClick={() => dispatch(setPhotoStatus({ id: p.id, status: 'approved' }))}>{t('photos:approve')}</button>
+                      <button className="btn btn-soft btn-sm" onClick={() => dispatch(setPhotoStatus({ id: p.id, status: 'hidden' }))}>{t('photos:hide')}</button>
                     </div>
                   </div>
                 ))}
@@ -113,41 +115,41 @@ export default function Dashboard() {
 
         <div className="side stack" style={{ '--gap': '24px' }}>
           <section className="card card-dark stack" aria-labelledby="qr-h">
-            <p className="eyebrow" style={{ color: 'var(--champagne)' }}>QR za stolove</p>
-            <h2 id="qr-h">Gosti šalju slike jednim skeniranjem</h2>
+            <p className="eyebrow" style={{ color: 'var(--champagne)' }}>{t('qr.eyebrow')}</p>
+            <h2 id="qr-h">{t('qr.title')}</h2>
             <div ref={qrRef} style={{ alignSelf: 'center', padding: 14, background: '#fff', borderRadius: 14 }}>
               <QRCodeCanvas value={uploadLink} size={168} fgColor="#1E2A24" level="M" />
             </div>
             <p className="xs muted" style={{ wordBreak: 'break-all' }}>{uploadLink}</p>
             <div className="row">
-              <button className="btn btn-champagne btn-sm" onClick={downloadQr}><Icon name="download" size={16} /> Preuzmi PNG</button>
-              <CopyButton text={uploadLink} className="btn btn-sm" label="Kopiraj" />
+              <button className="btn btn-champagne btn-sm" onClick={downloadQr}><Icon name="download" size={16} /> {t('qr.download')}</button>
+              <CopyButton text={uploadLink} className="btn btn-sm" label={t('common:actions.copy')} />
             </div>
           </section>
 
           <section className="card stack" aria-labelledby="notify-h">
             <div className="row between">
-              <h2 id="notify-h">Slike za goste</h2>
-              <span className={`badge ${galleryOpen ? 'badge-yes' : 'badge-no'}`} style={{ fontSize: 12 }}>{galleryOpen ? 'Galerija otvorena' : 'Galerija zatvorena'}</span>
+              <h2 id="notify-h">{t('notify.title')}</h2>
+              <span className={`badge ${galleryOpen ? 'badge-yes' : 'badge-no'}`} style={{ fontSize: 12 }}>{galleryOpen ? t('notify.galleryOpen') : t('notify.galleryClosed')}</span>
             </div>
             <ul className="stack small" style={{ listStyle: 'none', margin: 0, padding: 0, '--gap': '4px', color: 'var(--ink-2)' }}>
-              <li><strong style={{ fontWeight: 500 }}>{notify.toSend}</strong> čeka obaveštenje mejlom{notify.subscriberPending.length ? ` (${notify.subscriberPending.length} preko QR)` : ''}</li>
-              <li><strong style={{ fontWeight: 500 }}>{notify.alreadySent}</strong> već obavešteno</li>
-              <li><strong style={{ fontWeight: 500 }}>{notify.withoutEmail.length}</strong> gostiju bez emaila</li>
+              <li><strong style={{ fontWeight: 500 }}>{notify.toSend}</strong> {t('notify.toSend')}{notify.subscriberPending.length ? ` ${t('notify.viaQr', { count: notify.subscriberPending.length })}` : ''}</li>
+              <li><strong style={{ fontWeight: 500 }}>{notify.alreadySent}</strong> {t('notify.alreadySent')}</li>
+              <li><strong style={{ fontWeight: 500 }}>{notify.withoutEmail.length}</strong> {t('notify.withoutEmail')}</li>
             </ul>
-            {!galleryOpen && <p className="xs muted">Obaveštenje šaljete kad otvorite galeriju u <Link to="/app/podesavanja">podešavanjima</Link>.</p>}
-            <button className="btn btn-primary" onClick={() => setNotifyModal('email')}><Icon name="mail" size={18} /> Obavesti goste da su slike spremne</button>
+            {!galleryOpen && <p className="xs muted">{t('notify.openFirst')} <Link to="/app/podesavanja">{t('notify.openFirstLink')}</Link>.</p>}
+            <button className="btn btn-primary" onClick={() => setNotifyModal('email')}><Icon name="mail" size={18} /> {t('notifications:notifyButton')}</button>
             <button className="btn btn-outline" onClick={() => setNotifyModal('share')}><Icon name="whatsapp" size={18} /> WhatsApp / Viber</button>
           </section>
 
           <section className="card card-cream stack" aria-labelledby="album-h">
-            <h2 id="album-h">Veliki album</h2>
+            <h2 id="album-h">{t('common:nav.bigAlbum')}</h2>
             <p style={{ color: 'var(--ink-2)' }}>
-              {counts.approved} odobrenih fotografija je već na tabli kao polaroidi. Pogledajte ih ili zatražite da vam ga mi uradimo.
+              {t('album.text', { count: counts.approved })}
             </p>
             <div className="row">
-              <Link to="/app/veliki-album" className="btn btn-primary">Otvori veliki album</Link>
-              <Link to="/app/custom-dizajn" className="btn btn-outline">Custom dizajn</Link>
+              <Link to="/app/veliki-album" className="btn btn-primary">{t('album.open')}</Link>
+              <Link to="/app/custom-dizajn" className="btn btn-outline">{t('common:nav.customDesign')}</Link>
             </div>
           </section>
         </div>

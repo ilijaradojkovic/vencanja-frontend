@@ -153,11 +153,16 @@ function seed() {
   });
 
   return {
-    users: [{ id: 'u_demo', email: 'demo@uspomena.rs', password: 'demo123', name: 'Ana i Marko', phone: '+381641234567', weddingId }],
+    users: [
+      { id: 'u_admin', role: 'superadmin', email: 'admin@uspomena.rs', password: 'admin123', name: 'Superadmin', phone: '', weddingId: null, active: true, createdAt: daysAgo(120), lastLoginAt: null },
+      { id: 'u_demo', role: 'couple', email: 'demo@uspomena.rs', password: 'demo123', name: 'Ana i Marko', phone: '+381641234567', weddingId, active: true, createdAt: daysAgo(40), lastLoginAt: daysAgo(1) },
+    ],
     sessions: {},
     weddings: [
       {
         id: weddingId,
+        type: 'wedding',
+        occasion: '',
         slug: 'ana-i-marko',
         partner1: 'Ana',
         partner2: 'Marko',
@@ -207,14 +212,87 @@ function seed() {
   };
 }
 
+const celebrationDemo = () => {
+  const wid = 'w_luka';
+  const people = [
+    ['Porodica Nikolić', 'luka-nikolic', 'mlada', 4, 'yes', 3],
+    ['Kum Bojan', 'luka-bojan', 'mladozenja', 2, 'yes', 2],
+    ['Drugari iz razreda', 'luka-razred', 'mladozenja', 12, 'pending', 0],
+    ['Baka Mira', 'luka-baka', 'mlada', 1, 'yes', 1],
+    ['Tetka Vesna', 'luka-tetka', 'mlada', 2, 'no', 0],
+  ];
+  return {
+    user: { id: 'u_luka', role: 'couple', email: 'rodjendan@uspomena.rs', password: 'demo123', name: 'Luka', phone: '+381601112233', weddingId: wid, active: true, createdAt: daysAgo(10), lastLoginAt: null },
+    wedding: {
+      id: wid,
+      type: 'celebration',
+      occasion: '18. rođendan',
+      slug: 'luka-18-rodjendan',
+      partner1: 'Luka',
+      partner2: '',
+      date: '2027-03-20',
+      rsvpDeadline: '2027-03-01',
+      city: 'Novi Sad',
+      invitation: {
+        templateId: 'noc',
+        accentColor: '#C9A96E',
+        headline: 'sa radošću vas pozivam na 18. rođendan',
+        message: 'Punoletstvo se slavi jednom. Dođite da ga proslavimo zajedno!',
+        schedule: [{ id: 'e1', time: '20:00', title: 'Proslava', place: '[Naziv kluba], Novi Sad', mapUrl: '' }],
+      },
+      settings: { autoApprovePhotos: false, allowGeneralUpload: true, galleryOpen: 'after_wedding', galleryManualOpen: false, galleryViaQr: true },
+      photoSubscribers: [],
+    },
+    guests: people.map(([name, tok, side, maxPersons, status, persons], i) => ({
+      id: `g_luka_${i + 1}`,
+      weddingId: wid,
+      name,
+      token: tok,
+      email: '',
+      phone: '',
+      side,
+      companions: companionsFromMaxPersons(maxPersons),
+      maxPersons,
+      invitedAt: daysAgo(9),
+      openedAt: status === 'pending' ? null : daysAgo(5),
+      rsvp: { status, persons, companions: [], note: '', respondedAt: status === 'pending' ? null : daysAgo(4) },
+      photoNotify: { email: '', requestedAt: null, sentAt: null },
+    })),
+  };
+};
+
+function migrate(data) {
+  data.users.forEach((u) => {
+    u.role = u.role || 'couple';
+    if (u.active === undefined) u.active = true;
+    u.createdAt = u.createdAt || new Date().toISOString();
+    if (u.lastLoginAt === undefined) u.lastLoginAt = null;
+  });
+  data.weddings.forEach((w) => {
+    w.type = w.type || 'wedding';
+    if (w.occasion === undefined) w.occasion = '';
+  });
+  if (!data.celebrationDemoSeeded) {
+    data.celebrationDemoSeeded = true;
+    const demo = celebrationDemo();
+    data.users.push(demo.user);
+    data.weddings.push(demo.wedding);
+    data.guests.push(...demo.guests);
+  }
+  if (!data.users.some((u) => u.role === 'superadmin')) {
+    data.users.unshift({ id: 'u_admin', role: 'superadmin', email: 'admin@uspomena.rs', password: 'admin123', name: 'Superadmin', phone: '', weddingId: null, active: true, createdAt: new Date().toISOString(), lastLoginAt: null });
+  }
+  return data;
+}
+
 function load() {
   try {
     OLD_KEYS.forEach((k) => localStorage.removeItem(k));
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return migrate(JSON.parse(raw));
   } catch {
   }
-  return seed();
+  return migrate(seed());
 }
 
 export const db = load();
@@ -225,7 +303,7 @@ export function syncFromStorage() {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return;
-    const fresh = JSON.parse(raw);
+    const fresh = migrate(JSON.parse(raw));
     Object.keys(db).forEach((k) => delete db[k]);
     Object.assign(db, fresh);
   } catch {
@@ -245,7 +323,7 @@ export function resetDb() {
     localStorage.removeItem(KEY);
   } catch {
   }
-  const fresh = seed();
+  const fresh = migrate(seed());
   Object.keys(db).forEach((k) => delete db[k]);
   Object.assign(db, fresh);
   persist();

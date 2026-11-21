@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { createGuest, updateGuest } from '../services/guests.service';
@@ -7,44 +8,41 @@ import { Modal, Spinner } from '../../../components/ui';
 import { SIDES } from '../../../utils/format';
 import { CompanionType, GuestSide, RsvpStatus } from '../../../app/config/enums';
 
-const COMPANION_TYPES = [
-  [CompanionType.NONE, 'Bez pratioca', 'Dolazi samo gost.'],
-  [CompanionType.OPEN, '+ pratioci bez imena', 'Gost sam bira koga vodi i koliko (do zadatog broja).'],
-  [CompanionType.NAMED, 'Tačno navedene osobe', 'Gost samo potvrđuje ko od njih dolazi.'],
-];
+const COMPANION_TYPES = [CompanionType.NONE, CompanionType.OPEN, CompanionType.NAMED];
 
 const sameList = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
 
 function CompanionsEditor({ type, setType, max, setMax, names, setNames }) {
+  const { t } = useTranslation('guests');
   const setAt = (i, v) => setNames(names.map((x, j) => (j === i ? v : x)));
   return (
     <fieldset className="stack" style={{ '--gap': '10px', border: '1px solid var(--line)', borderRadius: 12, padding: 14, margin: 0 }}>
-      <legend className="small" style={{ padding: '0 6px', color: 'var(--ink-2)', fontWeight: 500 }}>Pratioci</legend>
+      <legend className="small" style={{ padding: '0 6px', color: 'var(--ink-2)', fontWeight: 500 }}>{t('modal.companions')}</legend>
       <div className="stack" style={{ '--gap': '0' }}>
-        {COMPANION_TYPES.map(([value, label, hint]) => (
+        {COMPANION_TYPES.map((value) => (
           <label key={value} className="check" style={{ minHeight: 0, padding: '6px 0' }}>
             <input type="radio" name="companionType" checked={type === value} onChange={() => setType(value)} />
-            <span>{label}<br /><span className="xs muted">{hint}</span></span>
+            <span>{t(`modal.companionTypes.${value}.label`)}<br /><span className="xs muted">{t(`modal.companionTypes.${value}.hint`)}</span></span>
           </label>
         ))}
       </div>
       {type === CompanionType.OPEN && (
-        <label className="field" style={{ width: 180 }}><span>Najviše pratilaca</span>
+        <label className="field" style={{ width: 180 }}><span>{t('modal.maxCompanions')}</span>
           <input className="input" type="number" min={1} max={19} value={max} onChange={(e) => setMax(e.target.value)} /></label>
       )}
       {type === CompanionType.NAMED && (
         <div className="stack" style={{ '--gap': '8px' }}>
-          <span className="small">Imena pratilaca</span>
+          <span className="small">{t('modal.companionNames')}</span>
           {names.map((n, i) => (
             <div key={i} className="row" style={{ '--gap': '8px', flexWrap: 'nowrap' }}>
-              <input className="input grow" value={n} onChange={(e) => setAt(i, e.target.value)} placeholder={`npr. ${['Marija', 'Petar', 'Sofija'][i % 3]}`} aria-label={`Pratilac ${i + 1}`} />
-              <button type="button" className="icon-btn" onClick={() => setNames(names.filter((_, j) => j !== i))} disabled={names.length <= 1} aria-label={`Ukloni pratioca ${i + 1}`}>
+              <input className="input grow" value={n} onChange={(e) => setAt(i, e.target.value)} placeholder={t('modal.companionPlaceholder')} aria-label={t('invite:rsvp.companionN', { n: i + 1 })} />
+              <button type="button" className="icon-btn" onClick={() => setNames(names.filter((_, j) => j !== i))} disabled={names.length <= 1} aria-label={t('modal.removeCompanion', { n: i + 1 })}>
                 <Icon name="trash" size={18} />
               </button>
             </div>
           ))}
           <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => setNames([...names, ''])} disabled={names.length >= 19}>
-            <Icon name="plus" size={16} /> Dodaj pratioca
+            <Icon name="plus" size={16} /> {t('modal.addCompanion')}
           </button>
         </div>
       )}
@@ -53,6 +51,7 @@ function CompanionsEditor({ type, setType, max, setMax, names, setNames }) {
 }
 
 export default function GuestModal({ guest, onClose }) {
+  const { t } = useTranslation('guests');
   const dispatch = useAppDispatch();
   const saving = useAppSelector((s) => s.guests.saving);
   const c = guest?.companions || { type: CompanionType.NONE, max: 1, names: [] };
@@ -76,9 +75,9 @@ export default function GuestModal({ guest, onClose }) {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!f.name.trim()) return setError('Ime je obavezno.');
-    if (ctype === CompanionType.NAMED && !cleanNames.length) return setError('Upišite bar jedno ime pratioca.');
-    if (ctype === CompanionType.OPEN && (maxComp < 1 || maxComp > 19)) return setError('Broj pratilaca mora biti između 1 i 19.');
+    if (!f.name.trim()) return setError(t('modal.nameRequired'));
+    if (ctype === CompanionType.NAMED && !cleanNames.length) return setError(t('modal.namedRequired'));
+    if (ctype === CompanionType.OPEN && (maxComp < 1 || maxComp > 19)) return setError(t('modal.maxRange'));
 
     const payload = { ...f, companions: { type: ctype, max: maxComp, names: ctype === CompanionType.NAMED ? cleanNames : [] } };
     let action;
@@ -96,22 +95,22 @@ export default function GuestModal({ guest, onClose }) {
       action = await dispatch(createGuest(payload));
     }
     if (action.meta.requestStatus === 'fulfilled') {
-      toast.success(guest ? 'Gost je sačuvan' : 'Gost je dodat, lični link je spreman');
+      toast.success(guest ? t('modal.saved') : t('modal.added'));
       onClose();
     } else setError(action.payload?.message);
   };
 
   return (
-    <Modal title={guest ? 'Izmeni gosta' : 'Novi gost'} onClose={onClose}>
+    <Modal title={guest ? t('modal.editTitle') : t('newGuest')} onClose={onClose}>
       <form onSubmit={submit} className="stack" id="guest-form">
         {error && <div className="form-error" role="alert">{error}</div>}
-        <label className="field"><span>Ime (kako piše na pozivnici)</span>
-          <input className="input" value={f.name} onChange={set('name')} placeholder="npr. Jelena Nikolić" required /></label>
+        <label className="field"><span>{t('modal.name')}</span>
+          <input className="input" value={f.name} onChange={set('name')} placeholder={t('modal.namePlaceholder')} required /></label>
         <div className="row" style={{ alignItems: 'flex-start' }}>
-          <label className="field grow"><span>Telefon</span><input className="input" value={f.phone} onChange={set('phone')} inputMode="tel" placeholder="+381…" /></label>
-          <label className="field grow"><span>Email</span><input className="input" type="email" value={f.email} onChange={set('email')} /></label>
+          <label className="field grow"><span>{t('modal.phone')}</span><input className="input" value={f.phone} onChange={set('phone')} inputMode="tel" placeholder="+381…" /></label>
+          <label className="field grow"><span>{t('auth:fields.email')}</span><input className="input" type="email" value={f.email} onChange={set('email')} /></label>
         </div>
-        <label className="field"><span>Strana</span>
+        <label className="field"><span>{t('sideAria')}</span>
           <select className="select" value={f.side} onChange={set('side')}>
             {Object.entries(SIDES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select></label>
@@ -120,14 +119,14 @@ export default function GuestModal({ guest, onClose }) {
 
         {guest && (
           <fieldset className="stack" style={{ border: '1px solid var(--line)', borderRadius: 12, padding: 14, margin: 0 }}>
-            <legend className="small" style={{ padding: '0 6px', color: 'var(--ink-2)', fontWeight: 500 }}>Odgovor (ako se gost javio telefonom)</legend>
-            <label className="field"><span>Status</span>
+            <legend className="small" style={{ padding: '0 6px', color: 'var(--ink-2)', fontWeight: 500 }}>{t('modal.manualReply')}</legend>
+            <label className="field"><span>{t('modal.status')}</span>
               <select className="select" value={rsvpStatus} onChange={(e) => setRsvpStatus(e.target.value)}>
-                <option value={RsvpStatus.PENDING}>Čeka odgovor</option><option value={RsvpStatus.YES}>Dolazi</option><option value={RsvpStatus.NO}>Ne dolazi</option>
+                <option value={RsvpStatus.PENDING}>{t('common:rsvp.pending')}</option><option value={RsvpStatus.YES}>{t('common:rsvp.yes')}</option><option value={RsvpStatus.NO}>{t('common:rsvp.no')}</option>
               </select></label>
             {rsvpStatus === RsvpStatus.YES && ctype === CompanionType.NAMED && (
               <div className="stack" style={{ '--gap': '0' }}>
-                <span className="small">Ko od pratilaca dolazi</span>
+                <span className="small">{t('modal.whoComes')}</span>
                 {cleanNames.map((n) => (
                   <label key={n} className="check" style={{ minHeight: 0, padding: '4px 0' }}>
                     <input type="checkbox" checked={rsvpPicked.includes(n)}
@@ -138,15 +137,15 @@ export default function GuestModal({ guest, onClose }) {
               </div>
             )}
             {rsvpStatus === RsvpStatus.YES && ctype === CompanionType.OPEN && (
-              <label className="field" style={{ width: 180 }}><span>Broj osoba (sa gostom)</span>
+              <label className="field" style={{ width: 180 }}><span>{t('modal.personsWithGuest')}</span>
                 <input className="input" type="number" min={1} max={maxComp + 1} value={rsvpPersons} onChange={(e) => setRsvpPersons(e.target.value)} /></label>
             )}
           </fieldset>
         )}
       </form>
       <div className="modal-foot">
-        <button className="btn btn-soft" onClick={onClose}>Odustani</button>
-        <button className="btn btn-primary" form="guest-form" disabled={saving}>{saving ? <Spinner light /> : 'Sačuvaj'}</button>
+        <button className="btn btn-soft" onClick={onClose}>{t('common:actions.cancel')}</button>
+        <button className="btn btn-primary" form="guest-form" disabled={saving}>{saving ? <Spinner light /> : t('common:actions.save')}</button>
       </div>
     </Modal>
   );

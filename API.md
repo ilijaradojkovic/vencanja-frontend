@@ -7,16 +7,21 @@ Mock server (`src/mock/server.js`) implementira tačno ovaj ugovor, pa je on i r
 - Format: JSON (`Content-Type: application/json`), osim uploada slika (`multipart/form-data`)
 - Autentifikacija mladenaca: `Authorization: Bearer <token>`
 - Javni endpointi (`/public/*`) ne traže token; gost se identifikuje tokenom iz ličnog linka
-- Greške: HTTP status + `{ "message": "Čitljiva poruka na srpskom" }`. Frontend prikazuje `message` korisniku.
+- Jezik: svaki zahtev šalje `Accept-Language: sr | en | ru` (izabrani jezik u aplikaciji, podrazumevano `sr`).
+- Greške: HTTP status + `{ "message": "Čitljiva poruka" }` na jeziku iz `Accept-Language`. Frontend prikazuje `message` korisniku.
+  Tekstovi poruka za sva tri jezika su u `src/mock/messages.js`.
   `401` → frontend odjavljuje korisnika.
 
 ## Modeli
 
 ```ts
-User      { id, email, name, phone, weddingId }   // phone: obavezan, E.164 (+381641234567), važi za ceo nalog
+User      { id, role: 'superadmin' | 'couple', email, name, phone, weddingId }   // phone: obavezan za mladence, E.164 (+381641234567); superadmin nema weddingId
+
+AdminAccount = User & { active: bool, createdAt, lastLoginAt | null, wedding: { id, slug, partner1, partner2, date } | null, stats: { guests, photos } }
 
 Wedding   {
-  id, slug, partner1, partner2,
+  id, type: 'wedding' | 'celebration', occasion,   // proslava: partner1 = slavljenik, partner2 = '', occasion npr. '18. rođendan'
+  slug, partner1, partner2,
   date: 'YYYY-MM-DD', rsvpDeadline: 'YYYY-MM-DD', city,
   invitation: {
     templateId: 'klasik' | 'minimal' | 'botanika' | 'noc',
@@ -71,10 +76,23 @@ DesignRequest {
 
 | Metod | Putanja | Telo | Odgovor |
 |---|---|---|---|
-| POST | `/auth/login` | `{ email, password }` | `{ token, user: User }` |
-| POST | `/auth/register` | `{ email, password, partner1, partner2, date, phone }` | `{ token, user: User }` – pravi i nalog i venčanje; `phone` obavezan → `422`, zauzet email → `409` |
+| POST | `/auth/login` | `{ email, password }` | `{ token, user: User }` – deaktiviran nalog → `403` |
 | GET | `/auth/me` | – | `{ user: User }` |
 | PATCH | `/auth/me` | `{ name?, phone? }` | `{ user: User }` – `phone` se ne može obrisati (prazan/nevažeći → `422`) |
+
+Javne registracije nema; naloge pravi superadmin.
+
+## Superadmin
+
+Sve rute traže token korisnika sa `role: 'superadmin'`, inače `403`.
+
+| Metod | Putanja | Telo | Odgovor |
+|---|---|---|---|
+| GET | `/admin/accounts` | – | `AdminAccount[]` (samo mladenci, najnoviji prvi) |
+| POST | `/admin/accounts` | `{ type, partner1, partner2?, occasion?, date, email, phone, password? }` | `{ account: AdminAccount, password }` – pravi nalog i venčanje; bez `password` server smišlja lozinku od 10 znakova; zauzet email → `409`, ostale greške → `422` |
+| PATCH | `/admin/accounts/:id` | `{ type?, partner1?, partner2?, occasion?, date?, email?, phone?, active? }` | `AdminAccount` – `active: false` gasi sve sesije tog naloga |
+| POST | `/admin/accounts/:id/password` | `{ password? }` | `{ password }` – nova lozinka (ili generisana), gasi sve sesije |
+| DELETE | `/admin/accounts/:id` | – | `{ ok: true }` – briše nalog, venčanje, goste, slike i zahteve za dizajn |
 
 ## Venčanje (mladenci)
 

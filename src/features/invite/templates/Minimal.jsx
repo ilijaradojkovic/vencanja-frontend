@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, SANS } from './shared';
+import { tt, Occasion } from './shared';
 
 export default function Minimal({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
@@ -10,13 +11,13 @@ export default function Minimal({ wedding, guestName, children }) {
     <div style={{ background: '#FFFFFF', color: ink, fontFamily: SANS }}>
       <header style={{ padding: '64px 28px 40px' }}>
         <div className="row between" style={{ marginBottom: 56 }}>
-          <span style={label}>{guestName ? `Za: ${guestName}` : 'Pozivnica'}</span>
+          <span style={label}>{guestName ? tt('forName', { name: guestName }) : tt('invitation')}</span>
           <span style={{ ...label, color: x.accent }}>{x.day}.{x.month}.{x.year}</span>
         </div>
         <h1 style={{ fontFamily: SANS, fontWeight: 300, fontSize: 'clamp(48px, 14vw, 72px)', lineHeight: 0.95, letterSpacing: '-0.03em' }}>
-          {wedding.partner1}
+          {wedding.partner1}{wedding.partner2 && (<>
           <br />
-          <span style={{ color: x.accent }}>+</span> {wedding.partner2}
+          <span style={{ color: x.accent }}>+</span> {wedding.partner2}</>)}<Occasion wedding={wedding} />
         </h1>
         <div style={{ width: 48, height: 2, background: x.accent, margin: '32px 0 20px' }} />
         <p style={{ fontSize: 17, fontWeight: 300, lineHeight: 1.5, maxWidth: 320 }}>{x.inv.headline}</p>
@@ -24,12 +25,12 @@ export default function Minimal({ wedding, guestName, children }) {
 
       <section style={{ padding: '0 28px', display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: `1px solid ${line}`, borderBottom: `1px solid ${line}` }}>
         <div style={{ padding: '18px 0', borderRight: `1px solid ${line}` }}>
-          <div style={label}>Datum</div>
+          <div style={label}>{tt('date')}</div>
           <div style={{ fontSize: 17, marginTop: 6, textTransform: 'capitalize' }}>{x.weekday}</div>
           <div style={{ fontSize: 15, fontWeight: 300 }}>{x.dateLong}</div>
         </div>
         <div style={{ padding: '18px 0 18px 18px' }}>
-          <div style={label}>Odbrojavanje</div>
+          <div style={label}>{tt('countdownLabel')}</div>
           <div style={{ fontSize: 17, marginTop: 6 }}>{x.countdown || '—'}</div>
         </div>
       </section>
@@ -40,8 +41,8 @@ export default function Minimal({ wedding, guestName, children }) {
         </section>
       )}
 
-      <section style={{ padding: '32px 28px' }} aria-label="Raspored dana">
-        <div style={{ ...label, marginBottom: 12 }}>Raspored</div>
+      <section style={{ padding: '32px 28px' }} aria-label={tt('schedule')}>
+        <div style={{ ...label, marginBottom: 12 }}>{tt('scheduleShort')}</div>
         {x.schedule.map((e) => (
           <div key={e.id} style={{ display: 'grid', gridTemplateColumns: '72px 1fr', gap: 12, padding: '16px 0', borderTop: `1px solid ${line}` }}>
             <div style={{ fontSize: 22, fontWeight: 300, color: x.accent }}>{e.time}</div>

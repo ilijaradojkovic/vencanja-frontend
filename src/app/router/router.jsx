@@ -1,11 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import App from '../app';
 import ProtectedRoute from '../../components/navigation/protected-route';
+import AdminRoute from '../../components/navigation/admin-route';
 import LandingPage from '../../features/common/pages/landing.page';
 import NotFoundPage from '../../features/common/pages/not-found.page';
 import LoginPage from '../../features/auth/pages/login.page';
-import RegisterPage from '../../features/auth/pages/register.page';
 import GuestInvitationPage from '../../features/invite/pages/guest-invitation.page';
 import GuestUploadPage from '../../features/invite/pages/guest-upload.page';
 import GuestGalleryPage from '../../features/invite/pages/guest-gallery.page';
@@ -16,14 +17,15 @@ import PhotosPage from '../../features/photos/pages/photos.page';
 import BigAlbumPage from '../../features/big-album/pages/big-album.page';
 import DesignRequestsPage from '../../features/requests/pages/design-requests.page';
 import SettingsPage from '../../features/wedding/pages/settings.page';
+import AdminAccountsPage from '../../features/admin/pages/admin-accounts.page';
 
 export default function Router() {
+  useTranslation();
   return (
     <Routes>
       <Route path="/" element={<App />}>
         <Route index element={<LandingPage />} />
         <Route path="login" element={<LoginPage />} />
-        <Route path="registracija" element={<RegisterPage />} />
 
         <Route path="i/:token" element={<GuestInvitationPage />} />
         <Route path="i/:token/upload" element={<GuestUploadPage />} />
@@ -39,6 +41,10 @@ export default function Router() {
           <Route path="veliki-album" element={<BigAlbumPage />} />
           <Route path="custom-dizajn" element={<DesignRequestsPage />} />
           <Route path="podesavanja" element={<SettingsPage />} />
+        </Route>
+
+        <Route path="admin" element={<AdminRoute />}>
+          <Route index element={<AdminAccountsPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

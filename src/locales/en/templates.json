@@ -1,0 +1,68 @@
+{
+  "dear": "Dear {{name}}",
+  "invitationFor": "Invitation for: {{name}}",
+  "forName": "For: {{name}}",
+  "forLabel": "For:",
+  "forLower": "for {{name}},",
+  "forLowerShort": "for {{name}}",
+  "invitation": "Invitation",
+  "schedule": "Schedule of the day",
+  "scheduleShort": "Schedule",
+  "program": "Programme",
+  "eveningSchedule": "The evening",
+  "ourDay": "Our day",
+  "date": "Date",
+  "countdownLabel": "Countdown",
+  "saveTheDate": "Save the date",
+  "countdown": "{{days}} to go",
+  "today": "Today is the big day!",
+  "openMap": "Open map",
+  "addToCalendar": "Add to calendar",
+  "icsSummary": "Wedding – {{p1}} & {{p2}}",
+  "items": {
+    "klasik": {
+      "name": "Classic",
+      "description": "Coloured header, serif type and gold details"
+    },
+    "minimal": {
+      "name": "Minimal",
+      "description": "White, left-aligned, thin sans"
+    },
+    "botanika": {
+      "name": "Botanical",
+      "description": "Arch, sprigs and a timeline"
+    },
+    "romantika": {
+      "name": "Romance",
+      "description": "Powder pink, flowers and a date seal"
+    },
+    "editorijal": {
+      "name": "Editorial",
+      "description": "Poster style: huge date and capitals"
+    },
+    "noc": {
+      "name": "Night",
+      "description": "Dark, art-deco frame, gold lettering"
+    },
+    "rustik": {
+      "name": "Rustic",
+      "description": "Kraft paper, stitched edge and a stamp"
+    },
+    "akvarel": {
+      "name": "Watercolour",
+      "description": "Watercolour flowers in the corners, soft italics"
+    },
+    "zlatna-geometrija": {
+      "name": "Golden geometry",
+      "description": "Marble and a metallic geometric frame"
+    },
+    "boho": {
+      "name": "Boho",
+      "description": "Terracotta arches, sun and pampas grass"
+    },
+    "bordo": {
+      "name": "Burgundy",
+      "description": "Red-brown watercolour flowers on cream paper"
+    }
+  }
+}

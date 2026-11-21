@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, Branch, SERIF } from './shared';
+import { tt, Occasion } from './shared';
 
 export default function Botanika({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
@@ -20,12 +21,12 @@ export default function Botanika({ wedding, guestName, children }) {
         className="stack"
       >
         <Branch color={leaf} width={180} style={{ margin: '0 auto' }} />
-        {guestName && <p style={{ fontSize: 13, letterSpacing: '0.16em', textTransform: 'uppercase', color: leaf }}>Dragi/a {guestName}</p>}
+        {guestName && <p style={{ fontSize: 13, letterSpacing: '0.16em', textTransform: 'uppercase', color: leaf }}>{tt('dear', { name: guestName })}</p>}
         <p style={{ fontFamily: SERIF, fontSize: 19, fontStyle: 'italic', opacity: 0.85 }}>{x.inv.headline}</p>
         <h1 style={{ fontFamily: SERIF, fontWeight: 500, fontSize: 'clamp(42px, 11vw, 58px)', lineHeight: 1.05 }}>
-          {wedding.partner1}
+          {wedding.partner1}{wedding.partner2 && (<>
           <span style={{ display: 'block', fontSize: '0.5em', fontStyle: 'italic', color: leaf, margin: '4px 0' }}>i</span>
-          {wedding.partner2}
+          {wedding.partner2}</>)}<Occasion wedding={wedding} />
         </h1>
         <p style={{ fontFamily: SERIF, fontSize: 19, textTransform: 'capitalize' }}>
           {x.weekday}, {x.dateLong}
@@ -42,8 +43,8 @@ export default function Botanika({ wedding, guestName, children }) {
         </section>
       )}
 
-      <section style={{ padding: '24px 12px' }} aria-label="Raspored dana">
-        <h2 style={{ fontFamily: SERIF, textAlign: 'center', marginBottom: 20 }}>Raspored dana</h2>
+      <section style={{ padding: '24px 12px' }} aria-label={tt('schedule')}>
+        <h2 style={{ fontFamily: SERIF, textAlign: 'center', marginBottom: 20 }}>{tt('schedule')}</h2>
         <div style={{ position: 'relative', paddingLeft: 30 }}>
           <span style={{ position: 'absolute', left: 9, top: 6, bottom: 6, width: 1, background: `${leaf}66` }} />
           {x.schedule.map((e) => (

@@ -1,0 +1,52 @@
+{
+  "daysLeft": "{{days}} until the wedding",
+  "weddingPassed": "The wedding is over – time for the album",
+  "hello": "Hello, {{p1}} & {{p2}}",
+  "editInvitation": "Edit invitation",
+  "addGuests": "Add guests",
+  "stats": {
+    "label": "Statistics",
+    "invited": "People invited",
+    "invitations_one": "{{count}} invitation",
+    "invitations_other": "{{count}} invitations",
+    "coming": "Attending",
+    "declined": "{{count}} not attending",
+    "waiting": "Awaiting reply",
+    "opened": "{{count}} opened the invitation",
+    "pendingPhotos": "{{count}} awaiting approval"
+  },
+  "replies": {
+    "title": "Guest replies",
+    "progress": "{{answered}} of {{total}} ({{pct}}%)",
+    "empty": "No replies yet.",
+    "allGuests": "All guests"
+  },
+  "newPhotos": {
+    "title": "New photos",
+    "all": "All ({{count}})",
+    "allReviewed": "All reviewed",
+    "emptyHint": "New guest photos will appear here.",
+    "from": "From {{name}}",
+    "fromLabel": "From: {{name}}"
+  },
+  "qr": {
+    "eyebrow": "QR for the tables",
+    "title": "Guests send photos with one scan",
+    "download": "Download PNG"
+  },
+  "notify": {
+    "title": "Photos for guests",
+    "galleryOpen": "Gallery open",
+    "galleryClosed": "Gallery closed",
+    "toSend": "waiting for an email notification",
+    "viaQr": "({{count}} via QR)",
+    "alreadySent": "already notified",
+    "withoutEmail": "guests without email",
+    "openFirst": "You can send the notification once you open the gallery in",
+    "openFirstLink": "settings"
+  },
+  "album": {
+    "text": "{{count}} approved photos are already on the board as polaroids. Take a look, or ask us to make it for you.",
+    "open": "Open big album"
+  }
+}

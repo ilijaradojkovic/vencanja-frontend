@@ -1,0 +1,5 @@
+{
+  "readyIntro": "Dear {{name}}, the photos from the celebration are ready! See what the guests captured:",
+  "signature": "{{p1}}",
+  "subject": "Photos from {{p1}}’s celebration are ready"
+}

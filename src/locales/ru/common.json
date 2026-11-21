@@ -1,0 +1,134 @@
+{
+  "language": {
+    "label": "Язык"
+  },
+  "actions": {
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "close": "Закрыть",
+    "delete": "Удалить",
+    "copy": "Копировать",
+    "copyLink": "Копировать ссылку",
+    "copied": "Скопировано",
+    "loading": "Загрузка",
+    "previous": "Назад",
+    "next": "Далее",
+    "retry": "Попробовать снова",
+    "refresh": "Обновить",
+    "ok": "Хорошо",
+    "logout": "Выйти",
+    "change": "Изменить",
+    "details": "Подробнее",
+    "remove": "Удалить"
+  },
+  "rsvp": {
+    "yes": "Придёт",
+    "pending": "Ждём ответа",
+    "no": "Не придёт"
+  },
+  "photoStatus": {
+    "pending": "На проверке",
+    "approved": "Одобрена",
+    "hidden": "Скрыта"
+  },
+  "side": {
+    "mlada": "Со стороны невесты",
+    "mladozenja": "Со стороны жениха",
+    "zajednicki": "Общие"
+  },
+  "category": {
+    "memories": "Общие воспоминания",
+    "wedding": "Со свадьбы"
+  },
+  "requestStatus": {
+    "received": "Получена",
+    "in_progress": "В работе",
+    "review": "Ждёт вашего подтверждения",
+    "done": "Готово"
+  },
+  "requestType": {
+    "invitation": "Приглашение",
+    "album": "Альбом",
+    "both": "Приглашение и альбом",
+    "big_album": "Большой альбом"
+  },
+  "count": {
+    "persons_one": "{{count}} человек",
+    "persons_few": "{{count}} человека",
+    "persons_many": "{{count}} человек",
+    "persons_other": "{{count}} человека",
+    "personsAcc_one": "{{count}} человека",
+    "personsAcc_few": "{{count}} человека",
+    "personsAcc_many": "{{count}} человек",
+    "personsAcc_other": "{{count}} человека",
+    "photos_one": "{{count}} фотография",
+    "photos_few": "{{count}} фотографии",
+    "photos_many": "{{count}} фотографий",
+    "photos_other": "{{count}} фотографии",
+    "pictures_one": "{{count}} фото",
+    "pictures_few": "{{count}} фото",
+    "pictures_many": "{{count}} фото",
+    "pictures_other": "{{count}} фото",
+    "days_one": "{{count}} день",
+    "days_few": "{{count}} дня",
+    "days_many": "{{count}} дней",
+    "days_other": "{{count}} дня"
+  },
+  "errors": {
+    "generic": "Произошла ошибка",
+    "server": "Ошибка сервера",
+    "network": "Нет соединения с сервером",
+    "weddingNotLoaded": "Свадьба не загружена",
+    "saveFailed": "Не удалось сохранить.",
+    "sendFailed": "Не удалось отправить. Попробуйте ещё раз."
+  },
+  "phone": {
+    "label": "Номер телефона",
+    "hint": "По этому номеру мы свяжемся с вами по поводу индивидуального дизайна, печати альбома и т. п.",
+    "error": "Введите правильный номер телефона, например +381 64 123 4567.",
+    "willSave": "Будет сохранён как {{phone}}",
+    "contactOn": "Мы свяжемся с вами по номеру",
+    "saved": "Номер телефона сохранён"
+  },
+  "phoneRequired": {
+    "title": "Добавьте номер телефона",
+    "text": "Номер обязателен для каждого аккаунта. Мы используем его только для связи по поводу индивидуального дизайна, печати альбома и подобных вопросов.",
+    "save": "Сохранить номер"
+  },
+  "lightbox": {
+    "label": "Просмотр фотографии",
+    "photoFrom": "Фото от {{name}}"
+  },
+  "pagination": {
+    "label": "Страницы",
+    "shown": "Показано",
+    "of": "из {{total}}",
+    "page": "Страница {{page}}",
+    "prevPage": "Предыдущая страница",
+    "nextPage": "Следующая страница",
+    "perPage": "На странице"
+  },
+  "nav": {
+    "mainMenu": "Главное меню",
+    "overview": "Обзор",
+    "guests": "Гости",
+    "invitation": "Приглашение",
+    "photos": "Фотографии",
+    "bigAlbum": "Большой альбом",
+    "customDesign": "Индивидуальный дизайн",
+    "settings": "Настройки",
+    "qrUpload": "Страница загрузки по QR"
+  },
+  "layout": {
+    "loadFailed": "Не удалось загрузить данные."
+  },
+  "notFound": {
+    "eyebrow": "Упс",
+    "title": "Страница не найдена",
+    "text": "Проверьте ссылку или вернитесь на главную.",
+    "home": "На главную"
+  },
+  "meta": {
+    "title": "Uspomena · свадебные приглашения и альбом"
+  }
+}

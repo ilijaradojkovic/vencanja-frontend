@@ -1,0 +1,89 @@
+{
+  "eyebrow_one": "{{count}} polaroid · sam se dopunjuje kad gosti pošalju slike",
+  "eyebrow_few": "{{count}} polaroida · sam se dopunjuje kad gosti pošalju slike",
+  "eyebrow_other": "{{count}} polaroida · sam se dopunjuje kad gosti pošalju slike",
+  "showOnScreen": "Prikaži na ekranu",
+  "doItForUs": "Uradite ovo za nas",
+  "pendingBanner_one": "{{count}} slika čeka odobrenje pre nego što uđe u veliki album.",
+  "pendingBanner_few": "{{count}} slike čekaju odobrenje pre nego što uđu u veliki album.",
+  "pendingBanner_other": "{{count}} slika čeka odobrenje pre nego što uđu u veliki album.",
+  "review": "Pregledaj",
+  "activeRequest": "Vaš zahtev „{{style}}“:",
+  "viewAria": "Prikaz",
+  "filterAria": "Koje slike",
+  "backgroundAria": "Pozadina",
+  "sizeAria": "Veličina polaroida",
+  "guestMessages": "Poruke gostiju",
+  "views": {
+    "zid": "Zid",
+    "gosti": "Po gostima",
+    "prezentacija": "Prezentacija"
+  },
+  "filters": {
+    "all": "Sve slike",
+    "memories": "Pre venčanja",
+    "wedding": "Venčanje"
+  },
+  "backgrounds": {
+    "linen": "Lan",
+    "cork": "Pluta",
+    "wood": "Drvo",
+    "night": "Noć"
+  },
+  "boardCount": "{{photos}} uspomena od {{guests}} dragih ljudi ♥",
+  "empty": "Još nema odobrenih slika.",
+  "emptyCategory": "Još nema odobrenih slika u ovoj kategoriji.",
+  "emptyHint": "Čim odobrite slike gostiju, pojavljuju se ovde kao polaroidi.",
+  "guestFallback": "Gost",
+  "slideshow": {
+    "play": "Pusti",
+    "pause": "Pauza",
+    "speed": "Brzina",
+    "speeds": {
+      "fast": "Brzo",
+      "normal": "Normalno",
+      "slow": "Sporo"
+    }
+  },
+  "request": {
+    "title": "Uradite veliki album za nas",
+    "intro_one": "Naš dizajner ručno raspoređuje {{count}} polaroid, sređuje boje i priprema album za štampu. Prvo dobijate predlog i cenu.",
+    "intro_few": "Naš dizajner ručno raspoređuje sva {{count}} polaroida, sređuje boje i priprema album za štampu. Prvo dobijate predlog i cenu.",
+    "intro_other": "Naš dizajner ručno raspoređuje svih {{count}} polaroida, sređuje boje i priprema album za štampu. Prvo dobijate predlog i cenu.",
+    "what": "Šta želite?",
+    "productAria": "Proizvod",
+    "products": {
+      "poster": {
+        "label": "Poster",
+        "desc": "Mat papir, spreman za ram"
+      },
+      "platno": {
+        "label": "Platno",
+        "desc": "Na drvenom ramu, za zid"
+      },
+      "digital": {
+        "label": "Fajl za štampu",
+        "desc": "PDF visoke rezolucije"
+      }
+    },
+    "size": "Veličina",
+    "customSize": "Po meri",
+    "selection": "Šaljemo vaš trenutni izbor:",
+    "selectionDetails_one": "{{count}} slika · pozadina {{background}}",
+    "selectionDetails_few": "{{count}} slike · pozadina {{background}}",
+    "selectionDetails_other": "{{count}} slika · pozadina {{background}}",
+    "selectionDetailsWithMessages_one": "{{count}} slika · pozadina {{background}} · sa porukama",
+    "selectionDetailsWithMessages_few": "{{count}} slike · pozadina {{background}} · sa porukama",
+    "selectionDetailsWithMessages_other": "{{count}} slika · pozadina {{background}} · sa porukama",
+    "note": "Napomena",
+    "notePlaceholder": "Npr. naša slika u sredini, bez slika sa pripreme, naslov „Ana & Marko, 12. 6. 2027.“…",
+    "lineProduct": "Veliki album – {{product}}, {{size}}.",
+    "linePhotos": "Slike: {{scope}} ({{count}} polaroida), pozadina: {{background}}.",
+    "linePhotosWithMessages": "Slike: {{scope}} ({{count}} polaroida), pozadina: {{background}}, sa porukama gostiju.",
+    "lineNote": "Napomena: {{note}}",
+    "sentToast": "Zahtev je poslat. Javljamo se u roku od 48 sati.",
+    "sentText": "Naš tim slaže vaš veliki album od svih slika gostiju i javlja vam se sa predlogom i cenom. Ništa ne plaćate dok ne potvrdite.",
+    "sentMeanwhile": "Slike koje gosti pošalju u međuvremenu takođe ulaze u album."
+  },
+  "showMore": "Prikaži još {{count}} od {{rest}}"
+}

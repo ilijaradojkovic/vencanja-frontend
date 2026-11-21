@@ -1,3 +1,5 @@
+import i18n from '../../../app/config/i18n';
+
 export const notifyStats = (guests, wedding) => {
   const viaQr = !!wedding?.settings?.galleryViaQr;
   const subscribers = wedding?.photoSubscribers || [];
@@ -13,6 +15,6 @@ export const notifyStats = (guests, wedding) => {
   };
 };
 
-export const readyIntro = (name) => `Dragi ${name}, slike sa našeg venčanja su spremne! Pogledajte šta su gosti uslikali:`;
+export const readyIntro = (name) => i18n.t('notifications:readyIntro', { name });
 
-export const readyMessage = (wedding, name, link) => `${readyIntro(name)} ${link}\n${wedding.partner1} i ${wedding.partner2}`;
+export const readyMessage = (wedding, name, link) => `${readyIntro(name)} ${link}\n${i18n.t('notifications:signature', { p1: wedding.partner1, p2: wedding.partner2 })}`;

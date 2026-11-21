@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { selectApprovedPhotos, selectPhotoCounts } from '../../photos/store/photos.store';
 import { fetchRequests } from '../../requests/services/requests.service';
@@ -11,28 +12,29 @@ import BigAlbumRequestModal from '../components/BigAlbumRequestModal';
 import WallView from '../components/WallView';
 import GuestStacksView from '../components/GuestStacksView';
 import SlideshowView from '../components/SlideshowView';
+import { eventNames } from '../../../utils/event';
 
 const BACKGROUNDS = {
   lan: {
-    label: 'Lan',
+    label: 'linen',
     css: `repeating-linear-gradient(0deg, rgba(120,100,70,0.04) 0 1px, transparent 1px 4px),
       repeating-linear-gradient(90deg, rgba(120,100,70,0.04) 0 1px, transparent 1px 4px),
       radial-gradient(ellipse at 30% 10%, #F7F1E6, #E6DCC8)`,
   },
   pluta: {
-    label: 'Pluta',
+    label: 'cork',
     css: `radial-gradient(rgba(90,55,25,0.28) 1px, transparent 1.6px) 0 0 / 7px 7px,
       radial-gradient(rgba(255,235,200,0.22) 1px, transparent 1.6px) 3px 4px / 9px 9px,
       radial-gradient(ellipse at 50% 0%, #D2A877, #B98A58)`,
   },
   drvo: {
-    label: 'Drvo',
+    label: 'wood',
     css: `repeating-linear-gradient(90deg, rgba(60,35,15,0.22) 0 2px, transparent 2px 220px),
       repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 13px, rgba(0,0,0,0.04) 13px 14px, transparent 14px 31px),
       linear-gradient(180deg, #B98C62, #A87A50)`,
   },
   noc: {
-    label: 'Noć',
+    label: 'night',
     css: `radial-gradient(circle, rgba(255,214,140,0.55) 0 2px, transparent 3px) 0 0 / 140px 90px,
       radial-gradient(circle, rgba(255,214,140,0.3) 0 1.5px, transparent 2.5px) 70px 45px / 140px 90px,
       radial-gradient(ellipse at 50% 0%, #2C3532, #161B19)`,
@@ -40,8 +42,8 @@ const BACKGROUNDS = {
   },
 };
 const SIZES = { S: 140, M: 185, L: 240 };
-const FILTERS = { all: 'Sve slike', memories: 'Pre venčanja', wedding: 'Venčanje' };
-const VIEWS = { zid: 'Zid', gosti: 'Po gostima', prezentacija: 'Prezentacija' };
+const FILTERS = ['all', 'memories', 'wedding'];
+const VIEWS = ['zid', 'gosti', 'prezentacija'];
 
 function usePref(key, initial) {
   const [v, setV] = useState(() => {
@@ -62,6 +64,7 @@ function usePref(key, initial) {
 }
 
 export default function BigAlbumPage() {
+  const { t } = useTranslation('bigAlbum');
   const dispatch = useAppDispatch();
   const wedding = useAppSelector((s) => s.wedding.data);
   const approved = useAppSelector(selectApprovedPhotos);
@@ -132,15 +135,15 @@ export default function BigAlbumPage() {
 
       <div className="page-head">
         <div className="stack" style={{ '--gap': '6px' }}>
-          <p className="eyebrow">{approved.length} polaroida · sam se dopunjuje kad gosti pošalju slike</p>
-          <h1>Veliki album</h1>
+          <p className="eyebrow">{t('eyebrow', { count: approved.length })}</p>
+          <h1>{t('common:nav.bigAlbum')}</h1>
         </div>
         <div className="row">
           <button className="btn btn-soft" onClick={toggleFullscreen} disabled={!photos.length}>
-            <Icon name="eye" size={18} /> Prikaži na ekranu
+            <Icon name="eye" size={18} /> {t('showOnScreen')}
           </button>
           <button className="btn btn-primary" onClick={() => setRequestOpen(true)} disabled={!approved.length}>
-            <Icon name="sparkle" size={18} /> Uradite ovo za nas
+            <Icon name="sparkle" size={18} /> {t('doItForUs')}
           </button>
         </div>
       </div>
@@ -150,38 +153,38 @@ export default function BigAlbumPage() {
           {pending > 0 && (
             <div className="row" style={{ '--gap': '10px', padding: '10px 14px', borderRadius: 12, background: '#FFF7E6', border: '1px solid #F0DDB0' }}>
               <Icon name="image" size={18} />
-              <span className="small grow">{pending} {pending === 1 ? 'slika čeka' : 'slike čekaju'} odobrenje pre nego što uđu u veliki album.</span>
-              <Link to="/app/fotografije" className="btn btn-ghost btn-sm">Pregledaj</Link>
+              <span className="small grow">{t('pendingBanner', { count: pending })}</span>
+              <Link to="/app/fotografije" className="btn btn-ghost btn-sm">{t('review')}</Link>
             </div>
           )}
           {activeRequest && (
             <div className="row" style={{ '--gap': '10px', padding: '10px 14px', borderRadius: 12, background: 'var(--bg)' }}>
               <Icon name="sparkle" size={18} />
-              <span className="small grow">Vaš zahtev „{activeRequest.style}“: <strong style={{ fontWeight: 500 }}>{REQUEST_STATUS[activeRequest.status] || activeRequest.status}</strong></span>
-              <Link to="/app/custom-dizajn" className="btn btn-ghost btn-sm">Detalji</Link>
+              <span className="small grow">{t('activeRequest', { style: activeRequest.style })} <strong style={{ fontWeight: 500 }}>{REQUEST_STATUS[activeRequest.status] || activeRequest.status}</strong></span>
+              <Link to="/app/custom-dizajn" className="btn btn-ghost btn-sm">{t('common:actions.details')}</Link>
             </div>
           )}
         </div>
       )}
 
       <div className="row" style={{ '--gap': '14px', flexWrap: 'wrap', marginBottom: 14, alignItems: 'center' }}>
-        <div className="segmented" role="group" aria-label="Prikaz">
-          {Object.entries(VIEWS).map(([k, v]) => seg(k, view, setView, v))}
+        <div className="segmented" role="group" aria-label={t('viewAria')}>
+          {VIEWS.map((k) => seg(k, view, setView, t(`views.${k}`)))}
         </div>
-        <div className="segmented" role="group" aria-label="Koje slike">
-          {Object.entries(FILTERS).map(([k, v]) => seg(k, filter, setFilter, v))}
+        <div className="segmented" role="group" aria-label={t('filterAria')}>
+          {FILTERS.map((k) => seg(k, filter, setFilter, t(`filters.${k}`)))}
         </div>
-        <div className="segmented" role="group" aria-label="Pozadina">
-          {Object.entries(BACKGROUNDS).map(([k, v]) => seg(k, bg, setBg, v.label))}
+        <div className="segmented" role="group" aria-label={t('backgroundAria')}>
+          {Object.entries(BACKGROUNDS).map(([k, v]) => seg(k, bg, setBg, t(`backgrounds.${v.label}`)))}
         </div>
         {view !== 'prezentacija' && (
-          <div className="segmented" role="group" aria-label="Veličina polaroida">
+          <div className="segmented" role="group" aria-label={t('sizeAria')}>
             {Object.keys(SIZES).map((k) => seg(k, size, setSize, k))}
           </div>
         )}
         {view !== 'gosti' && (
           <label className="check" style={{ alignItems: 'center' }}>
-            <input type="checkbox" checked={showMessages} onChange={(e) => setShowMessages(e.target.checked)} /> Poruke gostiju
+            <input type="checkbox" checked={showMessages} onChange={(e) => setShowMessages(e.target.checked)} /> {t('guestMessages')}
           </label>
         )}
       </div>
@@ -195,17 +198,17 @@ export default function BigAlbumPage() {
             boxShadow: '0 6px 16px rgba(40,30,20,0.25)', fontFamily: HAND, color: '#3B3A44',
             backgroundImage: 'repeating-linear-gradient(0deg, transparent 0 27px, rgba(120,150,200,0.25) 27px 28px)' }}>
             <span aria-hidden="true" style={{ position: 'absolute', top: -9, left: '50%', transform: 'translateX(-50%)', width: 18, height: 18, borderRadius: '50%', background: '#C0707A', boxShadow: 'inset -3px -3px 0 rgba(0,0,0,0.2)' }} />
-            <div style={{ fontSize: 'clamp(30px, 4.5vw, 46px)', fontWeight: 600, lineHeight: 1 }}>{wedding.partner1} &amp; {wedding.partner2}</div>
+            <div style={{ fontSize: 'clamp(30px, 4.5vw, 46px)', fontWeight: 600, lineHeight: 1 }}>{eventNames(wedding)}</div>
             <div style={{ fontSize: 20, marginTop: 4 }}>{formatDate(wedding.date)}</div>
-            {photos.length > 0 && <div style={{ fontSize: 18, opacity: 0.75 }}>{photos.length} uspomena od {guestsCount} dragih ljudi ♥</div>}
+            {photos.length > 0 && <div style={{ fontSize: 18, opacity: 0.75 }}>{t('boardCount', { photos: photos.length, guests: guestsCount })}</div>}
           </div>
         </div>
 
         {photos.length === 0 ? (
           <div className="stack" style={{ alignItems: 'center', textAlign: 'center', padding: '40px 0 60px', color: background.dark ? '#F1E9D8' : 'var(--ink)' }}>
             <Icon name="image" size={36} />
-            <strong style={{ fontWeight: 500 }}>Još nema odobrenih slika{filter !== 'all' ? ' u ovoj kategoriji' : ''}.</strong>
-            <span className="small" style={{ opacity: 0.8 }}>Čim odobrite slike gostiju, pojavljuju se ovde kao polaroidi.</span>
+            <strong style={{ fontWeight: 500 }}>{filter !== 'all' ? t('emptyCategory') : t('empty')}</strong>
+            <span className="small" style={{ opacity: 0.8 }}>{t('emptyHint')}</span>
           </div>
         ) : (
           <>
@@ -218,13 +221,13 @@ export default function BigAlbumPage() {
         {box && <Lightbox photos={box.list} index={box.index} onClose={closeLightbox} onIndex={setBoxIndex} />}
         {fullscreen && (
           <button className="btn btn-sm" onClick={toggleFullscreen} style={{ position: 'fixed', top: 16, right: 16, zIndex: 200, background: 'rgba(255,255,255,0.9)' }}>
-            <Icon name="x" size={16} /> Zatvori
+            <Icon name="x" size={16} /> {t('common:actions.close')}
           </button>
         )}
       </div>
 
       {requestOpen && (
-        <BigAlbumRequestModal photoCount={photos.length} background={background.label.toLowerCase()} scopeLabel={FILTERS[filter].toLowerCase()}
+        <BigAlbumRequestModal photoCount={photos.length} background={t(`backgrounds.${background.label}`).toLowerCase()} scopeLabel={t(`filters.${filter}`).toLowerCase()}
           showMessages={showMessages} onClose={closeRequest} />
       )}
     </>

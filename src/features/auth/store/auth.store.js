@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { clearAuthToken } from '../../../app/config/api';
-import { login, register, restoreSession, updateMe } from '../services/auth.service';
+import { login, restoreSession, updateMe } from '../services/auth.service';
 
 const initialState = { user: null, token: null, status: 'idle', error: null, restored: false, savingMe: false };
 
@@ -29,19 +29,6 @@ export const authSlice = createSlice({
         state.token = action.payload.token;
       })
       .addCase(login.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload?.message;
-      })
-      .addCase(register.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(register.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-      })
-      .addCase(register.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload?.message;
       })

@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Icon from './Icon';
 
-export const Spinner = ({ light }) => <span className={`spinner ${light ? 'spinner-light' : ''}`} role="status" aria-label="Učitavanje" />;
+export const Spinner = ({ light }) => {
+  const { t } = useTranslation();
+  return <span className={`spinner ${light ? 'spinner-light' : ''}`} role="status" aria-label={t('actions.loading')} />;
+};
 
 export const PageLoading = () => (
   <div className="page-loading"><Spinner /></div>
 );
 
 export function Modal({ title, onClose, children, footer, wide }) {
+  const { t } = useTranslation();
   const ref = useRef(null);
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -25,7 +30,7 @@ export function Modal({ title, onClose, children, footer, wide }) {
       <div className={`modal ${wide ? 'modal-wide' : ''}`} role="dialog" aria-modal="true" aria-label={title} ref={ref}>
         <div className="modal-head">
           <h2>{title}</h2>
-          <button className="icon-btn icon-btn-sm" onClick={onClose} aria-label="Zatvori"><Icon name="x" size={18} /></button>
+          <button className="icon-btn icon-btn-sm" onClick={onClose} aria-label={t('actions.close')}><Icon name="x" size={18} /></button>
         </div>
         {children}
         {footer && <div className="modal-foot">{footer}</div>}
@@ -34,14 +39,15 @@ export function Modal({ title, onClose, children, footer, wide }) {
   );
 }
 
-export function ConfirmModal({ title, text, confirmLabel = 'Obriši', onConfirm, onClose, busy }) {
+export function ConfirmModal({ title, text, confirmLabel, onConfirm, onClose, busy }) {
+  const { t } = useTranslation();
   return (
     <Modal
       title={title}
       onClose={onClose}
       footer={<>
-        <button className="btn btn-soft" onClick={onClose}>Odustani</button>
-        <button className="btn btn-danger" onClick={onConfirm} disabled={busy}>{busy ? <Spinner light /> : confirmLabel}</button>
+        <button className="btn btn-soft" onClick={onClose}>{t('actions.cancel')}</button>
+        <button className="btn btn-danger" onClick={onConfirm} disabled={busy}>{busy ? <Spinner light /> : confirmLabel || t('actions.delete')}</button>
       </>}
     >
       <p className="muted">{text}</p>
@@ -50,6 +56,7 @@ export function ConfirmModal({ title, text, confirmLabel = 'Obriši', onConfirm,
 }
 
 export function Lightbox({ photos, index, onClose, onIndex }) {
+  const { t } = useTranslation();
   const p = photos[index];
   useEffect(() => {
     const onKey = (e) => {
@@ -62,24 +69,25 @@ export function Lightbox({ photos, index, onClose, onIndex }) {
   }, [index, photos.length, onClose, onIndex]);
   if (!p) return null;
   return (
-    <div className="lightbox" role="dialog" aria-modal="true" aria-label="Pregled fotografije" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <button className="icon-btn" style={{ position: 'absolute', top: 16, right: 16 }} onClick={onClose} aria-label="Zatvori"><Icon name="x" /></button>
-      <img src={p.url} alt={p.message || `Fotografija od ${p.senderName}`} />
+    <div className="lightbox" role="dialog" aria-modal="true" aria-label={t('lightbox.label')} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <button className="icon-btn" style={{ position: 'absolute', top: 16, right: 16 }} onClick={onClose} aria-label={t('actions.close')}><Icon name="x" /></button>
+      <img src={p.url} alt={p.message || t('lightbox.photoFrom', { name: p.senderName })} />
       <div className="row" style={{ justifyContent: 'center', textAlign: 'center' }}>
-        <button className="icon-btn" onClick={() => onIndex(index - 1)} disabled={index === 0} aria-label="Prethodna"><Icon name="chevronLeft" /></button>
+        <button className="icon-btn" onClick={() => onIndex(index - 1)} disabled={index === 0} aria-label={t('actions.previous')}><Icon name="chevronLeft" /></button>
         <div style={{ maxWidth: 480 }}>
           <strong>{p.senderName}</strong>
           {p.message && <p className="serif" style={{ fontSize: 20, fontStyle: 'italic' }}>„{p.message}“</p>}
           <span className="xs" style={{ opacity: 0.7 }}>{index + 1} / {photos.length}</span>
         </div>
-        <button className="icon-btn" onClick={() => onIndex(index + 1)} disabled={index === photos.length - 1} aria-label="Sledeća"><Icon name="chevronRight" /></button>
+        <button className="icon-btn" onClick={() => onIndex(index + 1)} disabled={index === photos.length - 1} aria-label={t('actions.next')}><Icon name="chevronRight" /></button>
       </div>
     </div>
   );
 }
 
 
-export function CopyButton({ text, label = 'Kopiraj link', className = 'btn btn-outline btn-sm' }) {
+export function CopyButton({ text, label, className = 'btn btn-outline btn-sm' }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -98,19 +106,21 @@ export function CopyButton({ text, label = 'Kopiraj link', className = 'btn btn-
   return (
     <button className={className} onClick={copy}>
       <Icon name={copied ? 'check' : 'copy'} size={16} />
-      {copied ? 'Kopirano' : label}
+      {copied ? t('actions.copied') : label || t('actions.copyLink')}
     </button>
   );
 }
 
 export const RsvpBadge = ({ status }) => {
-  const map = { yes: ['badge-yes', 'Dolazi'], pending: ['badge-pending', 'Čeka odgovor'], no: ['badge-no', 'Ne dolazi'] };
-  const [cls, label] = map[status] || map.pending;
-  return <span className={`badge ${cls}`}>{label}</span>;
+  const { t } = useTranslation();
+  const map = { yes: 'badge-yes', pending: 'badge-pending', no: 'badge-no' };
+  const key = map[status] ? status : 'pending';
+  return <span className={`badge ${map[key]}`}>{t(`rsvp.${key}`)}</span>;
 };
 
 export const PhotoStatusBadge = ({ status }) => {
-  const map = { pending: ['badge-pending', 'Na čekanju'], approved: ['badge-yes', 'Odobrena'], hidden: ['badge-no', 'Sakrivena'] };
-  const [cls, label] = map[status] || map.pending;
-  return <span className={`badge ${cls}`}>{label}</span>;
+  const { t } = useTranslation();
+  const map = { pending: 'badge-pending', approved: 'badge-yes', hidden: 'badge-no' };
+  const key = map[status] ? status : 'pending';
+  return <span className={`badge ${map[key]}`}>{t(`photoStatus.${key}`)}</span>;
 };

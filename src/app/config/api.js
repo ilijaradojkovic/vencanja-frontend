@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getApiBaseUrl, isMockEnabled } from './env.js';
+import i18n from './i18n';
 
 export const axiosInstance = axios.create({
   baseURL: getApiBaseUrl(),
@@ -10,6 +11,7 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
+    config.headers['Accept-Language'] = i18n.resolvedLanguage || i18n.language;
     const token = getAuthToken();
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;

@@ -1,6 +1,10 @@
 import { useId } from 'react';
-import { daysUntil, formatDate, weekday, plural } from '../../../utils/format';
+import i18n from '../../../app/config/i18n';
+import { daysLabel, daysUntil, formatDate, weekday } from '../../../utils/format';
 import Icon from '../../../components/Icon';
+import { eventInitials } from '../../../utils/event';
+
+export const tt = (key, opts) => i18n.t(`templates:${key}`, opts);
 
 export const SERIF = "'EB Garamond', Georgia, serif";
 export const SANS = "'Jost', system-ui, sans-serif";
@@ -16,7 +20,7 @@ export const icsHref = (wedding) => {
     `UID:${wedding.slug}@uspomena`,
     `DTSTART:${d}T${hh}${mm}00`,
     `DTEND:${d}T235900`,
-    `SUMMARY:Venčanje – ${wedding.partner1} i ${wedding.partner2}`,
+    `SUMMARY:${tt('icsSummary', { p1: wedding.partner1, p2: wedding.partner2 })}`,
     `LOCATION:${first?.place || wedding.city || ''}`,
     'END:VEVENT', 'END:VCALENDAR',
   ].join('\r\n');
@@ -37,10 +41,19 @@ export function inviteInfo(wedding) {
     month: d ? String(d.getMonth() + 1).padStart(2, '0') : '',
     monthName: wedding.date ? formatDate(wedding.date, { month: 'long' }) : '',
     year: d ? d.getFullYear() : '',
-    initials: `${(wedding.partner1 || '?')[0]}${(wedding.partner2 || '?')[0]}`,
+    initials: eventInitials(wedding),
     countdown:
-      days == null ? '' : days > 0 ? `Još ${days} ${plural(days, 'dan', 'dana', 'dana')}` : days === 0 ? 'Danas je veliki dan!' : '',
+      days == null ? '' : days > 0 ? tt('countdown', { days: daysLabel(days) }) : days === 0 ? tt('today') : '',
   };
+}
+
+export function Occasion({ wedding, style }) {
+  if (wedding.partner2 || !wedding.occasion) return null;
+  return (
+    <span style={{ display: 'block', fontSize: '0.4em', marginTop: '0.4em', letterSpacing: '0.06em', opacity: 0.85, ...style }}>
+      {wedding.occasion}
+    </span>
+  );
 }
 
 export function MapLink({ event, color }) {
@@ -48,7 +61,7 @@ export function MapLink({ event, color }) {
   return (
     <a href={mapsUrl(event)} target="_blank" rel="noreferrer" className="small"
       style={{ color, display: 'inline-flex', alignItems: 'center', gap: 4, minHeight: 32 }}>
-      <Icon name="pin" size={16} /> Otvori mapu
+      <Icon name="pin" size={16} /> {tt('openMap')}
     </a>
   );
 }
@@ -56,7 +69,7 @@ export function MapLink({ event, color }) {
 export function CalendarButton({ wedding, style, className = 'btn btn-outline' }) {
   return (
     <a className={className} href={icsHref(wedding)} download={`vencanje-${wedding.slug}.ics`} style={style}>
-      <Icon name="calendar" size={18} /> Dodaj u kalendar
+      <Icon name="calendar" size={18} /> {tt('addToCalendar')}
     </a>
   );
 }

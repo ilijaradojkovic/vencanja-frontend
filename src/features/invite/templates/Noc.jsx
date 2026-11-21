@@ -1,4 +1,5 @@
 import { inviteInfo, MapLink, CalendarButton, DecoCorner, Diamond, SERIF, SANS } from './shared';
+import { tt, Occasion } from './shared';
 
 export default function Noc({ wedding, guestName, children }) {
   const x = inviteInfo(wedding);
@@ -17,17 +18,17 @@ export default function Noc({ wedding, guestName, children }) {
         <header className="stack" style={{ textAlign: 'center', alignItems: 'center', '--gap': '18px' }}>
           <div style={{ width: 74, height: 74, transform: 'rotate(45deg)', border: `1px solid ${gold}`, display: 'grid', placeItems: 'center', margin: '8px 0 10px' }}>
             <span style={{ transform: 'rotate(-45deg)', fontFamily: SERIF, fontSize: 24, fontStyle: 'italic', color: gold }}>
-              {x.initials[0]}&amp;{x.initials[1]}
+              {x.initials.length > 1 ? <>{x.initials[0]}&amp;{x.initials[1]}</> : x.initials}
             </span>
           </div>
           {guestName && <p style={caps}>{guestName}</p>}
           <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 19, color: '#CFC4AE' }}>{x.inv.headline}</p>
           <h1 style={{ fontFamily: SERIF, fontWeight: 400, fontSize: 'clamp(40px, 11vw, 56px)', lineHeight: 1.05, color: '#F6EFDF', letterSpacing: '0.02em' }}>
-            {wedding.partner1}
+            {wedding.partner1}{wedding.partner2 && (<>
             <br />
             <span style={{ fontStyle: 'italic', color: gold, fontSize: '0.7em' }}>&amp;</span>
             <br />
-            {wedding.partner2}
+            {wedding.partner2}</>)}<Occasion wedding={wedding} />
           </h1>
           <div className="row" style={{ gap: 12, justifyContent: 'center' }}>
             <span style={{ width: 40, height: 1, background: gold }} />
@@ -47,8 +48,8 @@ export default function Noc({ wedding, guestName, children }) {
           <p style={{ fontFamily: SERIF, fontSize: 19, lineHeight: 1.55, textAlign: 'center', fontStyle: 'italic', color: '#E5DCC8', margin: '36px 0 8px' }}>{x.inv.message}</p>
         )}
 
-        <section style={{ marginTop: 32, textAlign: 'center' }} aria-label="Raspored dana">
-          <p style={{ ...caps, marginBottom: 18 }}>Raspored večeri</p>
+        <section style={{ marginTop: 32, textAlign: 'center' }} aria-label={tt('schedule')}>
+          <p style={{ ...caps, marginBottom: 18 }}>{tt('eveningSchedule')}</p>
           {x.schedule.map((e, i) => (
             <div key={e.id} className="stack" style={{ '--gap': '4px', alignItems: 'center' }}>
               {i > 0 && (
