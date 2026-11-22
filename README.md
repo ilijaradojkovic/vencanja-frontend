@@ -13,6 +13,7 @@ npm install      # jednom, iz korena (npm workspaces)
 # demo (Vite, mock podaci)
 npm run dev:demo     # http://localhost:5173
 npm run build:demo   # apps/demo/dist
+docker build -f apps/demo/Dockerfile -t uspomena-demo .   # statički demo (nginx)
 
 # proizvod (Next.js)
 npm run dev          # http://localhost:3000

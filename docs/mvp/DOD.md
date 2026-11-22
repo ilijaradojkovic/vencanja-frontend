@@ -60,7 +60,7 @@ Milestones are done in order. A milestone is done when all of its items are tick
 - [x] Vitest and Testing Library set up in `apps/web`; at least one component test passes.
 - [x] GitHub Actions: lint → typecheck → unit → build (web + demo), triggered by pushes to the implementation branch and the eventual consolidated PR. Integration and E2E are added in M1.
 - [ ] The demo behaves the same as before the move (manual check: demo sign-in, guest RSVP, upload, approval).
-- [ ] Dockerfile updated to the new demo path (still the mock demo).
+- [x] Dockerfile updated to the new demo path (still the mock demo).
 
 ### M1 – Local walking skeleton
 

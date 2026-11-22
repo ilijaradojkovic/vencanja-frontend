@@ -2,6 +2,10 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M0: demo image builds from the repository root
+
+The demo stays a plain static site, but with npm workspaces its lockfile lives at the repository root, so `apps/demo/Dockerfile` is now built with the root as context (`docker build -f apps/demo/Dockerfile .`): it copies the root `package.json`/`package-lock.json` plus `apps/demo/package.json`, installs only the demo workspace, and builds `build:demo`. The build image moves from `node:22-alpine` to `node:24-alpine` to match the pinned Node major; nginx and the SPA/caching configuration are unchanged. The ignore file lives at the repository root. Verified by building the image and requesting `/` and `/i/demo-jelena` from the container (both `200`).
+
 ## 2026-11-22 — M0: one React copy for the hoisted test tooling
 
 The frozen demo pins React 18 while the product uses React 19, and npm hoists exactly one copy to the repository root. `@testing-library/react` is hoisted as well, so with React 18 at the root the component tests mixed React 18 and React 19 and failed with “Objects are not valid as a React child”. The root `package.json` therefore declares `react`/`react-dom` 19.3.1 as devDependencies so the hoisted copy matches the product; the demo resolves its own React 18 from `apps/demo/node_modules`, so its dependencies and behaviour stay unchanged. Alias/inline workarounds in the Vitest config did not affect hoisted packages and were removed. `apps/web` runs Vitest + Testing Library in jsdom with v8 coverage thresholds (60% lines/branches); one component test covers the landing page.
