@@ -38,8 +38,10 @@ const AUTH_HOOK_SECRET_FILE = fileURLToPath(new URL('../../supabase/.auth-hook-s
 
 /** Local Send Email Hook secret (Standard Webhooks `whsec_…`), git-ignored. */
 export const readAuthHookSecret = () => {
-  if (!existsSync(AUTH_HOOK_SECRET_FILE)) return process.env.SUPABASE_AUTH_HOOK_SECRET?.trim() ?? '';
-  return readFileSync(AUTH_HOOK_SECRET_FILE, 'utf8').trim();
+  const fileValue = existsSync(AUTH_HOOK_SECRET_FILE) ? readFileSync(AUTH_HOOK_SECRET_FILE, 'utf8').trim() : '';
+  // CI provides the CLI form (`v1,whsec_…`); the file and the API use the bare value.
+  const value = fileValue || process.env.SUPABASE_AUTH_HOOK_SECRET?.trim() || '';
+  return value.startsWith('v1,') ? value.slice(3) : value;
 };
 
 export const ensureAuthHookSecret = () => {
