@@ -57,7 +57,7 @@ Milestones are done in order. A milestone is done when all of its items are tick
 - [ ] Architecture spike passes in a production-like Next build: the catch-all mounts Hono for every required HTTP method; a server component calls a `server-only` service; dynamic guest HTML has correct locale metadata and `private, no-store`; the Node runtime bundles and runs `sharp`. If it fails, record the fallback in `DECISIONS.md` before the port.
 - [x] Unit tests for `packages/shared`, with a coverage threshold.
 - [x] ESLint + Prettier for the whole repo; TypeScript strict for `web`, `api` and `shared`.
-- [ ] Vitest and Testing Library set up in `apps/web`; at least one component test passes.
+- [x] Vitest and Testing Library set up in `apps/web`; at least one component test passes.
 - [ ] GitHub Actions: lint → typecheck → unit → build (web + demo), triggered by pushes to the implementation branch and the eventual consolidated PR. Integration and E2E are added in M1.
 - [ ] The demo behaves the same as before the move (manual check: demo sign-in, guest RSVP, upload, approval).
 - [ ] Dockerfile updated to the new demo path (still the mock demo).

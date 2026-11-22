@@ -19,12 +19,15 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "npm run typecheck -w @uspomena/web && npm run typecheck -w @uspomena/shared",
-    "test:unit": "npm run test:unit -w @uspomena/shared"
+    "test:unit": "npm run test:unit -w @uspomena/shared",
+    "test:component": "npm run test:component -w @uspomena/web"
   },
   "devDependencies": {
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.6",
     "eslint-config-prettier": "10.1.8",
-    "prettier": "3.10.1"
+    "prettier": "3.10.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   }
 }
