@@ -101,6 +101,11 @@ jobs:
       - name: Start local Supabase
         run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npx supabase start
 
+      - name: Apply migrations
+        # `supabase start` only creates the Supabase-managed schema; the product
+        # tables come from the Drizzle migrations the API needs.
+        run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npm run db:migrate
+
       - name: Expose the local Supabase configuration
         run: |
           export SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE"
