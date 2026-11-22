@@ -1,5 +1,7 @@
 import pino, { type DestinationStream, type Logger, type LoggerOptions } from 'pino';
+import pretty from 'pino-pretty';
 
+import { diagnosticsEnabled, diagnosticsStream } from './diagnostics/store.ts';
 import { env } from './env.ts';
 
 /**
@@ -26,6 +28,18 @@ export const createLogger = (destination?: DestinationStream): Logger => {
   };
 
   if (destination) return pino(options, destination);
+
+  // Local tester diagnostics mirror the same records to bounded JSONL files
+  // (LOCAL_DEVELOPMENT.md §5) while keeping the readable console output.
+  if (diagnosticsEnabled()) {
+    return pino(
+      options,
+      pino.multistream([
+        { stream: pretty({ colorize: true, translateTime: 'HH:MM:ss', ignore: 'pid,hostname' }) },
+        { stream: diagnosticsStream() },
+      ]),
+    );
+  }
 
   if (!env.isProduction()) {
     options.transport = {

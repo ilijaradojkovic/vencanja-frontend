@@ -2,6 +2,14 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M1: tester diagnostic support bundle
+
+The browser keeps a bounded in-memory ring (200 allow-listed events: kind, trace/span/request IDs, method, normalized route, status, duration, stable code, retry attempt) in `apps/web/src/lib/diagnostics/ring.ts`; `apiFetch` sends a W3C `traceparent`, records request/response/failure events and keeps retries on one trace. Nothing is uploaded automatically. A local-only `/dev/diagnostics` page (`NEXT_PUBLIC_DIAGNOSTICS_ENABLED=true`, otherwise `404`) triggers a real `422` through `/api/spike/validate`, shows the localized message with code/trace/request IDs, a copy-ID action (clipboard with a selection fallback) and a download action.
+
+`POST /api/diagnostics/export` exists only when `DIAGNOSTICS_ENABLED=true` and not production (`404` otherwise). It caps the request at 256 KB, requires `schemaVersion: 1` and a 32-hex trace ID, re-sanitizes client events through an allow-list, reads matching lines from today's/yesterday's bounded JSONL files under the git-ignored `.logs/` (one file per day, pruned after 7 days or 100 MB), and returns one document: schema version, timestamp, environment, version, trace ID, all request IDs, sanitized client events (sorted), server spans, redacted logs, explicit `warnings` (e.g. `serverLogsMissing`) and a `redactions` summary. Pino mirrors the same records to the JSONL stream only in local diagnostics mode, so product behaviour never depends on those files.
+
+Evidence: S17 passes on Chromium and WebKit — the validation failure yields one trace ID shared by browser events and the server span, `warnings` is empty, the span has route `/api/spike/validate` and status `422`, request IDs reconcile, and the serialized bundle contains no email, bearer token, password or header value. API unit tests cover the disabled `404`, schema/trace/size rejections, malformed JSON and the allow-list stripping of extra fields.
+
 ## 2026-11-22 — M1: local Supabase Auth email hook and SMTP path
 
 `supabase/config.toml` enables `[auth.hook.send_email]` with `uri = "http://host.docker.internal:3000/api/hooks/auth-email"` and `secrets = "env(SUPABASE_AUTH_HOOK_SECRET)"` (the CLI requires the `v1,whsec_<base64>` form), and email confirmations are on. `npm run dev:bootstrap` generates a local `whsec_…` secret into the git-ignored `supabase/.auth-hook-secret`, writes the bare value to `apps/web/.env.local` for the API and passes the `v1,`-prefixed value to every CLI call through `scripts/lib/local-stack.mjs`. Consequences: the local config is invalid for a bare `npx supabase …` without that variable, so the lifecycle scripts are the supported entry points (documented), and the CI jobs generate an ephemeral secret before `supabase start`.

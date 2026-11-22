@@ -1,3 +1,4 @@
+import { RuleViolation } from '@uspomena/shared';
 import { Hono } from 'hono';
 
 import { errorHandler, notFoundHandler } from './errors.ts';
@@ -7,6 +8,7 @@ import { metricsMiddleware } from './middleware/metrics.ts';
 import { requestContext } from './middleware/request-context.ts';
 import { requestLogger } from './middleware/request-logger.ts';
 import { authEmailRoutes } from './routes/auth-email.ts';
+import { diagnosticsRoutes } from './routes/diagnostics.ts';
 import { healthRoutes } from './routes/health.ts';
 import { metricsRoutes } from './routes/metrics.ts';
 import { getGuestByToken } from './services/guest.ts';
@@ -26,6 +28,7 @@ app.use('*', requestLogger());
 app.route('/', healthRoutes);
 app.route('/', metricsRoutes);
 app.route('/', authEmailRoutes);
+app.route('/', diagnosticsRoutes);
 
 /**
  * M0 architecture spike. These `/spike/*` routes exist only to prove that the
@@ -44,6 +47,16 @@ app.get('/spike/guest/:token', (c) => {
 });
 
 app.post('/spike/image', async (c) => c.json({ thumbnail: await makeThumbnailProbe() }));
+
+/** Local validation failure used by the diagnostics tests and S17 (removed with the spike). */
+app.post('/spike/validate', async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as { persons?: unknown };
+  const persons = Number(body.persons);
+  if (!Number.isInteger(persons) || persons < 1 || persons > 3) {
+    throw new RuleViolation('personsRange', { max: 3 });
+  }
+  return c.json({ ok: true, persons });
+});
 
 app.notFound(notFoundHandler);
 app.onError(errorHandler);

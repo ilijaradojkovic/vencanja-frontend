@@ -44,5 +44,7 @@ export const env = {
   emailFrom: () => read('EMAIL_FROM') ?? 'Uspomena <noreply@uspomena.local>',
   authHookSecret: () => read('SUPABASE_AUTH_HOOK_SECRET') ?? '',
   metricsEnabled: () => read('METRICS_ENABLED') === 'true',
+  /** Local-only tester support bundle; hard-disabled outside local development. */
+  diagnosticsEnabled: () => read('DIAGNOSTICS_ENABLED') === 'true',
   metricsToken: () => read('METRICS_TOKEN') ?? '',
 };
