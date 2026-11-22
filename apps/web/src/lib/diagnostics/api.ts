@@ -1,3 +1,5 @@
+import { getAccessToken } from '@/lib/auth/browser';
+
 import { currentTraceId, record } from './ring';
 
 const spanId = (): string => crypto.randomUUID().replaceAll('-', '').slice(0, 16);
@@ -18,9 +20,15 @@ export const apiFetch = async (path: string, init: RequestInit = {}): Promise<Re
   record({ kind: 'request', method, route });
 
   try {
+    const token = typeof window === 'undefined' ? null : await getAccessToken();
     const response = await fetch(path, {
       ...init,
-      headers: { ...(init.headers ?? {}), traceparent: `00-${traceId}-${spanId()}-01` },
+      headers: {
+        'accept-language': document.documentElement.lang || 'sr',
+        ...(init.headers ?? {}),
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        traceparent: `00-${traceId}-${spanId()}-01`,
+      },
     });
     record({
       kind: 'response',
