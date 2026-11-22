@@ -82,7 +82,7 @@ const main = async () => {
 
   logStep('Local configuration');
   const envFile = writeLocalEnv(status);
-  log(`  ✓ wrote ${envFile.replace(`${process.cwd()}/`, '')} (git-ignored)`);
+  log(`  ✓ wrote ${envFile.replace(`${process.cwd()}/`, '')} and the metrics token (git-ignored)`);
 
   logStep('Local observability stack');
   startObservability();

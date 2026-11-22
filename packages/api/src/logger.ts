@@ -1,4 +1,4 @@
-import pino, { type Logger, type LoggerOptions } from 'pino';
+import pino, { type DestinationStream, type Logger, type LoggerOptions } from 'pino';
 
 import { env } from './env.ts';
 
@@ -9,31 +9,37 @@ import { env } from './env.ts';
  * Redaction is part of the contract: authorization/cookie headers and anything
  * that could carry a token, email address or signed URL must never be logged.
  */
-const REDACT_PATHS = [
+export const REDACT_PATHS = [
   'req.headers.authorization',
   'req.headers.cookie',
   'req.headers["x-forwarded-for"]',
   'headers.authorization',
   'headers.cookie',
+  'authorization',
+  'token',
 ];
 
-let logger: Logger | null = null;
-
-export const getLogger = (): Logger => {
-  if (logger) return logger;
-
+export const createLogger = (destination?: DestinationStream): Logger => {
   const options: LoggerOptions = {
     level: process.env.LOG_LEVEL?.trim() || 'info',
     redact: { paths: REDACT_PATHS, censor: '[redacted]' },
   };
+
+  if (destination) return pino(options, destination);
+
   if (!env.isProduction()) {
     options.transport = {
       target: 'pino-pretty',
       options: { colorize: true, translateTime: 'HH:MM:ss', ignore: 'pid,hostname' },
     };
   }
+  return pino(options);
+};
 
-  logger = pino(options);
+let logger: Logger | null = null;
+
+export const getLogger = (): Logger => {
+  if (!logger) logger = createLogger();
   return logger;
 };
 

@@ -33,4 +33,6 @@ export const env = {
   retentionMonthsDefault: () => integer('RETENTION_MONTHS_DEFAULT', 3),
   eventStorageLimitMbDefault: () => integer('EVENT_STORAGE_LIMIT_MB_DEFAULT', 50),
   maxUploadMb: () => integer('MAX_UPLOAD_MB', 30),
+  metricsEnabled: () => read('METRICS_ENABLED') === 'true',
+  metricsToken: () => read('METRICS_TOKEN') ?? '',
 };

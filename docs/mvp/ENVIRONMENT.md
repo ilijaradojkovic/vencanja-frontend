@@ -54,7 +54,7 @@ Do not put `SUPABASE_SERVICE_ROLE_KEY`, database passwords, Resend keys, hook/cr
 4. Confirm email through Mailpit, inspect structured request logs and open the Grafana dashboard. Trigger a validation error and use **Download diagnostic report** to verify the shared trace ID and matching client/server events. No cloud credentials or real email are involved.
 5. Use `dev:services` for subsequent starts, `dev:reset` only for disposable local data and `dev:teardown` to stop services.
 
-Exact generated local values come from the Supabase CLI, not from committed examples. `apps/web/.env.example` contains names and safe placeholders only. Reset/seed scripts validate local DB/Auth targets; reset additionally requires `ALLOW_LOCAL_RESET=1`; they refuse Preview/Production URLs.
+Exact generated local values come from the Supabase CLI, not from committed examples. `apps/web/.env.example` contains names and safe placeholders only. `dev:bootstrap` writes the git-ignored `apps/web/.env.local` (Supabase URL/keys, `DATABASE_URL`, `APP_URL`, `METRICS_ENABLED`, a fresh `METRICS_TOKEN`) and the matching `infra/observability/metrics-token` used by the Prometheus scrape config; regenerate with a new bootstrap after changing the stack. Reset/seed scripts validate local DB/Auth targets; reset additionally requires `ALLOW_LOCAL_RESET=1`; they refuse Preview/Production URLs.
 
 ## 4. External service checklist (M7/M8, not local prerequisites)
 

@@ -22,7 +22,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "npm run typecheck -w @uspomena/web && npm run typecheck -w @uspomena/api && npm run typecheck -w @uspomena/shared",
-    "test:unit": "npm run test:unit -w @uspomena/shared",
+    "test:unit": "npm run test:unit -w @uspomena/shared && npm run test:unit -w @uspomena/api",
     "test:component": "npm run test:component -w @uspomena/web",
     "spike:check": "node scripts/spike-check.mjs",
     "supabase:start": "supabase start",
