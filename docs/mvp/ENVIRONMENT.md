@@ -85,4 +85,8 @@ M0/M1 establish these names so prompts, CI and developers do not invent differen
 
 A task runs the relevant focused tests first, then the General DoD checks. A missing script required by the current milestone is implemented in that milestone, not silently skipped.
 
-Workspaces are `@uspomena/web`, `@uspomena/demo`, `@uspomena/api` and `@uspomena/shared`; a single `npm install` at the repository root installs all of them and produces one root `package-lock.json`.
+Workspaces are `@uspomena/web`, `@uspomena/demo`, `@uspomena/api` and `@uspomena/shared`; a single `npm install` at the repository root installs all of them and produces one root `package-lock.json`. The Node major is pinned for CI and deployments with `.nvmrc` (24 LTS); `package.json` declares `engines.node >= 24.0.0`.
+
+## 6. Continuous integration
+
+`.github/workflows/ci.yml` runs on pushes to the implementation branch (`specs/mvp`) and on pull requests to `main`: `npm ci`, then `lint`, `typecheck`, `test:unit`, `test:component`, `build` and `build:demo` on the Node version from `.nvmrc`. Integration and E2E jobs are added in M1; the workflow intentionally needs no cloud credentials.
