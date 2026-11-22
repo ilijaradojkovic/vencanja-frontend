@@ -2,11 +2,13 @@
   "name": "uspomena",
   "private": true,
   "version": "0.1.0",
+  "workspaces": ["apps/web", "apps/demo", "packages/api", "packages/shared"],
   "scripts": {
-    "dev": "npm --prefix apps/web run dev",
-    "dev:demo": "npm --prefix apps/demo run dev",
-    "build": "npm --prefix apps/web run build",
-    "build:demo": "npm --prefix apps/demo run build:demo",
-    "preview": "npm --prefix apps/web run start"
+    "dev": "npm run dev -w @uspomena/web",
+    "dev:demo": "npm run dev -w @uspomena/demo",
+    "build": "npm run build -w @uspomena/web",
+    "build:demo": "npm run build:demo -w @uspomena/demo",
+    "preview": "npm run start -w @uspomena/web",
+    "test:unit": "npm run test:unit -w @uspomena/shared"
   }
 }

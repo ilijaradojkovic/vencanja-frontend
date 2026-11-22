@@ -52,10 +52,10 @@ Milestones are done in order. A milestone is done when all of its items are tick
 ### M0 – Monorepo, architecture spike and tooling
 
 - [x] Today's Vite app moves unchanged to `apps/demo`; a new Next.js TypeScript product is created at `apps/web`. Root `dev`, `dev:demo`, `build`, `build:demo` and `preview` scripts work.
-- [ ] npm workspaces: `apps/web`, `apps/demo`, `packages/api`, `packages/shared`.
-- [ ] `packages/shared` contains product/API enums, gallery, companion, RSVP, phone and slug rules, and error messages (SPEC §3.2). The frozen demo keeps its own copies.
+- [x] npm workspaces: `apps/web`, `apps/demo`, `packages/api`, `packages/shared`.
+- [x] `packages/shared` contains product/API enums, gallery, companion, RSVP, phone and slug rules, and error messages (SPEC §3.2). The frozen demo keeps its own copies.
 - [ ] Architecture spike passes in a production-like Next build: the catch-all mounts Hono for every required HTTP method; a server component calls a `server-only` service; dynamic guest HTML has correct locale metadata and `private, no-store`; the Node runtime bundles and runs `sharp`. If it fails, record the fallback in `DECISIONS.md` before the port.
-- [ ] Unit tests for `packages/shared`, with a coverage threshold.
+- [x] Unit tests for `packages/shared`, with a coverage threshold.
 - [ ] ESLint + Prettier for the whole repo; TypeScript strict for `web`, `api` and `shared`.
 - [ ] Vitest and Testing Library set up in `apps/web`; at least one component test passes.
 - [ ] GitHub Actions: lint → typecheck → unit → build (web + demo), triggered by pushes to the implementation branch and the eventual consolidated PR. Integration and E2E are added in M1.

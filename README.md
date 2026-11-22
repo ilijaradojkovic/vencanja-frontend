@@ -8,15 +8,18 @@ React 18 + Redux Toolkit + React Router 6 + Vite. Svi podaci su trenutno mockova
 Monorepo: zamrznuti Vite demo je u `apps/demo`, a Next.js proizvod u `apps/web`.
 
 ```bash
+npm install      # jednom, iz korena (npm workspaces)
+
 # demo (Vite, mock podaci)
-npm --prefix apps/demo ci
 npm run dev:demo     # http://localhost:5173
 npm run build:demo   # apps/demo/dist
 
 # proizvod (Next.js)
-npm --prefix apps/web install
 npm run dev          # http://localhost:3000
 npm run build && npm run preview
+
+# zajednička pravila i testovi
+npm run test:unit
 ```
 
 U nastavku se opisuje demo aplikacija.

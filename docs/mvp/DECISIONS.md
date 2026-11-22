@@ -2,6 +2,10 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M0: `packages/shared` scope and gallery time zone
+
+`packages/shared` ports the prototype enums, the gallery/companion/RSVP/phone/slug rules and the sr/en/ru messages, together with its own Vitest suite and coverage thresholds. Three deliberate differences: the demo-only design-request enums are not ported (the feature is cut from the product, SPEC §1.3), the mock-only `routeNotFound` and cut-feature `phoneRequiredForDesigner`/`describeRequest` messages are not ported, and `isGalleryOpen` evaluates the `after_wedding` day in Europe/Belgrade for every caller instead of the browser zone (SPEC §6.6 item 5), covered by summer/winter midnight tests. The frozen demo keeps its own copies. Unit tests for the shared package pass with 100% lines and 98.5% branches (threshold 90%).
+
 ## 2026-11-22 — M0: one agent-instructions file
 
 Next.js 16.4 writes `apps/web/AGENTS.md` on `next dev`/`next build` to point agents at the docs bundled with the installed `next` package. The repository already maintains the authoritative `AGENTS.md` at its root, so `apps/web/next.config.ts` sets `agentRules: false` and the generated file is not committed. This affects tooling only; no product behavior, UC or API requirement changes.
