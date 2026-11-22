@@ -2,6 +2,14 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M1: local Supabase stack, pinned CLI and migration runner
+
+`supabase/` is initialised with `config.toml` for project id `vencanja-frontend`: API `54321`, database `54322`, Studio `54323`, email UI `54324`, SMTP `54325`/POP3 `54326`, Storage enabled, and Auth `site_url` `http://localhost:3000` with `localhost` and `127.0.0.1` in the redirect allow-list. The Supabase CLI is a pinned root devDependency (3.2.0) so every script uses one version; `npm run supabase:start` / `supabase:stop` wrap it and the stack survives a stop/start cycle from backup.
+
+**Deviation (tool only).** The current CLI renders the local mailbox with **Mailpit**, not Inbucket: `supabase status -o env` reports `MAILPIT_URL` and the SMTP/POP3 ports stay 54324/54325. Local email behaviour is unchanged for M0–M6 and no cloud account is involved, so this is recorded rather than treated as a spec change; `ENVIRONMENT.md` and `LOCAL_DEVELOPMENT.md` now say Mailpit, while the `SPEC.md`/`DOD.md` wording is left as authored.
+
+`npm run db:migrate` (`scripts/db-migrate.mjs`) applies forward-only Drizzle migrations by running `drizzle-kit migrate` in `packages/api` against `DIRECT_URL`. When `DIRECT_URL` is unset it uses the local stack's `DB_URL` from `supabase status -o env`, prints only the target host/database (never credentials), and exits non-zero without touching data on failure. The migration runner needs `drizzle-orm`, `drizzle-kit` and the `postgres` driver; with no schema yet `drizzle-kit generate` wrote an empty journal, so the first real migration is added by the M1 schema task and re-applied. Verified: start from scratch, stop/start from backup, `db:migrate` initialising `drizzle.__drizzle_migrations` on the local Postgres, REST `200` and Mailpit `200` after the cycle, and a failing connection exiting `1` with a clear message.
+
 ## 2026-11-22 — M0: architecture spike result
 
 The spike passed in a production `next build`/`next start`: `apps/web/app/api/[[...route]]/route.ts` exports `handle(app)` from `@hono/vercel` for GET, POST, PUT, PATCH and DELETE on the Node runtime (`runtime = 'nodejs'`, `dynamic = 'force-dynamic'`), a server component on `/i/[token]` calls `@uspomena/api/server-only` (a `server-only` entry that fails the build when imported from a client component, verified), guest HTML is per-request with `<html lang>`, localized title/description and `og:locale` from the `lang` cookie, `proxy.ts` sets `Cache-Control: private, no-store` on `/i/*` and `/w/*`, and sharp runs inside the Node runtime (a create→resize→JPEG probe returns 24×16). Next.js already lists `sharp` in its default external packages, so no extra config was needed. `scripts/spike-check.mjs` (`npm run spike:check`) repeats all of this against a running production build.

@@ -6,7 +6,7 @@ This is the implementation checklist for configuration names and ownership. It c
 
 | Environment | Web/API | Supabase | Email/data policy |
 |---|---|---|---|
-| Local | `npm run dev` | Local CLI stack: Postgres + Auth + Storage | SMTP/Inbucket; disposable seeded data only; no cloud credentials |
+| Local | `npm run dev` | Local CLI stack: Postgres + Auth + Storage | SMTP + Mailpit email UI; disposable seeded data only; no cloud credentials |
 | Preview (M7+) | Vercel Preview | Shared staging project, with controlled migrations | Resend allow-listed recipients only; no production personal data |
 | Production | Vercel Production | Production project | Verified domain; real data |
 | Demo | `npm run dev:demo` / `build:demo` | None | Existing Vite mock/localStorage only |
@@ -29,7 +29,7 @@ The existing root Vite `.env*` files describe the prototype/demo. They are not t
 | `RESEND_API_KEY` | **Server only** | M7 Preview/M8 Production | Resend sending; not used locally |
 | `EMAIL_FROM` | Server | M2 | Verified sender, default `Uspomena <noreply@uspomena.rs>` until Q1 changes; local sender can use a `.test` equivalent |
 | `EMAIL_DRIVER` | Server | M1/M2 | `smtp` locally/test, `resend` in Preview/Production; unknown values fail closed |
-| `SMTP_URL` | **Server only** | Local/M2 | Inbucket SMTP, default `smtp://127.0.0.1:54325`; no real local email delivery |
+| `SMTP_URL` | **Server only** | Local/M2 | Local Mailpit SMTP, default `smtp://127.0.0.1:54325`; no real local email delivery |
 | `EMAIL_ALLOWLIST` | **Server only** | M7 Preview | Comma-separated permitted Preview recipients; production behavior must not silently discard mail |
 | `SUPABASE_AUTH_HOOK_SECRET` | **Server only** | M1 local spike/M2 full flows | Standard Webhooks verification for the raw Send Email Hook body |
 | `CRON_SECRET` | **Server only** | M6 | Bearer secret for Vercel Cron and manual authorized runs |
@@ -51,7 +51,7 @@ Do not put `SUPABASE_SERVICE_ROLE_KEY`, database passwords, Resend keys, hook/cr
 1. Install the pinned Node major and Docker, then run `npm ci` from the repository root.
 2. Run `npm run dev:bootstrap`: it starts the pinned Supabase CLI and local Prometheus/Grafana, applies migrations, creates the private bucket, loads deterministic seeds and prints local URLs/credentials.
 3. Run `npm run dev` in a separate terminal; verify `/api/health`, a seeded login and a seeded guest invitation.
-4. Confirm email through Inbucket, inspect structured request logs and open the Grafana dashboard. Trigger a validation error and use **Download diagnostic report** to verify the shared trace ID and matching client/server events. No cloud credentials or real email are involved.
+4. Confirm email through Mailpit, inspect structured request logs and open the Grafana dashboard. Trigger a validation error and use **Download diagnostic report** to verify the shared trace ID and matching client/server events. No cloud credentials or real email are involved.
 5. Use `dev:services` for subsequent starts, `dev:reset` only for disposable local data and `dev:teardown` to stop services.
 
 Exact generated local values come from the Supabase CLI, not from committed examples. `apps/web/.env.example` contains names and safe placeholders only. Reset/seed scripts validate local DB/Auth targets; reset additionally requires `ALLOW_LOCAL_RESET=1`; they refuse Preview/Production URLs.
@@ -80,8 +80,8 @@ M0/M1 establish these names so prompts, CI and developers do not invent differen
 | `spike:check` | M0 architecture-spike check against a production Next.js build (`npm run build` first); replaced in M1 |
 | `test:integration` | API tests against real local Supabase DB/Storage |
 | `test:e2e` | Playwright against the local stack |
-| `db:migrate` | Apply forward-only migrations using `DIRECT_URL` |
-| `supabase:start`, `supabase:stop` | Manage the pinned local Supabase CLI stack |
+| `db:migrate` | Apply forward-only migrations using `DIRECT_URL`, or the local stack's `DB_URL` when it is unset |
+| `supabase:start`, `supabase:stop` | Manage the pinned local Supabase CLI stack (CLI 3.2.0 is a root devDependency; the local email UI is Mailpit on `:54324`, SMTP on `:54325`) |
 | `admin:create` | Create a superadmin in the explicitly selected non-production or approved production environment |
 
 A task runs the relevant focused tests first, then the General DoD checks. A missing script required by the current milestone is implemented in that milestone, not silently skipped.

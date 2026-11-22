@@ -13,15 +13,15 @@ Next.js + mounted Hono API  ───────────────► std
   │  │  │  └─ Auth/Storage/Postgres ─► Supabase CLI     │
   │  │  │       (all local Docker containers)            │ scrape
   │  │  └───────────────────────────► Prometheus ─► Grafana
-  │  └─ SMTP ─► Inbucket (Supabase CLI)
+  │  └─ SMTP ─► Mailpit (Supabase CLI)
   └─ server-only services use the same local DB/Storage
 
-Supabase Auth Send Email Hook ─► host machine Next.js API ─► local SMTP/Inbucket
+Supabase Auth Send Email Hook ─► host machine Next.js API ─► local SMTP/Mailpit
 ```
 
 - Next.js runs on the host with `npm run dev`; Hono is mounted in the same process.
-- The pinned Supabase CLI supplies local Postgres, Auth, Storage, Studio and Inbucket. No hosted Supabase project is needed.
-- Local email uses an SMTP `EmailSender` pointed at Inbucket. Production uses the Resend implementation behind the same interface. Local development never silently sends real email.
+- The pinned Supabase CLI (3.2.0) supplies local Postgres, Auth, Storage, Studio and the Mailpit email UI (Inbucket was replaced in the CLI; same web port and SMTP port). No hosted Supabase project is needed.
+- Local email uses an SMTP `EmailSender` pointed at Mailpit. Production uses the Resend implementation behind the same interface. Local development never silently sends real email.
 - Google’s real hosted redirect and Vercel Analytics delivery are external-integration checks in M7/M8. Local tests cover callback/state handling with local Auth identities/test fixtures and verify that analytics makes no request without consent; they must not claim real Google/Vercel delivery.
 - Cron is invoked locally through the authenticated endpoint with injected time. Vercel scheduling itself is checked in M7/M8.
 
@@ -32,8 +32,8 @@ Expected default URLs (configurable when ports conflict):
 | Product | `http://localhost:3000` |
 | Supabase API/Auth/Storage | `http://127.0.0.1:54321` |
 | Supabase Studio | `http://127.0.0.1:54323` |
-| Inbucket | `http://127.0.0.1:54324` |
-| Inbucket SMTP | `127.0.0.1:54325` |
+| Mailpit (local email UI) | `http://127.0.0.1:54324` |
+| Mailpit SMTP | `127.0.0.1:54325` |
 | Prometheus | `http://localhost:9090` |
 | Grafana | `http://localhost:3001` |
 
@@ -68,7 +68,7 @@ Required fixture set:
 | Wedding organizer | Verified, onboarded; invitation, guests in different RSVP/companion states and default 50 MB storage |
 | Celebration organizer | Verified, onboarded; celebration wording and slug/side examples |
 | New organizer | Verified but no event, for onboarding |
-| Unconfirmed organizer | Exercises confirmation/resend UI through Inbucket |
+| Unconfirmed organizer | Exercises confirmation/resend UI through Mailpit |
 | Google-linked organizer | Local identity fixture for provider-specific UI/state, explicitly not a real Google OAuth test |
 | Guests | Pending/yes/no, open/named/no companions, notification pending/sent and deterministic local personal links |
 | Photos | Real small JPEG/PNG/WebP fixtures in local Storage with uploading/pending/approved/hidden rows and valid original/web/thumb variants |
@@ -142,7 +142,7 @@ Expose `/api/metrics` only when `METRICS_ENABLED=true` and require `METRICS_TOKE
 A developer/agent can, without cloud credentials:
 
 1. Bootstrap from a fresh clone and open seeded organizer/admin/guest flows.
-2. Sign up, confirm/reset email through Inbucket, onboard and exercise authorization.
+2. Sign up, confirm/reset email through Mailpit, onboard and exercise authorization.
 3. Upload real local fixtures, process them, moderate, view paginated galleries and download originals.
 4. Send gallery emails locally, invoke retention/cleanup jobs and inspect results.
 5. Run unit, integration, component and E2E suites entirely locally.
