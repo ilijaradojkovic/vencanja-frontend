@@ -63,9 +63,7 @@ describe('parseRsvp', () => {
   });
 
   it('rejects a companion who is not on the invited list', () => {
-    expectViolation('companionNotInvited', () =>
-      parseRsvp(namedGuest, { status: 'yes', companions: ['Nepoznati'] }),
-    );
+    expectViolation('companionNotInvited', () => parseRsvp(namedGuest, { status: 'yes', companions: ['Nepoznati'] }));
   });
 
   it('accepts one named companion', () => {

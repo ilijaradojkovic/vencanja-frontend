@@ -212,8 +212,5 @@ export const parseLanguage = (acceptLanguage?: string | null): Language => {
 const interpolate = (template: string, params: MessageParams): string =>
   template.replace(/\{\{(\w+)\}\}/g, (_match, key: string) => String(params[key] ?? ''));
 
-export const translateMessage = (
-  key: MessageKey,
-  params: MessageParams = {},
-  acceptLanguage?: string | null,
-): string => interpolate(MESSAGES[key][parseLanguage(acceptLanguage)], params);
+export const translateMessage = (key: MessageKey, params: MessageParams = {}, acceptLanguage?: string | null): string =>
+  interpolate(MESSAGES[key][parseLanguage(acceptLanguage)], params);

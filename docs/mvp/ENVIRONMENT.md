@@ -75,6 +75,7 @@ M0/M1 establish these names so prompts, CI and developers do not invent differen
 | `db:seed` | Idempotently maintain documented local fixtures only |
 | `build`, `build:demo`, `preview` | Product build; demo build; product preview |
 | `lint`, `typecheck` | Repository checks, including web/api/shared TypeScript |
+| `lint:fix`, `format`, `format:check` | ESLint autofix; Prettier write/check (frozen demo and specs excluded) |
 | `test:unit`, `test:component` | Vitest suites with configured coverage thresholds |
 | `test:integration` | API tests against real local Supabase DB/Storage |
 | `test:e2e` | Playwright against the local stack |
@@ -83,3 +84,5 @@ M0/M1 establish these names so prompts, CI and developers do not invent differen
 | `admin:create` | Create a superadmin in the explicitly selected non-production or approved production environment |
 
 A task runs the relevant focused tests first, then the General DoD checks. A missing script required by the current milestone is implemented in that milestone, not silently skipped.
+
+Workspaces are `@uspomena/web`, `@uspomena/demo`, `@uspomena/api` and `@uspomena/shared`; a single `npm install` at the repository root installs all of them and produces one root `package-lock.json`.

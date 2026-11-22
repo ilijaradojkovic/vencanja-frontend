@@ -32,7 +32,10 @@ describe('baseSlug', () => {
 });
 
 describe('uniqueSlug', () => {
-  const taken = (...slugs: string[]) => (slug: string) => slugs.includes(slug);
+  const taken =
+    (...slugs: string[]) =>
+    (slug: string) =>
+      slugs.includes(slug);
 
   it('returns the base when it is free', () => {
     expect(uniqueSlug('ana-i-marko', taken())).toBe('ana-i-marko');

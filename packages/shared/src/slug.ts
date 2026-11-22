@@ -17,8 +17,7 @@ const FALLBACK_SLUG = 'vencanje';
 export const WEDDING_SLUG_SEPARATOR = '-i-';
 export const CELEBRATION_SLUG_SEPARATOR = '-';
 
-export const isValidSlug = (value: unknown): boolean =>
-  typeof value === 'string' && SLUG_PATTERN.test(value);
+export const isValidSlug = (value: unknown): boolean => typeof value === 'string' && SLUG_PATTERN.test(value);
 
 /** Lowercases, strips diacritics and collapses everything else into hyphens. */
 export const baseSlug = (first: string, second = '', separator: string = WEDDING_SLUG_SEPARATOR): string =>

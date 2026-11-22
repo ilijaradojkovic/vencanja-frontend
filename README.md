@@ -24,6 +24,7 @@ npm run test:unit
 
 U nastavku se opisuje demo aplikacija.
 Demo nalozi:
+
 - mladenci (svadba): **demo@uspomena.rs / demo123**
 - slavljenik (proslava, 18. rođendan): **rodjendan@uspomena.rs / demo123**
 - superadmin: **admin@uspomena.rs / admin123**
@@ -34,14 +35,17 @@ Pozivnica gosta: `/i/demo-jelena` (ostali tokeni: `milica`, `kum`, `petrovic`…
 ## Šta postoji
 
 **Gosti (javno, mobilni prvo)**
+
 - `/i/:token` – lična pozivnica: koverta koja se otvara, raspored, mapa, `.ics` za kalendar, potvrda dolaska (RSVP)
 - `/i/:token/upload` – slanje slika sa ličnog linka (pravi izbor fajlova, drag & drop, pregled, napredak)
 - `/w/:slug/upload` – isto, preko opšteg linka / QR koda na stolovima
 
 **Superadmin (`/admin`, samo uloga `superadmin`)**
+
 - Nalozi – pravljenje naloga tipa **svadba** (mlada i mladoženja) ili **proslava** (jedan slavljenik + naziv, npr. „18. rođendan“), izmena, nova lozinka, deaktivacija, brisanje; poruka sa podacima za prijavu za kopiranje
 
 **Mladenci (`/app`, zaštićeno prijavom)**
+
 - Pregled – statistika, odgovori, nove slike, QR kod (preuzimanje PNG)
 - Gosti – pretraga, filteri, dodavanje/izmena/brisanje, uvoz spiska, CSV izvoz, kopiranje linka, WhatsApp
 - Pozivnica – templejt, boja, tekst, raspored dana, pregled uživo

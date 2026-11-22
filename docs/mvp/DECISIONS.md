@@ -1,6 +1,6 @@
-# MVP decisions and deviations
+## 2026-11-22 — M0: lint/format scope for the frozen demo and the specs
 
-This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
+ESLint (flat config, `eslint-config-next` core-web-vitals + TypeScript, Prettier last) runs over the whole repository with `--max-warnings=0`. The frozen `apps/demo` is linted only for plain JavaScript/React mistakes: Next.js-only advice and rules that would force a refactor of frozen code (`@next/next/no-img-element`, `react-hooks/exhaustive-deps`, `jsx-a11y/role-supports-aria-props`, `import/no-anonymous-default-export` and the React Compiler hook rules) are disabled for that path. Prettier runs on code (`apps/web`, `packages/*`, root configs) but ignores `apps/demo` and the specification/reference documents (`docs/`, `AGENTS.md`, `API.md`, `USE_CASES.txt`), which are authored separately and would otherwise produce a large unrelated diff. ESLint is pinned to 9.39.5 because some plugins used by `eslint-config-next` do not declare ESLint 10 peer support yet. No product behavior changes.
 
 ## 2026-11-22 — M0: `packages/shared` scope and gallery time zone
 

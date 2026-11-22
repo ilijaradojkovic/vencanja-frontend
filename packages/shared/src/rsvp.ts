@@ -39,9 +39,7 @@ export const parseRsvp = (
   options: { manual?: boolean } = {},
 ): RsvpResult => {
   const body = input ?? {};
-  const valid = options.manual
-    ? [RsvpStatus.YES, RsvpStatus.NO, RsvpStatus.PENDING]
-    : [RsvpStatus.YES, RsvpStatus.NO];
+  const valid = options.manual ? [RsvpStatus.YES, RsvpStatus.NO, RsvpStatus.PENDING] : [RsvpStatus.YES, RsvpStatus.NO];
   const status = body.status;
   if (!isAttendingStatus(status) || !valid.includes(status)) throw new RuleViolation('chooseAttendance');
 

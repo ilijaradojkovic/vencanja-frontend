@@ -5,9 +5,7 @@ import { cleanNames, type CompanionSet } from './gallery.ts';
 export const MAX_COMPANIONS = 19;
 
 /** Number of companions a guest may bring, derived from their invitation. */
-export const maxCompanions = (
-  guest: { companions?: CompanionSet | null | undefined } | null | undefined,
-): number => {
+export const maxCompanions = (guest: { companions?: CompanionSet | null | undefined } | null | undefined): number => {
   const companions = guest?.companions;
   if (!companions || companions.type === CompanionType.NONE) return 0;
   if (companions.type === CompanionType.NAMED) return companions.names.length;
@@ -22,9 +20,7 @@ const noCompanions = (): CompanionSet => ({ type: CompanionType.NONE, max: 0, na
 /** Builds the companion rule from the "max persons" field of the guest form. */
 export const companionsFromMaxPersons = (maxPersonsInput: unknown): CompanionSet => {
   const companions = Math.max(1, Number(maxPersonsInput) || 1) - 1;
-  return companions > 0
-    ? { type: CompanionType.OPEN, max: companions, names: [] }
-    : noCompanions();
+  return companions > 0 ? { type: CompanionType.OPEN, max: companions, names: [] } : noCompanions();
 };
 
 const isCompanionType = (value: unknown): value is CompanionType =>

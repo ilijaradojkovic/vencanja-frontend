@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  DEFAULT_LANGUAGE,
-  LANGUAGES,
-  MESSAGE_KEYS,
-  parseLanguage,
-  translateMessage,
-} from '../src/messages.ts';
+import { DEFAULT_LANGUAGE, LANGUAGES, MESSAGE_KEYS, parseLanguage, translateMessage } from '../src/messages.ts';
 
 describe('message catalogue', () => {
   it('has at least one key', () => {
@@ -41,9 +35,7 @@ describe('translateMessage', () => {
   });
 
   it('interpolates parameters', () => {
-    expect(translateMessage('personsRange', { max: 3 }, 'en')).toBe(
-      'The number of people must be between 1 and 3.',
-    );
+    expect(translateMessage('personsRange', { max: 3 }, 'en')).toBe('The number of people must be between 1 and 3.');
     expect(translateMessage('notImage', { name: 'slika.heic' }, 'sr')).toBe('slika.heic nije slika.');
   });
 

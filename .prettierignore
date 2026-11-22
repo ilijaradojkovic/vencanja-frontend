@@ -1,0 +1,11 @@
+node_modules
+dist
+.next
+coverage
+package-lock.json
+apps/demo
+apps/demo/dist
+docs
+AGENTS.md
+API.md
+USE_CASES.txt

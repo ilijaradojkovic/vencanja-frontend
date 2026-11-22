@@ -2,13 +2,29 @@
   "name": "uspomena",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["apps/web", "apps/demo", "packages/api", "packages/shared"],
+  "workspaces": [
+    "apps/web",
+    "apps/demo",
+    "packages/api",
+    "packages/shared"
+  ],
   "scripts": {
     "dev": "npm run dev -w @uspomena/web",
     "dev:demo": "npm run dev -w @uspomena/demo",
     "build": "npm run build -w @uspomena/web",
     "build:demo": "npm run build:demo -w @uspomena/demo",
     "preview": "npm run start -w @uspomena/web",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "npm run typecheck -w @uspomena/web && npm run typecheck -w @uspomena/shared",
     "test:unit": "npm run test:unit -w @uspomena/shared"
+  },
+  "devDependencies": {
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.6",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.10.1"
   }
 }
