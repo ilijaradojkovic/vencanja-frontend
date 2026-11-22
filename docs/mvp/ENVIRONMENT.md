@@ -90,4 +90,4 @@ Workspaces are `@uspomena/web`, `@uspomena/demo`, `@uspomena/api` and `@uspomena
 
 ## 6. Continuous integration
 
-`.github/workflows/ci.yml` runs on pushes to the implementation branch (`specs/mvp`) and on pull requests to `main`: `npm ci`, then `lint`, `typecheck`, `test:unit`, `test:component`, `build` and `build:demo` on the Node version from `.nvmrc`. Integration and E2E jobs are added in M1; the workflow intentionally needs no cloud credentials.
+`.github/workflows/ci.yml` runs on pushes to the implementation branch (`specs/mvp`) and on pull requests to `main`: `npm ci`, then `lint`, `typecheck`, `test:unit`, `test:component`, `build` and `build:demo` on the Node version from `.nvmrc`. The integration and E2E jobs start the local Supabase CLI stack; the E2E job also exports the local `NEXT_PUBLIC_SUPABASE_URL`, publishable key, service-role key and the bare `SUPABASE_AUTH_HOOK_SECRET` for the product, while the CLI steps receive the `v1,`-prefixed form of the same generated secret. The workflow intentionally needs no cloud credentials.

@@ -95,15 +95,23 @@ jobs:
         run: npx playwright install --with-deps chromium webkit
 
       - name: Local auth hook secret
-        run: echo "SUPABASE_AUTH_HOOK_SECRET=v1,whsec_$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+        # The CLI needs the `v1,` prefix, the app the bare `whsec_` value; one secret.
+        run: echo "HOOK_SECRET_BARE=whsec_$(openssl rand -base64 32)" >> "$GITHUB_ENV"
 
       - name: Start local Supabase
-        run: npx supabase start
+        run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npx supabase start
 
-      - name: Expose the local database URL
+      - name: Expose the local Supabase configuration
         run: |
+          export SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE"
           eval "$(npx supabase status -o env)"
-          echo "DATABASE_URL=$DB_URL" >> "$GITHUB_ENV"
+          {
+            echo "DATABASE_URL=$DB_URL"
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${PUBLISHABLE_KEY:-$ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SECRET_KEY:-$SERVICE_ROLE_KEY}"
+            echo "SUPABASE_AUTH_HOOK_SECRET=$HOOK_SECRET_BARE"
+          } >> "$GITHUB_ENV"
 
       - name: End-to-end tests
         run: npm run test:e2e
@@ -118,4 +126,4 @@ jobs:
 
       - name: Stop local Supabase
         if: always()
-        run: npx supabase stop --no-backup
+        run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npx supabase stop --no-backup
