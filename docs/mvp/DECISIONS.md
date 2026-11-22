@@ -2,6 +2,19 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M1: Drizzle schema and the first migration
+
+`packages/api/src/db/schema.ts` defines all seven tables of SPEC §4 (`profiles`, `events`, `guests`, `photo_subscribers`, `photos`, `email_log`, `rate_limits`), eight enums, the spec's unique/index requirements, its checks (`retention_months` 1–60, positive storage limit and photo size, slug format, side values, non-negative RSVP persons and rate-limit counts) and `.enableRLS()` on every table, which `drizzle-kit generate` emits as `ALTER TABLE … ENABLE ROW LEVEL SECURITY`. The generated migration `db/migrations/0000_military_landau.sql` plus its snapshot are committed; the snapshot/journal are excluded from Prettier because they are tool output that regenerates on every `drizzle-kit generate`.
+
+Deliberate choices, all within the spec:
+
+- `profiles.id` carries the Supabase auth user id but has **no** cross-schema foreign key to `auth.users`: that schema belongs to Supabase Auth, is not part of this schema file, and defining it would make `drizzle-kit` try to create it. The API keeps the values in sync and deletes the profile explicitly with the auth user (UC-84).
+- Event/photo/guest/RSVP/email enums keep the spec's storage values (`mlada|mladozenja|zajednicki`, `uploading|pending|approved|hidden`, `sent|failed`, …) so the demo's stored values stay valid; TypeScript names live in `packages/shared`.
+- `bigint` columns (`storage_limit_bytes`, `size_bytes`) use Drizzle's `number` mode because the spec's 50 MB / 30 MB limits are far below `Number.MAX_SAFE_INTEGER`; timestamps are `timestamptz` with `mode: 'date'`.
+- Extra indexes beyond the spec are limited to query paths the API needs and to the daily cron: `events.purge_at`, `photos(event_id, status, created_at)`, `guests(event_id, rsvp_status)`, `email_log.created_at`, plus unique indexes for `events.slug`, `events.owner_id`, `guests.token`, `profiles.email`, `photo_subscribers(event_id, email)` and `email_log.dedupe_key` (nullable, so many rows without a key remain allowed).
+
+Evidence: `drizzle-kit generate` reported 7 tables and produced the migration; a guarded local reset (clean stack) followed by `npm run db:migrate` created everything on an empty database — `pg_tables` shows all seven tables with `rowsecurity = true`, `pg_policies` is empty, eight enum types and seven check constraints exist, and `drizzle.__drizzle_migrations` holds one row. Re-running `db:migrate` is a no-op.
+
 ## 2026-11-22 — M1: local lifecycle scripts and reset guards
 
 The lifecycle commands are small Node scripts under `scripts/` sharing `scripts/lib/local-stack.mjs`, which reads the ports and project id from `supabase/config.toml` and parses `supabase status -o json`:

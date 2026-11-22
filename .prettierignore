@@ -9,3 +9,4 @@ docs
 AGENTS.md
 API.md
 USE_CASES.txt
+packages/api/db/migrations/meta
