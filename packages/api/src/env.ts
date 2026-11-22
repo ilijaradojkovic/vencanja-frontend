@@ -26,6 +26,9 @@ const integer = (name: string, fallback: number): number => {
 
 export const env = {
   databaseUrl: () => required('DATABASE_URL'),
+  supabaseUrl: () => (read('NEXT_PUBLIC_SUPABASE_URL') ?? read('SUPABASE_URL') ?? '').replace(/\/$/, ''),
+  /** Server-only key; never expose it to the browser or log it. */
+  supabaseServiceKey: () => required('SUPABASE_SERVICE_ROLE_KEY'),
   appUrl: () => read('APP_URL') ?? 'http://localhost:3000',
   version: () => read('APP_VERSION') ?? '0.1.0',
   nodeEnv: () => read('NODE_ENV') ?? 'development',

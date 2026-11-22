@@ -24,7 +24,13 @@ if (migrate.status !== 0) fail('Migrations failed before the integration tests.'
 
 logStep('Integration tests');
 const tests = spawnSync('npm', ['run', '--silent', 'test:integration', '-w', '@uspomena/api'], {
-  env: { ...process.env, DATABASE_URL: status.DB_URL, APP_VERSION: '0.1.0' },
+  env: {
+    ...process.env,
+    DATABASE_URL: status.DB_URL,
+    NEXT_PUBLIC_SUPABASE_URL: status.API_URL ?? '',
+    SUPABASE_SERVICE_ROLE_KEY: status.SECRET_KEY ?? status.SERVICE_ROLE_KEY ?? '',
+    APP_VERSION: '0.1.0',
+  },
   stdio: 'inherit',
 });
 if (tests.status !== 0) process.exit(tests.status ?? 1);

@@ -2,6 +2,18 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M2: API token verification and `/auth/me`
+
+`GET /api/auth/me` verifies the Supabase access token by calling Auth `/auth/v1/user` with the server-only service key, which checks signature, issuer and `exp`; a missing token answers `401 unauthorized`, an invalid/expired one `401 sessionExpired`. The API then reads the profile and enforces `active` (`401 accountDisabled`) and `tokens_valid_after` against the token's `iat` (`401 sessionExpired`), so deactivation and password changes end existing sessions immediately. When no profile exists it is created from the verified auth user (email, `user_metadata.locale`, `user_metadata.name`) and returned with `201`. The response shape is `{ profile: { id, role, email, name, phone, locale, active, onboardedAt, createdAt } }`, which the M2 web client will consume; `onboardingRequired` (`409`) on other protected routes follows in the next pass.
+
+Three decisions taken at the start of M2 (recorded so they are not silently changed later):
+
+- **No axios.** The product already has `apiFetch` (`apps/web/src/lib/diagnostics/api.ts`) with trace propagation; M2 extends it to attach `Authorization: Bearer <access token>` and `Accept-Language` instead of introducing a second client. SPEC §3.3 names `axiosInstance`; this is a tooling deviation with no contract change.
+- **`/auth/callback` is added in the web pass (2b)** and handles both the email links produced by the M1 Send Email Hook and the Google callback.
+- **Redirects and `409` coexist**: `proxy.ts` redirects are UX only (signed out → `/login?next=…`, not onboarded → `/onboarding`, superadmin ↔ `/admin`), while the API stays the authorization boundary and answers `409 onboardingRequired` on protected routes until onboarding is complete.
+
+Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
+
 ## 2026-11-22 — M1: tester diagnostic support bundle
 
 The browser keeps a bounded in-memory ring (200 allow-listed events: kind, trace/span/request IDs, method, normalized route, status, duration, stable code, retry attempt) in `apps/web/src/lib/diagnostics/ring.ts`; `apiFetch` sends a W3C `traceparent`, records request/response/failure events and keeps retries on one trace. Nothing is uploaded automatically. A local-only `/dev/diagnostics` page (`NEXT_PUBLIC_DIAGNOSTICS_ENABLED=true`, otherwise `404`) triggers a real `422` through `/api/spike/validate`, shows the localized message with code/trace/request IDs, a copy-ID action (clipboard with a selection fallback) and a download action.
