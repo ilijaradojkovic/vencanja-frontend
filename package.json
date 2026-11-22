@@ -32,7 +32,8 @@
     "dev:teardown": "node scripts/dev-teardown.mjs",
     "dev:reset": "node scripts/dev-reset.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
-    "db:seed": "node scripts/db-seed.mjs"
+    "db:seed": "node scripts/db-seed.mjs",
+    "test:integration": "node scripts/test-integration.mjs"
   },
   "devDependencies": {
     "eslint": "9.39.5",

@@ -43,3 +43,27 @@ jobs:
 
       - name: Build demo
         run: npm run build:demo
+
+  integration:
+    name: integration tests (local Supabase)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Start local Supabase
+        run: npx supabase start
+
+      - name: Integration tests
+        run: npm run test:integration
+
+      - name: Stop local Supabase
+        if: always()
+        run: npx supabase stop --no-backup

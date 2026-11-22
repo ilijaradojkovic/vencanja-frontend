@@ -2,6 +2,12 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M1: API integration tests against the local stack in CI
+
+`npm run test:integration` (`scripts/test-integration.mjs`) starts the local Supabase stack if needed, applies migrations with `DIRECT_URL` cleared, and runs `packages/api` integration tests with the real local `DATABASE_URL` — no mocks, no cloud credentials. The suite (`packages/api/test-integration/health.test.ts`) checks `GET /api/health` against Postgres with correlation headers, asserts the migrated schema (the seven tables, RLS enabled on each, zero policies) and the 404 envelope in front of a live connection. `vitest.integration.config.ts` runs files serially with a 30 s timeout; unit tests stay in `vitest.config.ts`.
+
+GitHub Actions runs it as a second job (`integration`) in the same workflow: `npm ci` → `npx supabase start` (the CLI is the pinned npm devDependency, Docker is available on the runner) → `npm run test:integration` → `supabase stop --no-backup` in an `always()` step. Unit tests remain a separate job that needs no database.
+
 ## 2026-11-22 — M1: local metrics, Prometheus/Grafana and log redaction
 
 Metrics are registered with `prom-client` in `packages/api/src/metrics.ts`: `http_requests_total{method,route,status}`, `http_request_duration_seconds{method,route}` (with buckets), `http_errors_total{route,code}` plus the default Node process metrics. Labels are Hono route templates (`/api/health`, `/api/guests/:id`) and unmatched requests collapse to `/api/*`, so no raw path, token, ID or email can become a label; `normalizeRoute` has its own unit test. Errors are counted in the shared error handlers with their stable code.
