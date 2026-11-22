@@ -16,7 +16,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
-    "test:integration": "vitest run --config vitest.integration.config.ts"
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "db:seed": "node src/db/seed.ts"
   },
   "dependencies": {
     "@hono/vercel": "1.0.1",

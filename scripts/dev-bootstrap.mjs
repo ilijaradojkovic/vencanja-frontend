@@ -6,12 +6,8 @@
  *
  * It never contacts a hosted environment: a non-local DIRECT_URL is refused.
  */
-import { existsSync } from 'node:fs';
-
 import {
   LOCAL_PORTS,
-  SEED_FILE,
-  SEEDS_DIR,
   dockerIsRunning,
   fail,
   log,
@@ -98,10 +94,7 @@ const main = async () => {
   if (run('npm', ['run', '--silent', 'db:migrate']).status !== 0) fail('Migrations failed. See the output above.');
 
   logStep('Seeds');
-  const hasSeeds = existsSync(SEED_FILE) || existsSync(SEEDS_DIR);
-  if (!hasSeeds) {
-    logSkip('no seed files yet (added by the local seed task)');
-  } else if (run('npm', ['run', '--silent', 'db:seed']).status !== 0) {
+  if (run('npm', ['run', '--silent', 'db:seed']).status !== 0) {
     fail('Seeding failed. See the output above.');
   }
 

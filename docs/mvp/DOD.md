@@ -66,7 +66,7 @@ Milestones are done in order. A milestone is done when all of its items are tick
 
 - [x] `supabase/` with `config.toml`; `supabase start` brings up local Postgres, Auth, Storage, Studio and Inbucket; `npm run db:migrate` applies migrations. No hosted account is required.
 - [x] `npm run dev:bootstrap` checks prerequisites, starts local Supabase + observability, migrates, seeds and prints URLs/credentials; `dev:services`, `dev:reset`, `dev:teardown` work with the local safety guards in `LOCAL_DEVELOPMENT.md`.
-- [ ] Deterministic, idempotent local seeds cover the required superadmin/organizer/guest/photo/retention fixtures and real files in local Storage; E2E tests still create isolated data.
+- [x] Deterministic, idempotent local seeds cover the required superadmin/organizer/guest/photo/retention fixtures and real files in local Storage; E2E tests still create isolated data.
 - [x] Pino logs include correlated/redacted `requestId` and W3C `traceId`; `/api/metrics` is token-protected and local-only by default; Prometheus + provisioned Grafana dashboard start locally and show HTTP/request metrics.
 - [ ] Tester diagnostic export produces a schema-versioned JSON support bundle with matching client/server traces and logs, chronological spans and error details. It is available from error details and a local developer/testing menu; backend export is disabled outside local development.
 - [ ] Diagnostic tests force a real validation failure and an injected test error, then parse the export and assert correlation, ordering, local stack/cause and redaction of tokens/cookies/emails/signed URLs/message bodies. E2E scenario S17 passes.

@@ -79,6 +79,24 @@ Required fixture set:
 
 Use safe `.test` addresses and documented local-only passwords; never production personal data. Example organizers are `couple@uspomena.test`, `celebration@uspomena.test` and `admin@uspomena.test`. Do not reuse demo passwords shorter than Supabase’s configured minimum.
 
+The seeds are implemented in `packages/api/src/db/fixtures.ts` (fixture data) and `packages/api/src/db/seed.ts` (runner), invoked by `npm run db:seed` and therefore by `dev:bootstrap` and `dev:reset`. The runner creates the Auth users through the Admin API (passwords are never hashed by hand), upserts deterministic rows with fixed UUIDs and uploads real JPEG/PNG/WebP files into the private `photos` bucket. Disposable local credentials:
+
+| Account | Password | State |
+|---|---|---|
+| `admin@uspomena.test` | `admin-local-123` | superadmin |
+| `couple@uspomena.test` | `couple-local-123` | wedding (slug `ana-i-marko`), guests, photos, subscribers, gallery opens after the wedding |
+| `celebration@uspomena.test` | `celebration-local-123` | celebration (`luka-18-rodjendan`), manual gallery already open |
+| `new-organizer@uspomena.test` | `new-organizer-local-123` | verified, not onboarded |
+| `unconfirmed@uspomena.test` | `unconfirmed-local-123` | email not confirmed, no profile yet |
+| `google@uspomena.test` | `google-local-123` | local Google identity fixture (not a real OAuth test) |
+| `inactive@uspomena.test` | `inactive-local-123` | deactivated organizer with an event |
+| `retention-30@uspomena.test` | `retention-30-local-123` | purge due in ~30 days, 30-day warning pending |
+| `retention-7@uspomena.test` | `retention-7-local-123` | purge due in ~7 days, 30-day warning already sent |
+| `archived@uspomena.test` | `archived-local-123` | already purged/archived event |
+| `storage-limit@uspomena.test` | `storage-limit-local-123` | event with ~28 KB of real files and a 128 KB limit |
+
+Guest personal links are `/i/seedguest001` … `/i/seedguest007`; the QR link is `/w/ana-i-marko/upload` and the gallery `/w/ana-i-marko/galerija`. The retention fixtures compute their dates relative to the seed run so the warning and archive states are always due; identities and UUIDs stay fixed.
+
 General E2E tests create isolated records and clean them up rather than depending on mutable seed state. A small smoke suite may use the seeds to verify the developer journey. Seed fixtures and translations evolve in the same task as the relevant feature.
 
 ## 4. Structured logging

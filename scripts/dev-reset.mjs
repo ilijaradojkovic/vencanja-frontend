@@ -9,15 +9,10 @@
  *
  * `DIRECT_URL` is deliberately ignored: a reset only ever touches local data.
  */
-import { existsSync } from 'node:fs';
-
 import {
-  SEED_FILE,
-  SEEDS_DIR,
   LOCAL_PORTS,
   fail,
   log,
-  logSkip,
   logStep,
   requireLocalDatabase,
   run,
@@ -62,10 +57,7 @@ if (run('npm', ['run', '--silent', 'db:migrate'], { env: { ...process.env, DIREC
 }
 
 logStep('Seeds');
-const hasSeeds = existsSync(SEED_FILE) || existsSync(SEEDS_DIR);
-if (!hasSeeds) {
-  logSkip('no seed files yet (added by the local seed task)');
-} else if (run('npm', ['run', '--silent', 'db:seed'], { env: { ...process.env, DIRECT_URL: '' } }).status !== 0) {
+if (run('npm', ['run', '--silent', 'db:seed'], { env: { ...process.env, DIRECT_URL: '' } }).status !== 0) {
   fail('Seeding failed after the reset.');
 }
 
