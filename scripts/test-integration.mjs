@@ -6,9 +6,10 @@
  */
 import { spawnSync } from 'node:child_process';
 
-import { fail, log, logStep, supabase, supabaseStatus } from './lib/local-stack.mjs';
+import { ensureAuthHookSecret, fail, log, logStep, supabase, supabaseStatus } from './lib/local-stack.mjs';
 
 logStep('Local Supabase stack');
+ensureAuthHookSecret();
 if (!supabaseStatus() && supabase(['start']).status !== 0) fail('Could not start the local Supabase stack.');
 
 const status = supabaseStatus();

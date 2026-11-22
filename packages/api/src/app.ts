@@ -6,6 +6,7 @@ import { language } from './middleware/language.ts';
 import { metricsMiddleware } from './middleware/metrics.ts';
 import { requestContext } from './middleware/request-context.ts';
 import { requestLogger } from './middleware/request-logger.ts';
+import { authEmailRoutes } from './routes/auth-email.ts';
 import { healthRoutes } from './routes/health.ts';
 import { metricsRoutes } from './routes/metrics.ts';
 import { getGuestByToken } from './services/guest.ts';
@@ -24,6 +25,7 @@ app.use('*', requestLogger());
 
 app.route('/', healthRoutes);
 app.route('/', metricsRoutes);
+app.route('/', authEmailRoutes);
 
 /**
  * M0 architecture spike. These `/spike/*` routes exist only to prove that the

@@ -4,9 +4,18 @@
  * (LOCAL_DEVELOPMENT.md §2): the Supabase CLI stack and, once provisioned, the
  * Prometheus/Grafana stack. No migrations, no seeds, nothing destructive.
  */
-import { log, logSkip, logStep, startObservability, supabase, supabaseStatus } from './lib/local-stack.mjs';
+import {
+  ensureAuthHookSecret,
+  log,
+  logSkip,
+  logStep,
+  startObservability,
+  supabase,
+  supabaseStatus,
+} from './lib/local-stack.mjs';
 
 logStep('Local Supabase stack');
+ensureAuthHookSecret();
 if (supabaseStatus()) {
   logSkip('already running');
 } else if (supabase(['start']).status !== 0) {

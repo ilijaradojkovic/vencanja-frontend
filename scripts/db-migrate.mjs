@@ -10,6 +10,8 @@
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+import { supabaseEnv } from './lib/local-stack.mjs';
+
 const root = fileURLToPath(new URL('..', import.meta.url));
 const apiDir = fileURLToPath(new URL('../packages/api/', import.meta.url));
 
@@ -18,7 +20,7 @@ const run = (command, args, options) =>
 
 const localDatabaseUrl = () => {
   try {
-    const status = run('npx', ['--no-install', 'supabase', 'status', '-o', 'env'], { cwd: root });
+    const status = run('npx', ['--no-install', 'supabase', 'status', '-o', 'env'], { cwd: root, env: supabaseEnv() });
     const match = /^DB_URL="?([^"\n]+)"?/m.exec(status);
     if (!match?.[1]) throw new Error('DB_URL was not reported');
     return match[1];

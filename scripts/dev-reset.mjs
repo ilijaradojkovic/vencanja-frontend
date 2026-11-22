@@ -14,6 +14,7 @@ import {
   fail,
   log,
   logStep,
+  ensureAuthHookSecret,
   requireLocalDatabase,
   run,
   startObservability,
@@ -42,6 +43,7 @@ requireLocalDatabase('Local reset', before.DB_URL);
 log(`  ✓ ${ALLOW} supplied and ${LOCAL_PORTS.db} is the local database`);
 
 logStep('Recreating the local stack');
+ensureAuthHookSecret();
 if (supabase(['stop', '--no-backup']).status !== 0) fail('Could not stop the local stack.');
 if (supabase(['start']).status !== 0) fail('Could not start a clean local stack.');
 const status = supabaseStatus();

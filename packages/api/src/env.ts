@@ -33,6 +33,16 @@ export const env = {
   retentionMonthsDefault: () => integer('RETENTION_MONTHS_DEFAULT', 3),
   eventStorageLimitMbDefault: () => integer('EVENT_STORAGE_LIMIT_MB_DEFAULT', 50),
   maxUploadMb: () => integer('MAX_UPLOAD_MB', 30),
+  emailDriver: () => {
+    const driver = read('EMAIL_DRIVER') ?? 'smtp';
+    if (driver !== 'smtp' && driver !== 'resend') {
+      throw new Error(`EMAIL_DRIVER must be "smtp" or "resend", received "${driver}".`);
+    }
+    return driver;
+  },
+  smtpUrl: () => read('SMTP_URL') ?? 'smtp://127.0.0.1:54325',
+  emailFrom: () => read('EMAIL_FROM') ?? 'Uspomena <noreply@uspomena.local>',
+  authHookSecret: () => read('SUPABASE_AUTH_HOOK_SECRET') ?? '',
   metricsEnabled: () => read('METRICS_ENABLED') === 'true',
   metricsToken: () => read('METRICS_TOKEN') ?? '',
 };

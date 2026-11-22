@@ -31,7 +31,7 @@ The existing root Vite `.env*` files describe the prototype/demo. They are not t
 | `EMAIL_DRIVER` | Server | M1/M2 | `smtp` locally/test, `resend` in Preview/Production; unknown values fail closed |
 | `SMTP_URL` | **Server only** | Local/M2 | Local Mailpit SMTP, default `smtp://127.0.0.1:54325`; no real local email delivery |
 | `EMAIL_ALLOWLIST` | **Server only** | M7 Preview | Comma-separated permitted Preview recipients; production behavior must not silently discard mail |
-| `SUPABASE_AUTH_HOOK_SECRET` | **Server only** | M1 local spike/M2 full flows | Standard Webhooks verification for the raw Send Email Hook body |
+| `SUPABASE_AUTH_HOOK_SECRET` | **Server only** | M1 local spike/M2 full flows | Standard Webhooks verification for the raw Send Email Hook body; generated into the git-ignored `supabase/.auth-hook-secret` by `dev:bootstrap` |
 | `CRON_SECRET` | **Server only** | M6 | Bearer secret for Vercel Cron and manual authorized runs |
 | `RETENTION_MONTHS_DEFAULT` | Server | M1/M2 | New-event retention default `3`; stored per event thereafter |
 | `EVENT_STORAGE_LIMIT_MB_DEFAULT` | Server | M1/M4 | New-event limit `50`; stored per event and superadmin-adjustable thereafter |

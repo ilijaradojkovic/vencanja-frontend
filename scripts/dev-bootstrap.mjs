@@ -8,6 +8,7 @@
  */
 import {
   LOCAL_PORTS,
+  ensureAuthHookSecret,
   dockerIsRunning,
   fail,
   log,
@@ -68,6 +69,7 @@ const main = async () => {
   }
 
   logStep('Local Supabase stack');
+  ensureAuthHookSecret();
   if (status) {
     logSkip('already running');
   } else {

@@ -34,7 +34,37 @@ export const run = (command, args, options = {}) =>
 export const capture = (command, args, options = {}) =>
   execFileSync(command, args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options });
 
-export const supabase = (args, options = {}) => run('npx', ['--no-install', 'supabase', ...args], options);
+const AUTH_HOOK_SECRET_FILE = fileURLToPath(new URL('../../supabase/.auth-hook-secret', import.meta.url));
+
+/** Local Send Email Hook secret (Standard Webhooks `whsec_…`), git-ignored. */
+export const readAuthHookSecret = () => {
+  if (!existsSync(AUTH_HOOK_SECRET_FILE)) return process.env.SUPABASE_AUTH_HOOK_SECRET?.trim() ?? '';
+  return readFileSync(AUTH_HOOK_SECRET_FILE, 'utf8').trim();
+};
+
+export const ensureAuthHookSecret = () => {
+  const existing = readAuthHookSecret();
+  if (existing) return existing;
+  const secret = `whsec_${randomBytes(24).toString('base64')}`;
+  if (existsSync(AUTH_HOOK_SECRET_FILE) && statSync(AUTH_HOOK_SECRET_FILE).isDirectory()) {
+    rmSync(AUTH_HOOK_SECRET_FILE, { recursive: true, force: true });
+  }
+  writeFileSync(AUTH_HOOK_SECRET_FILE, `${secret}\n`, { mode: 0o600 });
+  return secret;
+};
+
+/**
+ * The CLI expects `secrets = "v1,whsec_<base64>"`, while the API verifies against the
+ * bare `whsec_<base64>` value, so the helper adds the `v1,` prefix for the CLI only.
+ */
+export const supabase = (args, options = {}) => {
+  const secret = readAuthHookSecret();
+  if (!secret) fail('No local auth hook secret. Run `npm run dev:bootstrap` before starting the stack.');
+  return run('npx', ['--no-install', 'supabase', ...args], {
+    ...options,
+    env: { ...supabaseEnv(), ...(options.env ?? {}) },
+  });
+};
 
 /** Minimal reader for the numeric ports in `supabase/config.toml`. */
 const configPort = (section, fallback) => {
@@ -70,9 +100,15 @@ const projectId = () => {
 };
 
 /** `supabase status -o json` as an object, or null when the stack is not running. */
+/**
+ * Environment for every Supabase CLI call: the local config references the Send
+ * Email Hook secret, so it must exist and be passed as `v1,whsec_…`.
+ */
+export const supabaseEnv = () => ({ ...process.env, SUPABASE_AUTH_HOOK_SECRET: `v1,${ensureAuthHookSecret()}` });
+
 export const supabaseStatus = () => {
   try {
-    const output = capture('npx', ['--no-install', 'supabase', 'status', '-o', 'json']);
+    const output = capture('npx', ['--no-install', 'supabase', 'status', '-o', 'json'], { env: supabaseEnv() });
     const start = output.indexOf('{');
     if (start < 0) return null;
     return JSON.parse(output.slice(start));
@@ -128,6 +164,10 @@ export const writeLocalEnv = (status) => {
     SUPABASE_SERVICE_ROLE_KEY: status.SECRET_KEY ?? '',
     DATABASE_URL: status.DB_URL ?? '',
     APP_URL: 'http://localhost:3000',
+    EMAIL_DRIVER: 'smtp',
+    SMTP_URL: `smtp://127.0.0.1:${LOCAL_PORTS.mail + 1}`,
+    EMAIL_FROM: 'Uspomena <noreply@uspomena.test>',
+    SUPABASE_AUTH_HOOK_SECRET: ensureAuthHookSecret(),
     METRICS_ENABLED: 'true',
     METRICS_TOKEN: metricsToken,
   };

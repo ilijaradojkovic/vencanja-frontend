@@ -2,6 +2,16 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M1: local Supabase Auth email hook and SMTP path
+
+`supabase/config.toml` enables `[auth.hook.send_email]` with `uri = "http://host.docker.internal:3000/api/hooks/auth-email"` and `secrets = "env(SUPABASE_AUTH_HOOK_SECRET)"` (the CLI requires the `v1,whsec_<base64>` form), and email confirmations are on. `npm run dev:bootstrap` generates a local `whsec_…` secret into the git-ignored `supabase/.auth-hook-secret`, writes the bare value to `apps/web/.env.local` for the API and passes the `v1,`-prefixed value to every CLI call through `scripts/lib/local-stack.mjs`. Consequences: the local config is invalid for a bare `npx supabase …` without that variable, so the lifecycle scripts are the supported entry points (documented), and the CI jobs generate an ephemeral secret before `supabase start`.
+
+`POST /api/hooks/auth-email` verifies the Standard Webhooks signature over the raw body (HMAC-SHA256, 5-minute tolerance, timing-safe comparison), rejects unknown/malformed payloads with `400`, and sends through the `EmailSender` boundary — `nodemailer` SMTP to Mailpit locally; Resend and the React Email templates are M5. Copy exists for signup, recovery, email_change (current and new address), magic link, invite and reauthentication in sr/en/ru, with the locale taken from validated auth metadata (UC-77, SYS-6). The callback link is built from `APP_URL` rather than the payload's `site_url`, because GoTrue reports its own auth base (`127.0.0.1:54321/auth/v1`) there, which is not where the product callback lives.
+
+Evidence: `POST /auth/v1/recover` produced a signed hook call (`200`, `auth email sent`) and a message in Mailpit; a signup with `locale: ru` metadata produced the Russian subject "Подтвердите email · Uspomena"; the recovery link is `http://localhost:3000/auth/callback?token_hash=…&type=recovery&next=…`; an unsigned request to the hook answers `401` with the error envelope and sends nothing. Unit tests cover signature acceptance/tampering/staleness, locale resolution, action coverage and the route's `200`/`400`/`401` paths.
+
+Local cron invocation is documented in `LOCAL_DEVELOPMENT.md`: `POST /api/cron/daily` with `Authorization: Bearer $CRON_SECRET` and an injected `now`, implemented in M6 and scheduled on Vercel in M7.
+
 ## 2026-11-22 — M1: Playwright E2E on Chromium and mobile WebKit
 
 Playwright 1.65 is a root devDependency with `playwright.config.ts` (testDir `e2e`, Chromium desktop and an iPhone 15 WebKit profile, traces and video on failure) and starts the product itself via `webServer` (`npm run dev`, reused when already running). `npm run test:e2e` therefore needs only a bootstrapped local stack. `tsconfig.e2e.json` typechecks the config and specs under the same strict settings and is part of the root `typecheck`.

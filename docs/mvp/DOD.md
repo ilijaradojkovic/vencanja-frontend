@@ -76,7 +76,7 @@ Milestones are done in order. A milestone is done when all of its items are tick
 - [x] The Next.js entry mounts the API at `/api/*`; the product calls `/api/health` and shows the result in dev.
 - [x] CI: integration tests against local `supabase start` in GitHub Actions; one integration test (`/health`) passes without cloud credentials.
 - [x] Playwright set up; one E2E test (opening the landing page against the local API) passes in CI.
-- [ ] Local Auth email hook and SMTP/Inbucket path are proven; local cron invocation is documented. No Preview deployment is needed to complete M1.
+- [x] Local Auth email hook and SMTP/Inbucket path are proven; local cron invocation is documented. No Preview deployment is needed to complete M1.
 
 ### M2 – Accounts and authorization
 

@@ -54,6 +54,19 @@ M1 establishes these root scripts:
 
 A fresh clone requires only the pinned Node version, npm, Docker and `npm ci`, followed by `dev:bootstrap` and `dev` in separate terminals. Missing optional cloud credentials must not block these commands. Setup scripts give actionable errors for unavailable Docker or occupied ports.
 
+The local Supabase CLI config references the Send Email Hook secret (`auth.hook.send_email.secrets = "env(SUPABASE_AUTH_HOOK_SECRET)"`). The lifecycle scripts pass `SUPABASE_AUTH_HOOK_SECRET="v1,$(cat supabase/.auth-hook-secret)"` on every CLI call, so prefer `npm run dev:services` / `dev:bootstrap` / `dev:reset` over a bare `npx supabase …`; if you do need the raw CLI, export that variable first. CI generates an ephemeral secret per job.
+
+Local Auth email path: signup confirmation, recovery and email-change mails are sent by Supabase Auth to the Send Email Hook at `/api/hooks/auth-email` (host `host.docker.internal:3000`), verified with Standard Webhooks, rendered in the locale from the auth metadata and delivered through the SMTP `EmailSender` to Mailpit. Emails are never sent for real locally.
+
+Cron: the daily retention/cleanup job is `POST /api/cron/daily` guarded by `Authorization: Bearer $CRON_SECRET` and lands in M6. Locally it is invoked on demand with an injected date, for example
+
+```bash
+curl -X POST "http://localhost:3000/api/cron/daily?now=2026-03-01T00:00:00Z" \
+  -H "Authorization: Bearer $(grep '^CRON_SECRET=' apps/web/.env.local | cut -d= -f2)"
+```
+
+Vercel's `0 1 * * *` UTC schedule and the production secret are configured and checked in M7; no Preview deployment is needed for the local proof.
+
 `dev:reset` and seed scripts reject non-local DB/Auth URLs. Destructive reset additionally requires `ALLOW_LOCAL_RESET=1` supplied to that command. They must not infer safety merely from `NODE_ENV`; hostname/port allow-listing plus the confirmation guard are required. Preview/production are never seeded or reset by these commands.
 
 ## 3. Deterministic development seeds

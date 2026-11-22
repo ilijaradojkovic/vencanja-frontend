@@ -9,3 +9,4 @@ infra/observability/metrics-token
 test-results
 playwright-report
 blob-report
+supabase/.auth-hook-secret
