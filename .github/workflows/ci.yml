@@ -74,6 +74,12 @@ jobs:
   e2e:
     name: e2e (Chromium + WebKit)
     runs-on: ubuntu-latest
+    env:
+      # The local testing menu and the support bundle are local-only features;
+      # bootstrap normally writes these into apps/web/.env.local.
+      NEXT_PUBLIC_DIAGNOSTICS_ENABLED: 'true'
+      DIAGNOSTICS_ENABLED: 'true'
+      APP_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v7
 
