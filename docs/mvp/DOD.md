@@ -71,9 +71,9 @@ Milestones are done in order. A milestone is done when all of its items are tick
 - [ ] Tester diagnostic export produces a schema-versioned JSON support bundle with matching client/server traces and logs, chronological spans and error details. It is available from error details and a local developer/testing menu; backend export is disabled outside local development.
 - [ ] Diagnostic tests force a real validation failure and an injected test error, then parse the export and assert correlation, ordering, local stack/cause and redaction of tokens/cookies/emails/signed URLs/message bodies. E2E scenario S17 passes.
 - [x] Drizzle schema for every table in SPEC §4; RLS enabled with no policies; the first migration passes on an empty DB.
-- [ ] Bucket `photos` (private) is created by a migration or seed script with matching file-size/MIME limits.
-- [ ] `packages/api`: Hono app, `GET /health` (checks the DB), middleware for `requestId`/W3C trace context, JSON logs, `Accept-Language`, error format `{ message, code, requestId, traceId }`.
-- [ ] The Next.js entry mounts the API at `/api/*`; the product calls `/api/health` and shows the result in dev.
+- [x] Bucket `photos` (private) is created by a migration or seed script with matching file-size/MIME limits.
+- [x] `packages/api`: Hono app, `GET /health` (checks the DB), middleware for `requestId`/W3C trace context, JSON logs, `Accept-Language`, error format `{ message, code, requestId, traceId }`.
+- [x] The Next.js entry mounts the API at `/api/*`; the product calls `/api/health` and shows the result in dev.
 - [ ] CI: integration tests against local `supabase start` in GitHub Actions; one integration test (`/health`) passes without cloud credentials.
 - [ ] Playwright set up; one E2E test (opening the landing page against the local API) passes in CI.
 - [ ] Local Auth email hook and SMTP/Inbucket path are proven; local cron invocation is documented. No Preview deployment is needed to complete M1.

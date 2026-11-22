@@ -16,6 +16,41 @@ export const DEFAULT_LANGUAGE: Language = 'sr';
 export type MessageParams = Record<string, string | number>;
 
 const MESSAGES = {
+  badRequest: {
+    sr: 'Neispravan zahtev.',
+    en: 'Invalid request.',
+    ru: 'Неверный запрос.',
+  },
+  unauthorized: {
+    sr: 'Morate biti prijavljeni.',
+    en: 'You must be signed in.',
+    ru: 'Необходимо войти в аккаунт.',
+  },
+  forbidden: {
+    sr: 'Nemate dozvolu za ovu radnju.',
+    en: 'You are not allowed to do this.',
+    ru: 'У вас нет прав на это действие.',
+  },
+  notFound: {
+    sr: 'Traženi resurs nije pronađen.',
+    en: 'The requested resource was not found.',
+    ru: 'Запрашиваемый ресурс не найден.',
+  },
+  conflict: {
+    sr: 'Radnja nije moguća u trenutnom stanju.',
+    en: 'This action is not possible in the current state.',
+    ru: 'Действие невозможно в текущем состоянии.',
+  },
+  tooManyRequests: {
+    sr: 'Previše pokušaja, pokušajte ponovo za koji trenutak.',
+    en: 'Too many attempts, please try again shortly.',
+    ru: 'Слишком много попыток, попробуйте немного позже.',
+  },
+  internalError: {
+    sr: 'Došlo je do greške. Pokušajte ponovo.',
+    en: 'Something went wrong. Please try again.',
+    ru: 'Произошла ошибка. Попробуйте ещё раз.',
+  },
   noFiles: {
     sr: 'Niste izabrali nijednu fotografiju.',
     en: 'You have not selected any photos.',

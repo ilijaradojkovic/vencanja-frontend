@@ -23,6 +23,7 @@ import {
   startObservability,
   supabase,
   supabaseStatus,
+  writeLocalEnv,
 } from './lib/local-stack.mjs';
 
 const printStatus = (status) => {
@@ -78,6 +79,10 @@ const main = async () => {
     status = supabaseStatus();
     if (!status) fail('The local Supabase stack did not report its status after starting.');
   }
+
+  logStep('Local configuration');
+  const envFile = writeLocalEnv(status);
+  log(`  ✓ wrote ${envFile.replace(`${process.cwd()}/`, '')} (git-ignored)`);
 
   logStep('Local observability stack');
   startObservability();
