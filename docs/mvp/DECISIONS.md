@@ -2,6 +2,14 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M1: Playwright E2E on Chromium and mobile WebKit
+
+Playwright 1.65 is a root devDependency with `playwright.config.ts` (testDir `e2e`, Chromium desktop and an iPhone 15 WebKit profile, traces and video on failure) and starts the product itself via `webServer` (`npm run dev`, reused when already running). `npm run test:e2e` therefore needs only a bootstrapped local stack. `tsconfig.e2e.json` typechecks the config and specs under the same strict settings and is part of the root `typecheck`.
+
+`e2e/landing.spec.ts` proves the walking skeleton: the landing page renders, the development probe reaches `/api/health` (`200`, correlated `x-request-id`) and shows `API: ok (v…)`; the M0 guest placeholder page follows the `lang` cookie, answers a localized 404 for unknown tokens and is not shared-cached (dev answers `no-store`; the production build's exact `private, no-store` stays asserted by `spike:check`). The DB-backed invitation replaces the placeholder in M3.
+
+CI runs a third job (`e2e`): `npm ci` → `npx playwright install --with-deps chromium webkit` → `npx supabase start` → export `DATABASE_URL` from `supabase status -o env` → `npm run test:e2e`, uploading the report on failure and stopping the stack in an `always()` step. All six tests (three per browser project) pass locally, and the job is green in GitHub Actions.
+
 ## 2026-11-22 — M1: deterministic local seeds with real Storage files
 
 Seeds are a TypeScript runner (`packages/api/src/db/seed.ts` + `fixtures.ts`), executed by Node's built-in type stripping, called from `npm run db:seed` after any `supabase/seed.sql`/`seeds/*.sql` files. It is idempotent (fixed UUIDs, `on conflict do update`, `x-upsert` uploads) and refuses to run unless `SUPABASE_URL` is local and `DATABASE_URL` is the local database; `dev:bootstrap` and `dev:reset` always run it. SQL seed files stay supported for future SQL-only fixtures, which is why the runner does not use `supabase db reset` seeding.

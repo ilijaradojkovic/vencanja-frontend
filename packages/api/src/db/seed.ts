@@ -426,7 +426,9 @@ try {
   process.stdout.write(
     '  retention-30@uspomena.test, retention-7@uspomena.test, archived@uspomena.test, storage-limit@uspomena.test\n',
   );
-  process.stdout.write('  guest links: http://localhost:3000/i/seedguest001 … seedguest007\n');
+  process.stdout.write(
+    '  guest rows: seedguest001 … seedguest007 (personal links arrive with the M3 invitation port)\n',
+  );
   process.stdout.write('  QR upload:   http://localhost:3000/w/ana-i-marko/upload\n');
   process.stdout.write('  gallery:     http://localhost:3000/w/ana-i-marko/galerija\n');
 } catch (error) {

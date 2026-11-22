@@ -67,3 +67,43 @@ jobs:
       - name: Stop local Supabase
         if: always()
         run: npx supabase stop --no-backup
+
+  e2e:
+    name: e2e (Chromium + WebKit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Start local Supabase
+        run: npx supabase start
+
+      - name: Expose the local database URL
+        run: |
+          eval "$(npx supabase status -o env)"
+          echo "DATABASE_URL=$DB_URL" >> "$GITHUB_ENV"
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+      - name: Stop local Supabase
+        if: always()
+        run: npx supabase stop --no-backup

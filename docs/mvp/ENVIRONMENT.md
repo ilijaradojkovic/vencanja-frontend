@@ -79,7 +79,7 @@ M0/M1 establish these names so prompts, CI and developers do not invent differen
 | `test:unit`, `test:component` | Vitest suites with configured coverage thresholds |
 | `spike:check` | M0 architecture-spike check against a production Next.js build (`npm run build` first); replaced in M1 |
 | `test:integration` | API tests against real local Supabase DB/Storage |
-| `test:e2e` | Playwright against the local stack |
+| `test:e2e` | Playwright (Chromium + mobile WebKit) against the local stack; starts the product itself |
 | `db:migrate` | Apply forward-only migrations using `DIRECT_URL`, or the local stack's `DB_URL` when it is unset |
 | `supabase:start`, `supabase:stop` | Manage the pinned local Supabase CLI stack (CLI 3.2.0 is a root devDependency; the local email UI is Mailpit on `:54324`, SMTP on `:54325`) |
 | `admin:create` | Create a superadmin in the explicitly selected non-production or approved production environment |
