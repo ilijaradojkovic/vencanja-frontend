@@ -77,6 +77,7 @@ M0/M1 establish these names so prompts, CI and developers do not invent differen
 | `lint`, `typecheck` | Repository checks, including web/api/shared TypeScript |
 | `lint:fix`, `format`, `format:check` | ESLint autofix; Prettier write/check (frozen demo and specs excluded) |
 | `test:unit`, `test:component` | Vitest suites with configured coverage thresholds |
+| `spike:check` | M0 architecture-spike check against a production Next.js build (`npm run build` first); replaced in M1 |
 | `test:integration` | API tests against real local Supabase DB/Storage |
 | `test:e2e` | Playwright against the local stack |
 | `db:migrate` | Apply forward-only migrations using `DIRECT_URL` |

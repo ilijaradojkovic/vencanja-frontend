@@ -15,8 +15,10 @@ export default defineConfig({
     include: ['test/**/*.test.{ts,tsx}'],
     coverage: {
       provider: 'v8',
-      include: ['app/**/*.tsx', 'src/**/*.{ts,tsx}'],
-      exclude: ['app/**/layout.tsx'],
+      // Threshold scope from SPEC §1.1: product features and shared UI. Server
+      // components under `app/` and `src/lib` are covered by E2E and the spike
+      // check instead.
+      include: ['src/features/**/*.{ts,tsx}', 'src/components/**/*.{ts,tsx}'],
       thresholds: { lines: 60, branches: 60 },
     },
   },

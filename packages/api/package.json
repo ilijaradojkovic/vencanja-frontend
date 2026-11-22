@@ -2,5 +2,29 @@
   "name": "@uspomena/api",
   "private": true,
   "version": "0.1.0",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./server-only": {
+      "types": "./src/server-only.ts",
+      "default": "./src/server-only.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/vercel": "1.0.1",
+    "@uspomena/shared": "*",
+    "hono": "4.13.19",
+    "server-only": "0.0.1",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "5.9.3"
+  }
 }
