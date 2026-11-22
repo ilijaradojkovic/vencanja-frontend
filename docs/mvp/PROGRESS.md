@@ -15,7 +15,7 @@ One entry per completed milestone: what was done, what wasn't, known issues. Tas
 
 **Not done / deferred**
 
-- The CI workflow has not run on GitHub yet: it triggers on pushes to this branch (`specs/mvp`) or pull requests to `main`. Everything it runs was executed locally from a clean `npm ci`.
+- The CI workflow ran green on the pushed implementation branch (`specs/mvp`, run `44967685583`: install, lint, typecheck, unit, component, build, build:demo).
 - No deployment, hosted service or cloud credential is involved in M0; the architecture spike is re-verified on Vercel Preview in M7.
 - Integration and E2E jobs are added in M1, together with the local Supabase stack.
 
