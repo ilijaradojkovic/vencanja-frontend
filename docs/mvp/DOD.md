@@ -51,7 +51,7 @@ Milestones are done in order. A milestone is done when all of its items are tick
 
 ### M0 – Monorepo, architecture spike and tooling
 
-- [ ] Today's Vite app moves unchanged to `apps/demo`; a new Next.js TypeScript product is created at `apps/web`. Root `dev`, `dev:demo`, `build`, `build:demo` and `preview` scripts work.
+- [x] Today's Vite app moves unchanged to `apps/demo`; a new Next.js TypeScript product is created at `apps/web`. Root `dev`, `dev:demo`, `build`, `build:demo` and `preview` scripts work.
 - [ ] npm workspaces: `apps/web`, `apps/demo`, `packages/api`, `packages/shared`.
 - [ ] `packages/shared` contains product/API enums, gallery, companion, RSVP, phone and slug rules, and error messages (SPEC §3.2). The frozen demo keeps its own copies.
 - [ ] Architecture spike passes in a production-like Next build: the catch-all mounts Hono for every required HTTP method; a server component calls a `server-only` service; dynamic guest HTML has correct locale metadata and `private, no-store`; the Node runtime bundles and runs `sharp`. If it fails, record the fallback in `DECISIONS.md` before the port.

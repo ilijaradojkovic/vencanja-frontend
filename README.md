@@ -5,12 +5,21 @@ React 18 + Redux Toolkit + React Router 6 + Vite. Svi podaci su trenutno mockova
 
 ## Pokretanje
 
+Monorepo: zamrznuti Vite demo je u `apps/demo`, a Next.js proizvod u `apps/web`.
+
 ```bash
-npm install
-npm run dev        # http://localhost:5173
-npm run build      # produkcijski build u dist/
+# demo (Vite, mock podaci)
+npm --prefix apps/demo ci
+npm run dev:demo     # http://localhost:5173
+npm run build:demo   # apps/demo/dist
+
+# proizvod (Next.js)
+npm --prefix apps/web install
+npm run dev          # http://localhost:3000
+npm run build && npm run preview
 ```
 
+U nastavku se opisuje demo aplikacija.
 Demo nalozi:
 - mladenci (svadba): **demo@uspomena.rs / demo123**
 - slavljenik (proslava, 18. rođendan): **rodjendan@uspomena.rs / demo123**
