@@ -27,7 +27,12 @@
     "spike:check": "node scripts/spike-check.mjs",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
-    "db:migrate": "node scripts/db-migrate.mjs"
+    "dev:bootstrap": "node scripts/dev-bootstrap.mjs",
+    "dev:services": "node scripts/dev-services.mjs",
+    "dev:teardown": "node scripts/dev-teardown.mjs",
+    "dev:reset": "node scripts/dev-reset.mjs",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:seed": "node scripts/db-seed.mjs"
   },
   "devDependencies": {
     "eslint": "9.39.5",

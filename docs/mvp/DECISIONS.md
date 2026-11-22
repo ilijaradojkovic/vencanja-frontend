@@ -2,6 +2,18 @@
 
 This file records architecture decisions, spec corrections and implementation deviations. Scope changes still require owner approval.
 
+## 2026-11-22 — M1: local lifecycle scripts and reset guards
+
+The lifecycle commands are small Node scripts under `scripts/` sharing `scripts/lib/local-stack.mjs`, which reads the ports and project id from `supabase/config.toml` and parses `supabase status -o json`:
+
+- `dev:bootstrap` checks the pinned Node major and a running Docker, pre-checks ports `54321–54324` only when the stack is down, starts Supabase, starts the observability stack when `infra/observability/docker-compose.yml` exists (skipped with a message until the metrics task lands), refuses a non-local `DIRECT_URL`, applies migrations, applies seeds when seed files exist, then prints the local URLs and the disposable publishable/secret keys.
+- `dev:services` restarts Supabase and observability without migrations or seeds.
+- `dev:reset` requires `ALLOW_LOCAL_RESET=1` and refuses while `DIRECT_URL` is set. It recreates the stack with `supabase stop --no-backup` + `supabase start` (so schema *and* Storage are genuinely clean, unlike `db reset`, which would leave the Drizzle journal behind) and then migrates and seeds with `DIRECT_URL` cleared.
+- `dev:teardown` stops observability and Supabase while keeping volumes.
+- `db:seed` applies `supabase/seed.sql` and `supabase/seeds/*.sql` in name order through `psql` in the local database container with `ON_ERROR_STOP=1`, after the same host/port guard. Seed fixtures are added by the next M1 task; until then it reports that there are no seed files.
+
+Evidence: bootstrap on a cold stack, `dev:services` while running, teardown then bootstrap again, a refused reset without the guard, a refused reset with a foreign `DIRECT_URL`, a successful guarded reset that removed a probe table and recreated the Drizzle journal, and `db:seed` applying a probe SQL file twice without duplicating data (file removed afterwards).
+
 ## 2026-11-22 — M1: local Supabase stack, pinned CLI and migration runner
 
 `supabase/` is initialised with `config.toml` for project id `vencanja-frontend`: API `54321`, database `54322`, Studio `54323`, email UI `54324`, SMTP `54325`/POP3 `54326`, Storage enabled, and Auth `site_url` `http://localhost:3000` with `localhost` and `127.0.0.1` in the redirect allow-list. The Supabase CLI is a pinned root devDependency (3.2.0) so every script uses one version; `npm run supabase:start` / `supabase:stop` wrap it and the stack survives a stop/start cycle from backup.

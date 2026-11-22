@@ -71,7 +71,7 @@ M0/M1 establish these names so prompts, CI and developers do not invent differen
 |---|---|
 | `dev`, `dev:demo` | Next.js product; frozen Vite demo |
 | `dev:bootstrap`, `dev:services`, `dev:teardown` | Start/verify local Supabase + observability, migrate/seed; restart services; stop services |
-| `dev:reset` | Guarded local-only reset + migrate + seed |
+| `dev:reset` | Guarded local-only reset (`ALLOW_LOCAL_RESET=1`) + migrate + seed; refuses a set `DIRECT_URL` |
 | `db:seed` | Idempotently maintain documented local fixtures only |
 | `build`, `build:demo`, `preview` | Product build; demo build; product preview |
 | `lint`, `typecheck` | Repository checks, including web/api/shared TypeScript |
