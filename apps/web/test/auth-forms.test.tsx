@@ -12,6 +12,7 @@ const loginCopy: LoginCopy = {
   password: 'Lozinka',
   submit: 'Prijavi se',
   error: 'Pogrešan email ili lozinka.',
+  disabled: 'Nalog je deaktiviran. Javite se administratoru.',
   rateLimited: 'Previše pokušaja, pokušajte ponovo za koji trenutak.',
   google: 'Nastavi sa Google nalogom',
   unverified: 'Potvrdite email pre prijave.',

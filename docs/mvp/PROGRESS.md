@@ -2,6 +2,29 @@
 
 One entry per completed milestone: what was done, what wasn't, known issues. Tasks and their evidence live in [`DOD.md`](DOD.md); deviations and tooling decisions live in [`DECISIONS.md`](DECISIONS.md).
 
+## M2 – Accounts and authorization (complete)
+
+**Done**
+
+- Product auth UI from the prototype's card: `/login` (wrong password, unverified → resend, disabled, Google entry), `/registracija` (8-character password, required legal acceptance stored in auth metadata, existing email shows the same check-email screen), `/potvrda-emaila` with a 60-second resend, `/zaboravljena-lozinka`, `/nova-lozinka`, `/auth/callback` (email `token_hash` + Google PKCE `code`), `/onboarding` (type → names/date → phone/city, back keeps data, 409-safe) and a minimal `/app` countdown dashboard. Copy is in sr/en/ru.
+- `/app/podesavanja` Account section: email change with "awaiting confirmation", password change (current password verified, other sessions revoked, cutoff, re-authentication), "Set password" for Google-only accounts, phone and language. The UC-07 phone dialog blocks the app until a number is saved.
+- `/admin`: the prototype's accounts table, search and status filters, account create/edit modal, one-time credentials dialog, password reset, deactivate/reactivate and delete confirmations. `npm run admin:create` creates a superadmin (local by default, hosted only with `ALLOW_ADMIN_CREATE=1`).
+- API: `GET/POST/PATCH/DELETE /admin/accounts[/:id]`, `POST /admin/accounts/:id/password`, `PATCH /auth/me`, the superadmin guard, `POST /onboarding`, `GET /weddings/current`, `POST /auth/password/complete` and the `401/403/409 onboardingRequired` guards. Account deletion removes Storage objects, the Auth user and the profile (DB cascade). Secure Email Change maps both token hashes and sends two localized emails.
+- Tests: 23 integration (auth, onboarding/guard, admin CRUD + validation + revocation, Google identity fixture), 34 component (auth forms, onboarding, settings, phone gate, admin page), 20 Playwright (S1, S2, S3, S12, UC-82 both-address email change, UC-83 password change, UC-06 reload, Google callback, S17, landing) on Chromium and mobile WebKit; 73 shared + 38 API unit tests. All root checks and CI are green.
+
+**Not done / deferred**
+
+- Real Google OAuth configuration/delivery, Resend delivery and Vercel deployment remain M7/M8 external checks; locally they are covered only by the identity/callback fixtures.
+- The full organizer shell/sidebar, dashboard widgets, guests, photos and the real invitation `/i/[token]` are M3; the S12 guest assertion uses the seeded placeholder page until then.
+- Settings data-retention display and account deletion (UC-84/UC-89) are M6. Admin retention and per-account storage-limit fields (UC-88) are also M6.
+- The admin list has no pagination and fetches providers with a single 1000-user Auth call.
+
+**Known issues**
+
+- The admin UI shows inline status messages instead of the prototype's toasts (the product has no toast container yet).
+- Refresh-session revocation deletes rows in Supabase Auth's `auth.sessions`/`auth.refresh_tokens` (no admin endpoint exists); access-token revocation and deactivation bans are independent of that detail.
+- Re-running the auth E2E suite locally leaves its created accounts behind (each run uses unique addresses); local `dev:reset` clears them.
+
 ## M1 – Local walking skeleton (complete)
 
 **Done**

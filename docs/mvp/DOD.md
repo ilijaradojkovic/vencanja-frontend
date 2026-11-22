@@ -82,13 +82,13 @@ Milestones are done in order. A milestone is done when all of its items are tick
 
 - [x] Supabase auth interface in `apps/web` (the frozen demo keeps its mock auth); the shared `apiFetch` sends the Supabase access token (no axios, see `DECISIONS.md`).
 - [x] The API verifies the JWT (signature, `exp`, `iat >= tokens_valid_after`, `active`) and creates the profile on the first `GET /auth/me`.
-- [ ] UC-77 signup (locale/legal acceptance in auth metadata), UC-78 resend, UC-80 forgot password, UC-82 secure email change (both addresses) and UC-83 change password work locally (Inbucket). Password completion revokes other refresh sessions and rejects old access tokens.
+- [x] UC-77 signup (locale/legal acceptance in auth metadata), UC-78 resend, UC-80 forgot password, UC-82 secure email change (both addresses) and UC-83 change password work locally (Inbucket). Password completion revokes other refresh sessions and rejects old access tokens.
 - [x] The Send Email Hook (`/hooks/auth-email`) verifies the raw-body signature and sends emails in sr/en/ru using profile locale or pre-profile auth metadata; templates exist for signup, recovery and secure email_change (current and new address).
 - [x] UC-81 onboarding: route, wizard, `POST /onboarding`, redirects (`/app` → `/onboarding` until done, `409 onboardingRequired` from the API).
-- [ ] UC-05, UC-06, UC-07 and UC-09 work on Supabase Auth with the same messages as the prototype.
-- [ ] Superadmin: `npm run admin:create`; UC-71 – UC-76 on the real backend (Supabase admin API); deactivation and a new password invalidate sessions immediately (test: old token → `401`).
-- [ ] Google application state/callback behavior for UC-79 is covered by local Auth identity/callback fixtures; real Google OAuth configuration/delivery is deferred to M7/M8 and explicitly reported as unverified until then.
-- [ ] Tests: integration tests for all auth/admin routes; component tests for signup and onboarding; E2E scenarios S1, S2, S3, S12.
+- [x] UC-05, UC-06, UC-07 and UC-09 work on Supabase Auth with the same messages as the prototype.
+- [x] Superadmin: `npm run admin:create`; UC-71 – UC-76 on the real backend (Supabase admin API); deactivation and a new password invalidate sessions immediately (test: old token → `401`).
+- [x] Google application state/callback behavior for UC-79 is covered by local Auth identity/callback fixtures; real Google OAuth configuration/delivery is deferred to M7/M8 and explicitly reported as unverified until then.
+- [x] Tests: integration tests for all auth/admin routes; component tests for signup and onboarding; E2E scenarios S1, S2, S3, S12.
 
 ### M3 – Event, invitation, guests, RSVP
 

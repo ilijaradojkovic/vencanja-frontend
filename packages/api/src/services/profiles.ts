@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { getDb } from '../db/client.ts';
 import { profiles } from '../db/schema.ts';
-import { getAuthUser, tokenIssuedAt, type AuthUser } from './auth.ts';
+import { getAuthUser, tokenIssuedAt, tokenSubject, type AuthUser } from './auth.ts';
 
 export type ProfileRow = typeof profiles.$inferSelect;
 
@@ -18,7 +18,14 @@ export type Session =
 export const ensureProfile = async (user: AuthUser): Promise<{ profile: ProfileRow; created: boolean }> => {
   const db = getDb();
   const [existing] = await db.select().from(profiles).where(eq(profiles.id, user.id)).limit(1);
-  if (existing) return { profile: existing, created: false };
+  if (existing) {
+    // Keep the profile email in sync after a Secure Email Change or a Google change.
+    if (existing.email !== user.email) {
+      const [synced] = await db.update(profiles).set({ email: user.email }).where(eq(profiles.id, user.id)).returning();
+      if (synced) return { profile: synced, created: false };
+    }
+    return { profile: existing, created: false };
+  }
 
   const [created] = await db
     .insert(profiles)
@@ -47,7 +54,16 @@ const tokenIsValid = (profile: ProfileRow, token: string): boolean => {
 /** Verifies the token with Supabase Auth and loads (or bootstraps) its profile. */
 export const loadSession = async (token: string): Promise<Session> => {
   const user = await getAuthUser(token);
-  if (!user) return { ok: false, code: 'sessionExpired' };
+  if (!user) {
+    // A banned user's token is rejected by Auth itself; report the account state
+    // instead of a generic expired session (UC-75 keeps the prototype message).
+    const subject = tokenSubject(token);
+    if (subject) {
+      const [profile] = await getDb().select().from(profiles).where(eq(profiles.id, subject)).limit(1);
+      if (profile && !profile.active) return { ok: false, code: 'accountDisabled' };
+    }
+    return { ok: false, code: 'sessionExpired' };
+  }
 
   const { profile, created } = await ensureProfile(user);
   if (!profile.active) return { ok: false, code: 'accountDisabled' };

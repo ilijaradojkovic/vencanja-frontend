@@ -24,6 +24,7 @@ export default async function LoginPage({
           password: t('fields.password'),
           submit: t('login.submit'),
           error: t('login.error'),
+          disabled: t('login.disabled'),
           rateLimited: t('login.rateLimited'),
           google: t('login.google'),
           unverified: t('login.unverified'),

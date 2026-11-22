@@ -246,6 +246,11 @@ const MESSAGES = {
     en: 'The city name is too long.',
     ru: 'Название города слишком длинное.',
   },
+  nameRequired: {
+    sr: 'Unesite ime.',
+    en: 'Enter a name.',
+    ru: 'Введите имя.',
+  },
   nameTooLong: {
     sr: 'Ime je predugačko (najviše 120 znakova).',
     en: 'The name is too long (at most 120 characters).',

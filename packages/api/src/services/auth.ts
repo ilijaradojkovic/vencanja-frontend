@@ -11,6 +11,8 @@ export type AuthUser = {
   termsAcceptedAt: Date | null;
   termsVersion: string | null;
   privacyVersion: string | null;
+  /** Identity providers, used by settings to offer "Set password" for Google accounts. */
+  providers: string[];
 };
 
 const decodePayload = (token: string): Record<string, unknown> | null => {
@@ -27,6 +29,12 @@ const decodePayload = (token: string): Record<string, unknown> | null => {
 export const tokenIssuedAt = (token: string): number | null => {
   const issuedAt = decodePayload(token)?.iat;
   return typeof issuedAt === 'number' ? issuedAt : null;
+};
+
+/** `sub` from the token payload; used to explain why Auth rejected a token. */
+export const tokenSubject = (token: string): string | null => {
+  const subject = decodePayload(token)?.sub;
+  return typeof subject === 'string' ? subject : null;
 };
 
 export const readBearerToken = (header: string | undefined): string | null => {
@@ -58,6 +66,7 @@ export const getAuthUser = async (token: string): Promise<AuthUser | null> => {
       termsVersion?: string;
       privacyVersion?: string;
     } | null;
+    app_metadata?: { providers?: string[] } | null;
   };
   if (!user.id || !user.email) return null;
 
@@ -71,5 +80,6 @@ export const getAuthUser = async (token: string): Promise<AuthUser | null> => {
     termsAcceptedAt: acceptedAt && !Number.isNaN(acceptedAt.getTime()) ? acceptedAt : null,
     termsVersion: typeof metadata.termsVersion === 'string' ? metadata.termsVersion : null,
     privacyVersion: typeof metadata.privacyVersion === 'string' ? metadata.privacyVersion : null,
+    providers: user.app_metadata?.providers ?? [],
   };
 };

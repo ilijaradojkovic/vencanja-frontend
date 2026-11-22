@@ -5,9 +5,11 @@ import { errorHandler, notFoundHandler } from './errors.ts';
 import { errorBody, type AppEnv } from './http.ts';
 import { language } from './middleware/language.ts';
 import { metricsMiddleware } from './middleware/metrics.ts';
+import { adminGuard } from './middleware/admin.ts';
 import { onboardingGuard } from './middleware/onboarding.ts';
 import { requestContext } from './middleware/request-context.ts';
 import { requestLogger } from './middleware/request-logger.ts';
+import { adminRoutes } from './routes/admin.ts';
 import { authEmailRoutes } from './routes/auth-email.ts';
 import { authRoutes } from './routes/auth.ts';
 import { diagnosticsRoutes } from './routes/diagnostics.ts';
@@ -39,6 +41,10 @@ app.route('/', onboardingRoutes);
 // Organizer data routes: 401 without a token, 409 onboardingRequired until UC-81 is done.
 for (const prefix of ['/weddings/*', '/guests/*', '/photos/*']) app.use(prefix, onboardingGuard());
 app.route('/', weddingRoutes);
+
+// Superadmin routes: 401 without a token, 403 for every other role.
+app.use('/admin/*', adminGuard());
+app.route('/', adminRoutes);
 
 /**
  * M0 architecture spike. These `/spike/*` routes exist only to prove that the

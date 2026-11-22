@@ -44,7 +44,7 @@ test('S2 celebration onboarding uses the celebration wording and "18. rođendan"
 
   await expect(page).toHaveURL(/\/app(\?|$)/);
   await expect(page.getByTestId('countdown')).toContainText(/Do proslave još \d+/);
-  await expect(page.getByTestId('countdown')).toContainText('Proslava');
+  await expect(page.getByText('Proslava', { exact: true })).toBeVisible();
 });
 
 test('S3 forgot password, new password, sign in with the new one and reject the old one', async ({

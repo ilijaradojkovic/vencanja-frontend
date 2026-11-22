@@ -79,7 +79,14 @@ export function OnboardingWizard({
   useEffect(() => {
     let active = true;
     const run = async () => {
-      const result = await onLoadProfile();
+      let result = await onLoadProfile();
+      if (!result.ok) {
+        // The session cookie from the email callback can lag one tick behind the
+        // first render (noticed on WebKit); retry once before sending the user out.
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        if (!active) return;
+        result = await onLoadProfile();
+      }
       if (!active) return;
       if (!result.ok) {
         router.push('/login');

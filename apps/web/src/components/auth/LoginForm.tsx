@@ -12,6 +12,7 @@ export type LoginCopy = {
   password: string;
   submit: string;
   error: string;
+  disabled: string;
   rateLimited: string;
   google: string;
   unverified: string;
@@ -67,6 +68,11 @@ export function LoginForm({
     const rateLimited = result.code === 'over_request_rate_limit' || /rate limit/i.test(result.message);
     if (rateLimited) {
       setError(copy.rateLimited);
+      return;
+    }
+    const disabled = result.code === 'user_banned' || /banned/i.test(result.message);
+    if (disabled) {
+      setError(copy.disabled);
       return;
     }
     setError(result.code === 'accountDisabled' || result.code === 'sessionExpired' ? result.message : copy.error);

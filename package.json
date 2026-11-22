@@ -34,7 +34,8 @@
     "db:migrate": "node scripts/db-migrate.mjs",
     "db:seed": "node scripts/db-seed.mjs",
     "test:integration": "node scripts/test-integration.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "admin:create": "node scripts/admin-create.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",

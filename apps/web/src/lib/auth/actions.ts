@@ -147,6 +147,59 @@ export const completePasswordChange = async (password: string): Promise<{ ok: bo
  * the sign-out instant and offline-safe; revoking every device's refresh tokens is
  * not required by the use case and would make the button depend on Auth latency.
  */
+export type ProfilePatch = { name?: string; phone?: string; locale?: Language };
+
+/** `PATCH /auth/me` (UC-08 phone, UC-10 locale) through the API boundary. */
+export const patchProfile = async (patch: ProfilePatch): Promise<AuthResult> => {
+  const response = await apiFetch('/api/auth/me', {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
+  const body = (await response.json().catch(() => ({}))) as { profile?: AuthProfile; message?: string; code?: string };
+  if (!response.ok || !body.profile) return { ok: false, message: body.message ?? 'Unauthorized', code: body.code };
+  return { ok: true, profile: body.profile };
+};
+
+/** UC-82: Supabase Secure Email Change sends confirmation links to both addresses. */
+export const changeEmail = async (
+  email: string,
+): Promise<{ ok: boolean; pending?: string | null; message?: string }> => {
+  const auth = getBrowserAuth();
+  if (!auth) return { ok: false, message: 'Supabase is not configured.' };
+  const { error } = await auth.auth.updateUser({ email: email.trim() });
+  if (error) return { ok: false, message: error.message };
+  const { data } = await auth.auth.getUser();
+  return { ok: true, pending: data.user?.new_email ?? null };
+};
+
+/** UC-83: the current password is verified before the password is changed. */
+export const changePassword = async (
+  current: string,
+  next: string,
+): Promise<{ ok: boolean; wrongCurrent?: boolean; message?: string }> => {
+  const auth = getBrowserAuth();
+  if (!auth) return { ok: false, message: 'Supabase is not configured.' };
+  const email = (await auth.auth.getUser()).data.user?.email;
+  if (!email) return { ok: false, message: 'Your session has expired. Please sign in again.' };
+
+  const { error: check } = await auth.auth.signInWithPassword({ email, password: current });
+  if (check) return { ok: false, wrongCurrent: true, message: check.message };
+
+  const result = await completePasswordChange(next);
+  return result.ok ? { ok: true } : { ok: false, message: result.message };
+};
+
+/** UC-83 for Google-only accounts: "Set password" sends the UC-80 email instead. */
+export const sendSetPasswordEmail = requestPasswordReset;
+
+/** UC-10: the `lang` cookie is what the server renders with; the profile keeps it too. */
+export const setLocaleCookie = (locale: Language): void => {
+  if (typeof document === 'undefined') return;
+  document.cookie = `lang=${locale}; path=/; max-age=31536000; samesite=lax`;
+  document.documentElement.lang = locale;
+};
+
 export const signOut = async (): Promise<void> => {
   const auth = getBrowserAuth();
   await auth?.auth.signOut({ scope: 'local' }).catch(() => undefined);

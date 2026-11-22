@@ -106,6 +106,10 @@ jobs:
         # tables come from the Drizzle migrations the API needs.
         run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npm run db:migrate
 
+      - name: Seed local fixtures
+        # S12 signs in as the seeded superadmin; E2E still creates its own data.
+        run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npm run db:seed
+
       - name: Expose the local Supabase configuration
         run: |
           export SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE"

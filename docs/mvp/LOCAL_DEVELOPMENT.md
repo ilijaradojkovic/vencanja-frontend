@@ -108,6 +108,8 @@ The seeds are implemented in `packages/api/src/db/fixtures.ts` (fixture data) an
 | `archived@uspomena.test` | `archived-local-123` | already purged/archived event |
 | `storage-limit@uspomena.test` | `storage-limit-local-123` | event with ~28 KB of real files and a 128 KB limit |
 
+A superadmin for a fresh environment (or a new one alongside the seeds) is created with `npm run admin:create -- --email me@uspomena.test [--password …]`. It uses the local stack by default and prints a generated password once; a non-local target is refused unless `ALLOW_ADMIN_CREATE=1` is set explicitly.
+
 Guest personal links are `/i/seedguest001` … `/i/seedguest007`; the QR link is `/w/ana-i-marko/upload` and the gallery `/w/ana-i-marko/galerija`. The retention fixtures compute their dates relative to the seed run so the warning and archive states are always due; identities and UUIDs stay fixed.
 
 General E2E tests create isolated records and clean them up rather than depending on mutable seed state. A small smoke suite may use the seeds to verify the developer journey. Seed fixtures and translations evolve in the same task as the relevant feature.

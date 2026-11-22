@@ -1,9 +1,7 @@
 import { businessDate } from '@uspomena/shared';
-import { findEventForOwner, getProfileById, toWeddingPayload } from '@uspomena/api/server-only';
+import { findEventForOwner, toWeddingPayload } from '@uspomena/api/server-only';
 import { redirect } from 'next/navigation';
 
-import { AuthShell, BrandRow } from '@/components/auth/AuthShell';
-import { SignOutButton } from '@/components/auth/SignOutButton';
 import { getServerAuth } from '@/lib/auth/server';
 import { getTranslator } from '@/lib/i18n/server';
 
@@ -12,25 +10,20 @@ export const metadata = { title: 'Pregled · Uspomena' };
 const DAY_MS = 86_400_000;
 
 /** Calendar days from today (Europe/Belgrade) to the event date. */
-const daysUntil = (date: string): number => {
-  const today = Date.parse(`${businessDate()}T00:00:00Z`);
-  return Math.round((Date.parse(`${date}T00:00:00Z`) - today) / DAY_MS);
-};
+const daysUntil = (date: string): number =>
+  Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${businessDate()}T00:00:00Z`)) / DAY_MS);
 
 /**
- * Minimal organizer dashboard for M2: it proves the onboarding redirect and the
- * "N days until the wedding" countdown (S1/S2). The full dashboard, guests and
- * photos arrive in M3. Data comes from the same service the API uses (D11).
+ * Minimal organizer dashboard for M2: the welcome and the "N days until the
+ * wedding/celebration" countdown (S1/S2). Guests, photos and the sidebar arrive
+ * in M3; the data comes from the same service the API uses (D11).
  */
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
   const supabase = await getServerAuth();
   const { data } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
   if (!data.user) redirect('/login?next=%2Fapp');
 
-  const profile = await getProfileById(data.user.id);
-  if (!profile || !profile.onboardedAt) redirect('/onboarding');
-
-  const event = await findEventForOwner(profile.id);
+  const event = await findEventForOwner(data.user.id);
   if (!event) redirect('/onboarding');
 
   const wedding = toWeddingPayload(event);
@@ -54,19 +47,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         : t('dashboard.celebrationPassed');
 
   return (
-    <AuthShell wide>
-      <BrandRow>
-        <SignOutButton label={t('dashboard.logout')} />
-      </BrandRow>
+    <section className="card stack" style={{ '--gap': '10px', maxWidth: 720 } as React.CSSProperties}>
       {welcome ? <p className="muted small">{t('dashboard.welcome')}</p> : null}
+      <p className="eyebrow">{wedding.type === 'wedding' ? t('onboarding.wedding') : t('onboarding.celebration')}</p>
       <h1 style={{ fontSize: 32 }}>{t('dashboard.hello').replace('{{names}}', names)}</h1>
-      <p className="stat" data-testid="countdown">
-        <span className="eyebrow">
-          {wedding.type === 'wedding' ? t('onboarding.wedding') : t('onboarding.celebration')}
-        </span>
-        <strong style={{ fontFamily: 'var(--serif)', fontSize: 28 }}>{countdown}</strong>
+      <p data-testid="countdown" style={{ fontFamily: 'var(--serif)', fontSize: 26 }}>
+        {countdown}
       </p>
       <p className="small muted">{wedding.date}</p>
-    </AuthShell>
+    </section>
   );
 }

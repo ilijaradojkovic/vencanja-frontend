@@ -4,6 +4,7 @@ import { Hono } from 'hono';
 import { getDb } from '../db/client.ts';
 import { profiles } from '../db/schema.ts';
 import { errorBody, type AppEnv } from '../http.ts';
+import { parseMePatch } from '../services/admin.ts';
 import { readBearerToken } from '../services/auth.ts';
 import { loadSession } from '../services/profiles.ts';
 
@@ -15,6 +16,7 @@ export type ProfilePayload = {
   phone: string;
   locale: 'sr' | 'en' | 'ru';
   active: boolean;
+  providers: string[];
   onboardedAt: string | null;
   termsAcceptedAt: string | null;
   createdAt: string;
@@ -28,6 +30,7 @@ export const toProfilePayload = (profile: typeof profiles.$inferSelect): Profile
   phone: profile.phone,
   locale: profile.locale,
   active: profile.active,
+  providers: [],
   onboardedAt: profile.onboardedAt?.toISOString() ?? null,
   termsAcceptedAt: profile.termsAcceptedAt?.toISOString() ?? null,
   createdAt: profile.createdAt.toISOString(),
@@ -53,7 +56,29 @@ export const authRoutes = new Hono<AppEnv>()
     if (!session.ok) return c.json(errorBody(c, session.code), 401);
 
     await getDb().update(profiles).set({ lastLoginAt: new Date() }).where(eq(profiles.id, session.profile.id));
-    return c.json({ profile: toProfilePayload(session.profile) }, session.created ? 201 : 200);
+    return c.json(
+      { profile: { ...toProfilePayload(session.profile), providers: session.user.providers } },
+      session.created ? 201 : 200,
+    );
+  })
+  .patch('/auth/me', async (c) => {
+    const token = readBearerToken(c.req.header('authorization'));
+    if (!token) return c.json(errorBody(c, 'unauthorized'), 401);
+
+    const session = await loadSession(token);
+    if (!session.ok) return c.json(errorBody(c, session.code), 401);
+
+    const input = (await c.req.json().catch(() => ({}))) as {
+      name?: string;
+      phone?: string;
+      locale?: 'sr' | 'en' | 'ru';
+    };
+    const patch = parseMePatch(input);
+    if (Object.keys(patch).length === 0) return c.json(errorBody(c, 'badRequest'), 422);
+
+    const [profile] = await getDb().update(profiles).set(patch).where(eq(profiles.id, session.profile.id)).returning();
+    if (!profile) return c.json(errorBody(c, 'internalError'), 500);
+    return c.json({ profile: { ...toProfilePayload(profile), providers: session.user.providers } });
   })
   .post('/auth/password/complete', async (c) => {
     const token = readBearerToken(c.req.header('authorization'));
