@@ -1,6 +1,8 @@
 import { translateMessage, type Language, type MessageKey, type MessageParams } from '@uspomena/shared';
 import type { Context } from 'hono';
 
+import type { ProfileRow } from './services/profiles.ts';
+
 /** Per-request values shared by every handler in the app (SPEC §3.3, §8.6). */
 export type AppVariables = {
   requestId: string;
@@ -9,6 +11,8 @@ export type AppVariables = {
   parentSpanId: string | null;
   startedAt: number;
   language: Language;
+  /** Set by the onboarding guard for routes under /weddings, /guests and /photos. */
+  profile?: ProfileRow;
 };
 
 export type AppEnv = { Variables: AppVariables };

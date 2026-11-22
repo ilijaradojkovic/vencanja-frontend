@@ -226,6 +226,31 @@ const MESSAGES = {
     en: 'The number of people must be between 1 and {{max}}.',
     ru: 'Количество человек должно быть от 1 до {{max}}.',
   },
+  onboardingRequired: {
+    sr: 'Prvo dovršite podešavanje naloga.',
+    en: 'Finish setting up your account first.',
+    ru: 'Сначала завершите настройку аккаунта.',
+  },
+  passwordMismatch: {
+    sr: 'Lozinke se ne poklapaju.',
+    en: 'The passwords do not match.',
+    ru: 'Пароли не совпадают.',
+  },
+  termsRequired: {
+    sr: 'Prihvatite uslove korišćenja i politiku privatnosti.',
+    en: 'Please accept the terms of use and the privacy policy.',
+    ru: 'Примите условия использования и политику конфиденциальности.',
+  },
+  cityTooLong: {
+    sr: 'Naziv grada je predugačak.',
+    en: 'The city name is too long.',
+    ru: 'Название города слишком длинное.',
+  },
+  nameTooLong: {
+    sr: 'Ime je predugačko (najviše 120 znakova).',
+    en: 'The name is too long (at most 120 characters).',
+    ru: 'Имя слишком длинное (не более 120 символов).',
+  },
 } as const satisfies Record<string, Record<Language, string>>;
 
 export type MessageKey = keyof typeof MESSAGES;

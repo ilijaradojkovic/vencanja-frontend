@@ -5,6 +5,7 @@ import { errorHandler, notFoundHandler } from './errors.ts';
 import { errorBody, type AppEnv } from './http.ts';
 import { language } from './middleware/language.ts';
 import { metricsMiddleware } from './middleware/metrics.ts';
+import { onboardingGuard } from './middleware/onboarding.ts';
 import { requestContext } from './middleware/request-context.ts';
 import { requestLogger } from './middleware/request-logger.ts';
 import { authEmailRoutes } from './routes/auth-email.ts';
@@ -12,6 +13,8 @@ import { authRoutes } from './routes/auth.ts';
 import { diagnosticsRoutes } from './routes/diagnostics.ts';
 import { healthRoutes } from './routes/health.ts';
 import { metricsRoutes } from './routes/metrics.ts';
+import { onboardingRoutes } from './routes/onboarding.ts';
+import { weddingRoutes } from './routes/weddings.ts';
 import { getGuestByToken } from './services/guest.ts';
 import { makeThumbnailProbe } from './services/image.ts';
 
@@ -31,6 +34,11 @@ app.route('/', metricsRoutes);
 app.route('/', authEmailRoutes);
 app.route('/', diagnosticsRoutes);
 app.route('/', authRoutes);
+app.route('/', onboardingRoutes);
+
+// Organizer data routes: 401 without a token, 409 onboardingRequired until UC-81 is done.
+for (const prefix of ['/weddings/*', '/guests/*', '/photos/*']) app.use(prefix, onboardingGuard());
+app.route('/', weddingRoutes);
 
 /**
  * M0 architecture spike. These `/spike/*` routes exist only to prove that the

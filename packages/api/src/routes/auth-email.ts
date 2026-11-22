@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { env } from '../env.ts';
 import { errorBody, type AppEnv } from '../http.ts';
 import { getLogger } from '../logger.ts';
-import { buildAuthEmail, type AuthEmailHookPayload } from '../services/auth-email.ts';
+import { buildAuthEmails, type AuthEmailHookPayload } from '../services/auth-email.ts';
 import { emailSender } from '../services/email.ts';
 import { verifyWebhookSignature } from '../services/webhook.ts';
 
@@ -40,13 +40,22 @@ export const authEmailRoutes = new Hono<AppEnv>().post('/hooks/auth-email', asyn
     return c.json(errorBody(c, 'badRequest'), 400);
   }
 
-  const message = buildAuthEmail(payload, env.appUrl());
-  if (!message) return c.json(errorBody(c, 'badRequest'), 400);
+  const messages = buildAuthEmails(payload, env.appUrl());
+  if (messages.length === 0) return c.json(errorBody(c, 'badRequest'), 400);
 
   try {
-    const { providerId } = await emailSender().send(message);
+    const providerIds: (string | null)[] = [];
+    for (const message of messages) {
+      const { providerId } = await emailSender().send(message);
+      providerIds.push(providerId);
+    }
     getLogger().info(
-      { requestId: c.get('requestId'), traceId: c.get('traceId'), kind: message.kind, providerId },
+      {
+        requestId: c.get('requestId'),
+        traceId: c.get('traceId'),
+        kinds: messages.map((message) => message.kind),
+        providerIds,
+      },
       'auth email sent',
     );
     return c.json({ ok: true });
@@ -55,7 +64,7 @@ export const authEmailRoutes = new Hono<AppEnv>().post('/hooks/auth-email', asyn
       {
         requestId: c.get('requestId'),
         traceId: c.get('traceId'),
-        kind: message.kind,
+        kinds: messages.map((message) => message.kind),
         err: { name: (error as Error).name, message: (error as Error).message },
       },
       'auth email failed',

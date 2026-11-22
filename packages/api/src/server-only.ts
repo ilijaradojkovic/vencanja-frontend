@@ -5,5 +5,7 @@
  */
 import 'server-only';
 
+export { findEventForOwner, toWeddingPayload, type WeddingPayload } from './services/events.ts';
 export { getGuestByToken, type SpikeGuest } from './services/guest.ts';
+export { getProfileById, type ProfileRow } from './services/profiles.ts';
 export { makeThumbnailProbe, type ThumbnailProbe } from './services/image.ts';

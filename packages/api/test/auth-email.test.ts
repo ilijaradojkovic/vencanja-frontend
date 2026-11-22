@@ -3,7 +3,7 @@ import { createHmac } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { app } from '../src/app.ts';
-import { buildAuthEmail, resolveAuthEmailLocale } from '../src/services/auth-email.ts';
+import { buildAuthEmail, buildAuthEmails, resolveAuthEmailLocale } from '../src/services/auth-email.ts';
 import { setEmailSenderForTests, type EmailMessage } from '../src/services/email.ts';
 import { verifyWebhookSignature } from '../src/services/webhook.ts';
 
@@ -86,11 +86,39 @@ describe('buildAuthEmail', () => {
     );
   });
 
-  it('shares the email_change copy for both confirmation steps', () => {
-    const current = buildAuthEmail(JSON.parse(payload('sr', 'email_change_current')), 'http://localhost:3000');
-    const next = buildAuthEmail(JSON.parse(payload('sr', 'email_change_new')), 'http://localhost:3000');
-    expect(current?.subject).toBe('Promena email adrese · Uspomena');
-    expect(next?.subject).toBe(current?.subject);
+  it('sends Secure Email Change to the current and the new address with the swapped token hashes', () => {
+    const secure = JSON.stringify({
+      user: { email: 'staro@uspomena.test', new_email: 'novo@uspomena.test', user_metadata: { locale: 'sr' } },
+      email_data: {
+        token_hash: 'hash-new-address',
+        token_hash_new: 'hash-current-address',
+        email_action_type: 'email_change',
+      },
+    });
+
+    const [current, next] = buildAuthEmails(JSON.parse(secure), 'http://localhost:3000');
+
+    expect(current?.to).toBe('staro@uspomena.test');
+    expect(current?.kind).toBe('auth_email_change_current');
+    expect(current?.subject).toBe('Potvrda promene email adrese · Uspomena');
+    expect(current?.text).toContain('token_hash=hash-current-address&type=email_change');
+
+    expect(next?.to).toBe('novo@uspomena.test');
+    expect(next?.kind).toBe('auth_email_change_new');
+    expect(next?.subject).toBe('Potvrdite novu email adresu · Uspomena');
+    expect(next?.text).toContain('token_hash=hash-new-address&type=email_change');
+  });
+
+  it('sends a single email when Secure Email Change is disabled', () => {
+    const single = JSON.stringify({
+      user: { email: 'staro@uspomena.test', new_email: 'novo@uspomena.test', user_metadata: { locale: 'en' } },
+      email_data: { token_hash: 'hash-new-address', email_action_type: 'email_change' },
+    });
+
+    const messages = buildAuthEmails(JSON.parse(single), 'http://localhost:3000');
+    expect(messages).toHaveLength(1);
+    expect(messages[0]?.to).toBe('novo@uspomena.test');
+    expect(messages[0]?.text).toContain('token_hash=hash-new-address');
   });
 
   it('ignores unknown actions and incomplete payloads', () => {

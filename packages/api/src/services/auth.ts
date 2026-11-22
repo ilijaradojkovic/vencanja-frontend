@@ -7,6 +7,10 @@ export type AuthUser = {
   email: string;
   locale: Language;
   name: string;
+  /** Accepted legal documents from the signup metadata (UC-77); null when absent. */
+  termsAcceptedAt: Date | null;
+  termsVersion: string | null;
+  privacyVersion: string | null;
 };
 
 const decodePayload = (token: string): Record<string, unknown> | null => {
@@ -47,15 +51,25 @@ export const getAuthUser = async (token: string): Promise<AuthUser | null> => {
   const user = (await response.json()) as {
     id?: string;
     email?: string;
-    user_metadata?: { locale?: string; name?: string } | null;
+    user_metadata?: {
+      locale?: string;
+      name?: string;
+      termsAcceptedAt?: string;
+      termsVersion?: string;
+      privacyVersion?: string;
+    } | null;
   };
   if (!user.id || !user.email) return null;
 
   const metadata = user.user_metadata ?? {};
+  const acceptedAt = typeof metadata.termsAcceptedAt === 'string' ? new Date(metadata.termsAcceptedAt) : null;
   return {
     id: user.id,
     email: user.email.toLowerCase(),
     locale: parseLanguage(metadata.locale),
     name: (metadata.name ?? '').trim() || user.email.split('@')[0] || 'Uspomena',
+    termsAcceptedAt: acceptedAt && !Number.isNaN(acceptedAt.getTime()) ? acceptedAt : null,
+    termsVersion: typeof metadata.termsVersion === 'string' ? metadata.termsVersion : null,
+    privacyVersion: typeof metadata.privacyVersion === 'string' ? metadata.privacyVersion : null,
   };
 };

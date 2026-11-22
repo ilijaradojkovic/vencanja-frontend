@@ -2,12 +2,24 @@ import { parseLanguage, type Language } from '@uspomena/shared';
 
 import type { EmailMessage } from './email.ts';
 
-/** The subset of the Supabase Send Email Hook payload this milestone needs. */
+/**
+ * The subset of the Supabase Send Email Hook payload this milestone needs
+ * (https://supabase.com/docs/guides/auth/auth-hooks/send-email-hook). With Secure
+ * Email Change the payload carries two OTPs; the token hash field names are
+ * reversed for backward compatibility:
+ *
+ * - current address (`user.email`) → `token` + `token_hash_new`
+ * - new address (`user.new_email`) → `token_new` + `token_hash`
+ */
 export type AuthEmailHookPayload = {
-  user?: { email?: string; user_metadata?: { locale?: string } | null } | null;
+  user?: {
+    email?: string;
+    new_email?: string;
+    user_metadata?: { locale?: string } | null;
+  } | null;
   email_data?: {
     token_hash?: string;
-    token?: string;
+    token_hash_new?: string;
     email_action_type?: string;
     site_url?: string;
     redirect_to?: string;
@@ -30,10 +42,34 @@ const COPY: Record<string, Record<Language, Copy>> = {
     en: { subject: 'Reset your password · Uspomena', body: (link) => `Set a new password: ${link}` },
     ru: { subject: 'Новый пароль · Uspomena', body: (link) => `Задайте новый пароль: ${link}` },
   },
-  email_change: {
-    sr: { subject: 'Promena email adrese · Uspomena', body: (link) => `Potvrdite novu adresu: ${link}` },
-    en: { subject: 'Email address change · Uspomena', body: (link) => `Confirm the new address: ${link}` },
-    ru: { subject: 'Смена email · Uspomena', body: (link) => `Подтвердите новый адрес: ${link}` },
+  // Secure Email Change: one message to the current address, one to the new one.
+  email_change_current: {
+    sr: {
+      subject: 'Potvrda promene email adrese · Uspomena',
+      body: (link) => `Potvrdite promenu adrese sa ovog naloga: ${link}`,
+    },
+    en: {
+      subject: 'Confirm your email change · Uspomena',
+      body: (link) => `Confirm the address change from this account: ${link}`,
+    },
+    ru: {
+      subject: 'Подтверждение смены email · Uspomena',
+      body: (link) => `Подтвердите смену адреса с этого аккаунта: ${link}`,
+    },
+  },
+  email_change_new: {
+    sr: {
+      subject: 'Potvrdite novu email adresu · Uspomena',
+      body: (link) => `Potvrdite da je ovo vaša nova adresa: ${link}`,
+    },
+    en: {
+      subject: 'Confirm your new email address · Uspomena',
+      body: (link) => `Confirm that this is your new address: ${link}`,
+    },
+    ru: {
+      subject: 'Подтвердите новый email · Uspomena',
+      body: (link) => `Подтвердите, что это ваш новый адрес: ${link}`,
+    },
   },
   magiclink: {
     sr: { subject: 'Prijava na Uspomenu', body: (link) => `Prijavite se: ${link}` },
@@ -52,45 +88,92 @@ const COPY: Record<string, Record<Language, Copy>> = {
   },
 };
 
-const ACTIONS = Object.keys(COPY);
+const ACTIONS = ['signup', 'recovery', 'email_change', 'magiclink', 'invite', 'reauthentication'];
 
-/** `email_change_current`/`email_change_new` share the `email_change` copy. */
+/** `email_change_current`/`email_change_new` are our own variants; GoTrue sends `email_change`. */
 const baseAction = (action: string): string =>
   action === 'email_change_current' || action === 'email_change_new' ? 'email_change' : action;
 
+const isEmailChangeVariant = (action: string): boolean =>
+  action === 'email_change_current' || action === 'email_change_new';
+
 export const isKnownAuthAction = (action: string): boolean => ACTIONS.includes(baseAction(action));
 
-const copyFor = (action: string): Record<Language, Copy> => {
-  const copy = COPY[baseAction(action)];
-  if (!copy) throw new Error(`Unknown auth email action "${action}".`);
+const copyOf = (key: string): Record<Language, Copy> => {
+  const copy = COPY[key];
+  if (!copy) throw new Error(`Unknown auth email action "${key}".`);
   return copy;
 };
+
+const copyFor = (action: string): Record<Language, Copy> => copyOf(baseAction(action));
 
 /** Locale comes from validated auth metadata before a profile exists (UC-77, SYS-6). */
 export const resolveAuthEmailLocale = (payload: AuthEmailHookPayload): Language =>
   parseLanguage(payload.user?.user_metadata?.locale ?? 'sr');
 
-export const buildAuthEmail = (payload: AuthEmailHookPayload, fallbackSiteUrl: string): EmailMessage | null => {
-  const to = payload.user?.email?.trim();
+const message = (to: string, kind: string, copy: Copy, link: string): EmailMessage => ({
+  to,
+  kind,
+  subject: copy.subject,
+  text: `${copy.body(link)}\n\nUspomena`,
+  html: `<p>${copy.body(link)}</p><p>Uspomena</p>`,
+});
+
+/**
+ * Builds the account emails for a hook payload. Secure Email Change produces two
+ * messages (current and new address), every other action produces one. The
+ * callback always lives on `APP_URL`, because GoTrue reports its own auth base
+ * as `site_url`.
+ */
+export const buildAuthEmails = (payload: AuthEmailHookPayload, fallbackSiteUrl: string): EmailMessage[] => {
   const data = payload.email_data;
   const action = data?.email_action_type?.trim();
-  if (!to || !data || !action) return null;
-  if (!isKnownAuthAction(action)) return null;
+  const email = payload.user?.email?.trim();
+  if (!data || !action || !isKnownAuthAction(action)) return [];
 
-  // Our canonical origin (APP_URL) wins: GoTrue reports its own auth base as
-  // `site_url` in the payload, which is not where the product callback lives.
   const siteUrl = (fallbackSiteUrl || data.site_url || '').replace(/\/$/, '');
-  const redirect = data.redirect_to ? `&next=${encodeURIComponent(data.redirect_to)}` : '';
-  const link = `${siteUrl}/auth/callback?token_hash=${data.token_hash ?? ''}&type=${encodeURIComponent(action)}${redirect}`;
   const locale = resolveAuthEmailLocale(payload);
-  const copy = copyFor(action)[locale];
-  const text = `${copy.body(link)}\n\nUspomena`;
-
-  return {
-    to,
-    kind: `auth_${action}`,
-    subject: copy.subject,
-    text,
-    html: `<p>${copy.body(link)}</p><p>Uspomena</p>`,
+  const linkFor = (tokenHash: string | undefined): string => {
+    const redirect = data.redirect_to ? `&next=${encodeURIComponent(data.redirect_to)}` : '';
+    return `${siteUrl}/auth/callback?token_hash=${tokenHash ?? ''}&type=${encodeURIComponent(action)}${redirect}`;
   };
+
+  if (baseAction(action) === 'email_change') {
+    // Test double for the two named steps; GoTrue itself sends one `email_change`.
+    if (isEmailChangeVariant(action)) {
+      if (!email) return [];
+      return [message(email, `auth_${action}`, copyOf(action)[locale], linkFor(data.token_hash))];
+    }
+
+    const newEmail = payload.user?.new_email?.trim();
+
+    // Secure Email Change disabled: only the new address gets a confirmation.
+    if (!data.token_hash_new) {
+      const single = newEmail || email;
+      return single
+        ? [message(single, 'auth_email_change_new', copyOf('email_change_new')[locale], linkFor(data.token_hash))]
+        : [];
+    }
+
+    const current = email
+      ? message(
+          email,
+          'auth_email_change_current',
+          copyOf('email_change_current')[locale],
+          linkFor(data.token_hash_new),
+        )
+      : null;
+    const next = newEmail
+      ? message(newEmail, 'auth_email_change_new', copyOf('email_change_new')[locale], linkFor(data.token_hash))
+      : null;
+    return [current, next].filter((item): item is EmailMessage => item !== null);
+  }
+
+  if (!email) return [];
+  const kind = baseAction(action);
+  return [message(email, `auth_${kind}`, copyFor(action)[locale], linkFor(data.token_hash))];
 };
+
+/** Convenience for a single-email flow (all actions except Secure Email Change). */
+export const buildAuthEmail = (payload: AuthEmailHookPayload, fallbackSiteUrl: string): EmailMessage | null =>
+  buildAuthEmails(payload, fallbackSiteUrl)[0] ?? null;

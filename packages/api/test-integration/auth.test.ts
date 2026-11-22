@@ -16,11 +16,16 @@ const adminHeaders = { apikey: serviceKey, authorization: `Bearer ${serviceKey}`
 
 const created: string[] = [];
 
-const createUser = async (email: string, locale = 'sr') => {
+const createUser = async (email: string, locale = 'sr', metadata: Record<string, unknown> = {}) => {
   const response = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
     method: 'POST',
     headers: adminHeaders,
-    body: JSON.stringify({ email, password: 'integration-123', email_confirm: true, user_metadata: { locale } }),
+    body: JSON.stringify({
+      email,
+      password: 'integration-123',
+      email_confirm: true,
+      user_metadata: { locale, ...metadata },
+    }),
   });
   const user = (await response.json()) as { id: string };
   created.push(user.id);
@@ -83,6 +88,22 @@ describe('GET /api/auth/me', () => {
     const existingResponse = await me(token ?? '');
     expect(existingResponse.status).toBe(200);
     expect((await existingResponse.json()).profile.id).toBe(id);
+  });
+
+  it('stores the legal acceptance carried in the signup metadata (UC-77)', async () => {
+    const email = unique('terms');
+    await createUser(email, 'sr', {
+      termsAcceptedAt: '2026-11-22T10:00:00.000Z',
+      termsVersion: '2026-11-22-draft',
+      privacyVersion: '2026-11-22-draft',
+    });
+    const token = await passwordToken(email);
+
+    const response = await me(token ?? '');
+    const body = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(body.profile.termsAcceptedAt).toBe('2026-11-22T10:00:00.000Z');
   });
 
   it('rejects a deactivated profile even with a valid token', async () => {
