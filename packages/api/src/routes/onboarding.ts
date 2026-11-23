@@ -11,8 +11,10 @@ import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 
 import { getDb } from '../db/client.ts';
+import { env } from '../env.ts';
 import { profiles } from '../db/schema.ts';
 import { errorBody, type AppEnv } from '../http.ts';
+import { enforceUserRateLimit } from '../middleware/rate-limit.ts';
 import { readBearerToken } from '../services/auth.ts';
 import { createEvent, findEventForOwner, toWeddingPayload } from '../services/events.ts';
 import { loadSession } from '../services/profiles.ts';
@@ -78,6 +80,13 @@ export const onboardingRoutes = new Hono<AppEnv>().post('/onboarding', async (c)
 
   const session = await loadSession(token);
   if (!session.ok) return c.json(errorBody(c, session.code), 401);
+
+  const limited = await enforceUserRateLimit(
+    c,
+    () => ({ scope: 'onboarding', limit: env.rateLimitAuthenticatedPer10Min(), windowMs: 600_000 }),
+    session.profile.id,
+  );
+  if (limited) return limited;
 
   const body = (await c.req.json().catch(() => ({}))) as OnboardingBody;
   const input = parseOnboarding(body, session.profile.locale);

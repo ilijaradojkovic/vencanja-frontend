@@ -1,12 +1,14 @@
 import { RuleViolation } from '@uspomena/shared';
 import { Hono } from 'hono';
 
+import { env } from './env.ts';
 import { errorHandler, notFoundHandler } from './errors.ts';
 import { errorBody, type AppEnv } from './http.ts';
 import { language } from './middleware/language.ts';
 import { metricsMiddleware } from './middleware/metrics.ts';
 import { adminGuard } from './middleware/admin.ts';
 import { onboardingGuard } from './middleware/onboarding.ts';
+import { rateLimitByIp } from './middleware/rate-limit.ts';
 import { requestContext } from './middleware/request-context.ts';
 import { requestLogger } from './middleware/request-logger.ts';
 import { adminRoutes } from './routes/admin.ts';
@@ -44,6 +46,33 @@ app.route('/', onboardingRoutes);
 for (const prefix of ['/weddings/*', '/guests/*', '/photos/*']) app.use(prefix, onboardingGuard());
 app.route('/', weddingRoutes);
 app.route('/', guestRoutes);
+
+// SYS-12: the public guest API is limited by trusted IP; RSVP/notify have the stricter
+// write window on top of the general read limit. Middleware is registered before the
+// routes so it wraps them.
+app.use(
+  '/public/*',
+  rateLimitByIp(() => ({
+    scope: 'public-read',
+    limit: env.rateLimitPublicReadPerMin(),
+    windowMs: 60_000,
+  })),
+);
+for (const path of [
+  '/public/invitations/:token/rsvp',
+  '/public/invitations/:token/notify',
+  '/public/weddings/:slug/notify',
+]) {
+  app.use(
+    path,
+    rateLimitByIp(() => ({
+      scope: 'public-write',
+      limit: env.rateLimitPublicWritePer10Min(),
+      windowMs: 600_000,
+    })),
+  );
+}
+
 app.route('/', publicRoutes);
 
 // Superadmin routes: 401 without a token, 403 for every other role.

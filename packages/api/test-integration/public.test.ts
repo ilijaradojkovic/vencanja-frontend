@@ -38,12 +38,20 @@ const signIn = async (email: string): Promise<string> => {
   return ((await response.json()) as { access_token?: string }).access_token ?? '';
 };
 
+/** A unique trusted IP per request, so public buckets never overflow across runs. */
+let ipCounter = 0;
+const randomIp = (): string => {
+  ipCounter += 1;
+  return `198.18.${Math.floor(Math.random() * 200) + 1}.${(ipCounter % 200) + 20}`;
+};
+
 const call = (path: string, method: string, body?: unknown, token?: string, headers: Record<string, string> = {}) =>
   app.request(path, {
     method,
     headers: {
       ...(token ? { authorization: `Bearer ${token}` } : {}),
       ...(body ? { 'content-type': 'application/json' } : {}),
+      'x-real-ip': randomIp(),
       ...headers,
     },
     ...(body ? { body: JSON.stringify(body) } : {}),

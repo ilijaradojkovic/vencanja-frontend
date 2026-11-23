@@ -50,4 +50,10 @@ export const env = {
   /** Local-only tester support bundle; hard-disabled outside local development. */
   diagnosticsEnabled: () => read('DIAGNOSTICS_ENABLED') === 'true',
   metricsToken: () => read('METRICS_TOKEN') ?? '',
+  /** Fixed-window limits (SYS-12, SPEC §8.2); values live in env. */
+  rateLimitPublicReadPerMin: () => integer('RATE_LIMIT_PUBLIC_READ_PER_MIN', 300),
+  rateLimitPublicWritePer10Min: () => integer('RATE_LIMIT_PUBLIC_WRITE_PER_10_MIN', 30),
+  rateLimitAuthenticatedPer10Min: () => integer('RATE_LIMIT_AUTHENTICATED_PER_10_MIN', 30),
+  /** HMAC key for rate-limit buckets, so no raw IP or token is stored (§8.1). */
+  rateLimitSecret: () => read('RATE_LIMIT_SECRET') ?? required('SUPABASE_SERVICE_ROLE_KEY'),
 };

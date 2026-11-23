@@ -14,6 +14,21 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-22 — M3: fixed-window rate limiting (SYS-12)
+
+The public guest API is rate-limited by trusted IP: `GET /public/*` allows 300 requests per minute by default, and `POST …/rsvp`, `POST …/notify` (guest and QR) allow 30 per 10 minutes, on top of the read bucket. `POST /onboarding` and `PATCH /auth/me` allow 30 per 10 minutes per user. Values are environment variables (`RATE_LIMIT_PUBLIC_READ_PER_MIN`, `RATE_LIMIT_PUBLIC_WRITE_PER_10_MIN`, `RATE_LIMIT_AUTHENTICATED_PER_10_MIN`) with those defaults, documented in `.env.example` and `ENVIRONMENT.md`.
+
+Implementation decisions:
+
+- **Atomic fixed windows in `rate_limits`:** one `insert … on conflict (key, window_start) do update set count = count + 1 returning count` per request (SPEC §8.2). The integration test fires five concurrent requests against a limit of two and exactly two pass.
+- **No raw identifiers:** the bucket key is `<scope>:<HMAC-SHA256(scope|identifier)>`, keyed by `RATE_LIMIT_SECRET` or, when unset, the server-only service-role key. Tests assert the stored key is a 64-hex hash without the IP.
+- **Trusted IP:** `x-real-ip` (set by Vercel) is used; the first `x-forwarded-for` hop is accepted only outside production (local dev/E2E) so a spoofed header cannot bypass production limits. With no IP the bucket is `unknown`, which still limits instead of disabling the check.
+- **Fail open with a log:** a database error during the increment logs `rate limit check failed; allowing the request` instead of taking the public site down. The 429 envelope keeps `{ message, code, requestId, traceId }`, is localized (`tooManyRequests`) and adds `Retry-After`, `X-RateLimit-Limit` and `X-RateLimit-Remaining`.
+- **Middleware order matters:** the limiters are registered before `publicRoutes`; otherwise Hono's later routes are not wrapped (found by the first integration run).
+- Upload limits (20/10 min per token or slug+IP), Supabase Auth's own limits, `rate_limits` cleanup and rate-limit metrics keep their own M4/M6 items.
+
+Evidence: 2 new API unit tests for window rounding and keyed hashing, and 5 new integration tests (60 total): localized `429` with `Retry-After` and correlation IDs, separate buckets per IP, hashed keys in `rate_limits`, atomic concurrent counting (2 pass / 3 rejected out of 5), the RSVP write bucket, and the per-user `PATCH /auth/me` limit leaving another user unaffected.
+
 ## 2026-11-22 — M3: public invitation, RSVP, notify and gallery
 
 The public guest API is in: `GET /api/public/invitations/:token`, `POST …/opened`, `POST …/rsvp`, `POST …/notify`, `GET …/gallery`, `GET /api/public/weddings/:slug`, `GET /api/public/weddings/:slug/gallery` and `POST /api/public/weddings/:slug/notify`. None of them takes an `Authorization` header and none returns organizer contact data, the guest list, tokens of other guests or signed URLs.

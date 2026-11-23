@@ -2,8 +2,10 @@ import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 
 import { getDb } from '../db/client.ts';
+import { env } from '../env.ts';
 import { profiles } from '../db/schema.ts';
 import { errorBody, type AppEnv } from '../http.ts';
+import { enforceUserRateLimit } from '../middleware/rate-limit.ts';
 import { parseMePatch } from '../services/admin.ts';
 import { readBearerToken } from '../services/auth.ts';
 import { loadSession } from '../services/profiles.ts';
@@ -67,6 +69,13 @@ export const authRoutes = new Hono<AppEnv>()
 
     const session = await loadSession(token);
     if (!session.ok) return c.json(errorBody(c, session.code), 401);
+
+    const limited = await enforceUserRateLimit(
+      c,
+      () => ({ scope: 'me-patch', limit: env.rateLimitAuthenticatedPer10Min(), windowMs: 600_000 }),
+      session.profile.id,
+    );
+    if (limited) return limited;
 
     const input = (await c.req.json().catch(() => ({}))) as {
       name?: string;

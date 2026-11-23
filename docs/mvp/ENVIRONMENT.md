@@ -36,6 +36,10 @@ The existing root Vite `.env*` files describe the prototype/demo. They are not t
 | `RETENTION_MONTHS_DEFAULT` | Server | M1/M2 | New-event retention default `3`; stored per event thereafter |
 | `EVENT_STORAGE_LIMIT_MB_DEFAULT` | Server | M1/M4 | New-event limit `50`; stored per event and superadmin-adjustable thereafter |
 | `MAX_UPLOAD_MB` | Server | M4 | Per-file maximum `30`; bucket restriction must match |
+| `RATE_LIMIT_PUBLIC_READ_PER_MIN` | Server | M3 | Public `GET /public/*` limit per trusted IP, default `300` per minute |
+| `RATE_LIMIT_PUBLIC_WRITE_PER_10_MIN` | Server | M3 | Public RSVP/notify limit per trusted IP, default `30` per 10 minutes |
+| `RATE_LIMIT_AUTHENTICATED_PER_10_MIN` | Server | M3 | `POST /onboarding` and `PATCH /auth/me` limit per user, default `30` per 10 minutes |
+| `RATE_LIMIT_SECRET` | **Server only** | M3 | Optional HMAC key for rate-limit buckets; falls back to `SUPABASE_SERVICE_ROLE_KEY` so no raw IP/user id is stored |
 | `METRICS_ENABLED` | Server | M1 | `true` locally; `false` by default in production |
 | `METRICS_TOKEN` | **Server only** | M1 | Bearer token for `/api/metrics` and local Prometheus scrape configuration |
 | `DIAGNOSTICS_ENABLED` | **Server only** | M1 | `true` only for local trace/log support-bundle export; hard-disabled and `404` outside local development |
