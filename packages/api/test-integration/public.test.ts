@@ -292,9 +292,30 @@ describe('gallery (SYS-3, Europe/Belgrade)', () => {
     await getDb()
       .insert(photos)
       .values([
-        { eventId, status: 'approved', senderName: 'Gost', category: 'wedding', message: 'Prva' },
-        { eventId, status: 'approved', senderName: 'Gost', category: 'memories', message: 'Druga' },
-        { eventId, status: 'pending', senderName: 'Gost', category: 'wedding', message: 'Na čekanju' },
+        {
+          eventId,
+          status: 'approved',
+          senderName: 'Gost',
+          category: 'wedding',
+          message: 'Prva',
+          createdAt: new Date(Date.now() - 60_000),
+        },
+        {
+          eventId,
+          status: 'approved',
+          senderName: 'Gost',
+          category: 'memories',
+          message: 'Druga',
+          createdAt: new Date(),
+        },
+        {
+          eventId,
+          status: 'pending',
+          senderName: 'Gost',
+          category: 'wedding',
+          message: 'Na čekanju',
+          createdAt: new Date(),
+        },
       ]);
   };
 
