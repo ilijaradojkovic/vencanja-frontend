@@ -17,6 +17,7 @@ import { guestRoutes } from './routes/guests.ts';
 import { healthRoutes } from './routes/health.ts';
 import { metricsRoutes } from './routes/metrics.ts';
 import { onboardingRoutes } from './routes/onboarding.ts';
+import { publicRoutes } from './routes/public.ts';
 import { weddingRoutes } from './routes/weddings.ts';
 import { getGuestByToken } from './services/guest.ts';
 import { makeThumbnailProbe } from './services/image.ts';
@@ -43,6 +44,7 @@ app.route('/', onboardingRoutes);
 for (const prefix of ['/weddings/*', '/guests/*', '/photos/*']) app.use(prefix, onboardingGuard());
 app.route('/', weddingRoutes);
 app.route('/', guestRoutes);
+app.route('/', publicRoutes);
 
 // Superadmin routes: 401 without a token, 403 for every other role.
 app.use('/admin/*', adminGuard());

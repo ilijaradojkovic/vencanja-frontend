@@ -14,6 +14,25 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-22 — M3: public invitation, RSVP, notify and gallery
+
+The public guest API is in: `GET /api/public/invitations/:token`, `POST …/opened`, `POST …/rsvp`, `POST …/notify`, `GET …/gallery`, `GET /api/public/weddings/:slug`, `GET /api/public/weddings/:slug/gallery` and `POST /api/public/weddings/:slug/notify`. None of them takes an `Authorization` header and none returns organizer contact data, the guest list, tokens of other guests or signed URLs.
+
+Decisions recorded:
+
+- **Response wrappers:** the invitation answers `{ guest, wedding }`, the gallery `{ gallery }`, the public wedding `{ wedding }` and the rest as in API.md (`{ ok: true }`, `{ rsvp }`, `{ notifyEmail }`). The bare `PublicWedding`/`PublicGallery` from the older API.md are wrapped like the other product endpoints; the shape inside is unchanged.
+- **PublicWedding** includes `type` and `occasion` (the celebration wording needs them, SYS-8) in addition to the API.md fields, and `gallery = { open, mode, opensAt, viaQr }` computed with the shared `isGalleryOpen`/`galleryOpensAt` in Europe/Belgrade (SYS-3). `settings` exposes only `allowGeneralUpload`.
+- **PublicGuest** exposes `prefillEmail = notifyEmail || guest.email`, so the guest form can prefill without revealing anything else.
+- **`opened`** stores the first timestamp only; repeat calls keep it.
+- **RSVP** uses the shared `parseRsvp` without `manual`, so only `yes|no` is accepted (`pending` → `422 chooseAttendance`), uninvited names → `companionNotInvited`, and the open-person bound → `personsRange`. The note is limited to 1000 characters (`textTooLong`) and `respondedAt` is always set by the server.
+- **`notify`** validates the address (`invalidEmail`), stores it, sets `notifyRequestedAt`, and resets `notifySentAt` only when the address changes (SYS-4). `notify_locale` is the request's `Accept-Language` (SYS-13), for future "photos are ready" emails.
+- **QR notify** requires `galleryViaQr` (`403 galleryPersonalOnly`) and inserts a `photo_subscribers` row with the request language, ignoring duplicates through the unique `(event_id, email)` index; a repeated email keeps the existing name.
+- **Gallery contents:** both gallery endpoints return `{ open, mode, opensAt, photos }`; photos are only approved rows and only while open. `url`/`thumbUrl` are `null` and there is no cursor pagination yet, because signed Storage URLs and pagination are the M4 DoD items (§6.3); the M4 gallery work fills them in. The gallery UI is therefore not rendered in M3.
+- **Uploads are not part of this item:** `POST …/photos` (multipart) is replaced by the M4 signed-upload flow and does not exist yet.
+- **Archived events (SYS-9) and rate limiting (SYS-12)** are not applied here yet; the archived state and the public-route limits have their own M6/M3 items.
+
+Evidence: 13 new integration tests (55 total) against the local database: public invitation shape with `prefillEmail` and no private fields, unknown token `404`, first `opened` kept, RSVP success/`respondedAt`, `companionNotInvited`/`personsRange`/`chooseAttendance`/`textTooLong`, notify with locale and SYS-4 reset, invalid email, public wedding by slug and `404`, gallery empty while closed and approved-only when `now`, `after_wedding` opening in Europe/Belgrade, manual switch, `galleryViaQr=false` blocking the QR gallery and notify while the personal link keeps working, subscriber dedupe with locale.
+
 ## 2026-11-22 — M3: guests (list, create, import, edit, delete)
 
 `GET/POST /api/weddings/:id/guests`, `POST /api/weddings/:id/guests/import`, `PATCH/DELETE /api/guests/:id` cover UC-17 – UC-25 behind the M2 onboarding guard. A guest response uses the prototype's shape: `id, weddingId, name, token, email, phone, side, companions, maxPersons, invitedAt, openedAt, rsvp { status, persons, companions, note, respondedAt }, photoNotify { email, requestedAt, sentAt }`. List/create/patch answer `{ guests }`/`{ guest }` (the wrapper convention used elsewhere); delete answers `{ id }` as in API.md.
