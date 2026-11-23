@@ -1,4 +1,12 @@
-import { isEventDate, isValidPhone, normalizePhone, RuleViolation, type Language } from '@uspomena/shared';
+import {
+  isEventDate,
+  isValidPhone,
+  MAX_CITY_LENGTH,
+  MAX_NAME_LENGTH,
+  normalizePhone,
+  RuleViolation,
+  type Language,
+} from '@uspomena/shared';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 
@@ -9,9 +17,6 @@ import { readBearerToken } from '../services/auth.ts';
 import { createEvent, findEventForOwner, toWeddingPayload } from '../services/events.ts';
 import { loadSession } from '../services/profiles.ts';
 import { toProfilePayload } from './auth.ts';
-
-const MAX_NAME = 120;
-const MAX_CITY = 120;
 
 type OnboardingBody = {
   type?: unknown;
@@ -45,10 +50,10 @@ export const parseOnboarding = (body: OnboardingBody, locale: Language): Onboard
   const type = body.type === 'celebration' ? 'celebration' : body.type === 'wedding' ? 'wedding' : null;
   if (!type) throw new RuleViolation('badRequest');
 
-  const partner1 = text(body.partner1, MAX_NAME, 'nameTooLong');
-  const partner2 = text(body.partner2, MAX_NAME, 'nameTooLong');
-  const occasion = text(body.occasion, MAX_NAME, 'nameTooLong');
-  const city = text(body.city, MAX_CITY, 'cityTooLong');
+  const partner1 = text(body.partner1, MAX_NAME_LENGTH, 'nameTooLong');
+  const partner2 = text(body.partner2, MAX_NAME_LENGTH, 'nameTooLong');
+  const occasion = text(body.occasion, MAX_NAME_LENGTH, 'nameTooLong');
+  const city = text(body.city, MAX_CITY_LENGTH, 'cityTooLong');
 
   if (!partner1) throw new RuleViolation(type === 'wedding' ? 'namesRequired' : 'celebrantRequired');
   if (type === 'wedding' && !partner2) throw new RuleViolation('namesRequired');

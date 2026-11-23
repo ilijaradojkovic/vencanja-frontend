@@ -1,4 +1,4 @@
-import type { CompanionSet } from '@uspomena/shared';
+import type { CompanionSet, ScheduleItem } from '@uspomena/shared';
 import {
   bigint,
   boolean,
@@ -44,7 +44,7 @@ export type InvitationDesign = {
   accentColor: string;
   headline: string;
   message: string;
-  schedule: { time: string; title: string }[];
+  schedule: ScheduleItem[];
 };
 
 export type EventSettings = {

@@ -169,6 +169,7 @@ export type WeddingPayload = {
   partner1: string;
   partner2: string;
   date: string;
+  rsvpDeadline: string | null;
   city: string;
   invitation: InvitationDesign;
   settings: EventSettings;
@@ -186,6 +187,7 @@ export const toWeddingPayload = (event: EventRow): WeddingPayload => ({
   partner1: event.partner1,
   partner2: event.partner2,
   date: event.date,
+  rsvpDeadline: event.rsvpDeadline ?? null,
   city: event.city,
   invitation: event.invitation,
   settings: event.settings,

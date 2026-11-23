@@ -8,6 +8,12 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e',
+  globalSetup: './e2e/global-setup.ts',
+  // The Supabase Send Email Hook calls the Next.js dev server synchronously during
+  // signup; many parallel workers occasionally hit GoTrue's hook timeout (EOF) and
+  // delivered a confirmation link whose token was rolled back. Two workers keep the
+  // auth scenarios deterministic on a laptop and in CI.
+  workers: 2,
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,

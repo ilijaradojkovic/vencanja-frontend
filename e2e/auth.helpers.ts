@@ -70,6 +70,34 @@ export async function clickUntilUrl(page: Page, name: string, url: RegExp): Prom
 
 export const signOutThroughUi = (page: Page) => clickUntilUrl(page, 'Odjavi se', /\/login$/);
 
+/**
+ * The signup click can be lost while the dev server hydrates under parallel load
+ * (seen on WebKit). Re-click until the check-email screen appears, but fail fast
+ * with the displayed validation/API message instead of retrying a real error.
+ */
+export async function submitSignup(page: Page): Promise<void> {
+  const button = page.getByRole('button', { name: 'Napravi nalog' });
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await button.click();
+    const outcome = await Promise.race([
+      page
+        .waitForURL(/\/potvrda-emaila\?email=/, { timeout: 5000 })
+        .then(() => 'navigated' as const)
+        .catch(() => 'timeout' as const),
+      page
+        .locator('.form-error')
+        .waitFor({ state: 'visible', timeout: 5000 })
+        .then(() => 'error' as const)
+        .catch(() => 'timeout' as const),
+    ]);
+    if (outcome === 'navigated') return;
+    if (outcome === 'error') {
+      throw new Error(`Signup failed: ${await page.locator('.form-error').innerText()}`);
+    }
+  }
+  throw new Error('Signup did not reach the check-email screen.');
+}
+
 /** Same retry, but the expected outcome is a heading of the next wizard step. */
 export async function clickUntilText(page: Page, name: string, text: string): Promise<void> {
   await expect(async () => {
@@ -84,7 +112,7 @@ export async function signUpAndConfirm(page: Page, email: string): Promise<void>
   await page.getByLabel(/^Email/).fill(email);
   await page.getByLabel(/^Lozinka/).fill(PASSWORD);
   await page.getByRole('checkbox').check();
-  await page.getByRole('button', { name: 'Napravi nalog' }).click();
+  await submitSignup(page);
 
   await expect(page).toHaveURL(/\/potvrda-emaila\?email=/);
   await expect(page.getByText(`Poslali smo link za potvrdu na ${email}.`)).toBeVisible();

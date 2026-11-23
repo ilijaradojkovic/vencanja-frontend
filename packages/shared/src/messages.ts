@@ -151,6 +151,41 @@ const MESSAGES = {
     en: 'At most 19 companions.',
     ru: 'Не более 19 спутников.',
   },
+  badTemplate: {
+    sr: 'Nepoznat izgled pozivnice.',
+    en: 'Unknown invitation template.',
+    ru: 'Неизвестный шаблон приглашения.',
+  },
+  badColor: {
+    sr: 'Boja mora biti u formatu #RRGGBB.',
+    en: 'The color must be in the #RRGGBB format.',
+    ru: 'Цвет должен быть в формате #RRGGBB.',
+  },
+  badSchedule: {
+    sr: 'Proverite vremena i nazive u rasporedu.',
+    en: 'Check the times and titles in the schedule.',
+    ru: 'Проверьте время и названия в расписании.',
+  },
+  tooManyScheduleItems: {
+    sr: 'Najviše 20 stavki u rasporedu.',
+    en: 'At most 20 schedule items.',
+    ru: 'Не более 20 пунктов расписания.',
+  },
+  badSettings: {
+    sr: 'Nepoznata podešavanja.',
+    en: 'Unknown settings.',
+    ru: 'Неизвестные настройки.',
+  },
+  badDeadline: {
+    sr: 'Datum za potvrde nije ispravan.',
+    en: 'The RSVP deadline is not a valid date.',
+    ru: 'Неверная дата подтверждения.',
+  },
+  textTooLong: {
+    sr: 'Tekst je predugačak (najviše {{max}} znakova).',
+    en: 'The text is too long (at most {{max}} characters).',
+    ru: 'Текст слишком длинный (не более {{max}} символов).',
+  },
   badGalleryMode: {
     sr: 'Nepoznat način otvaranja galerije.',
     en: 'Unknown gallery opening mode.',

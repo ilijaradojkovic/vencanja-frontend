@@ -14,6 +14,28 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-22 — M3: weddings read/update with the SPEC §6.6 validation
+
+The first M3 slice adds `PATCH /api/weddings/:id` next to the existing `GET /api/weddings/current`. Both run behind the M2 onboarding guard, so an unfinished account still gets `409 onboardingRequired`; a missing token is `401 unauthorized`.
+
+The patch accepts only `slug`, `partner1`, `partner2`, `occasion`, `date`, `rsvpDeadline`, `city`, `invitation` and `settings`. Unknown top-level keys and unknown `invitation` keys answer `422 badRequest`; unknown `settings` keys answer `422 badSettings` (a typo must not be silently stored). A foreign or unknown event id answers `404 weddingNotFound` rather than `403`, so ownership is not disclosed; `type` is not patchable here (the superadmin changes it, UC-73). Invitation and settings are merged with the stored values, not replaced.
+
+Validation follows SPEC §6.6 items 2, 3, 4 and 7:
+
+- slug is trimmed and lowercased, must match `^[a-z0-9-]{3,40}$` and be unique among events (`422 badSlug`); the organizer's own current slug is accepted.
+- the 11 prototype template ids are enforced (`klasik, minimal, botanika, romantika, editorijal, noc, rustik, akvarel, zlatna-geometrija, boho, bordo`), not the four in the older API.md (`422 badTemplate`).
+- accentColor must be `#RRGGBB` in either case (`422 badColor`); headline ≤200 and message ≤2000 (`422 textTooLong` with `max`).
+- schedule: at most 20 items (`422 tooManyScheduleItems`), each with a 24-hour `HH:mm` time and a non-empty title ≤200 (`422 badSchedule`). The prototype's optional `id`, `place` (≤200) and `mapUrl` (http/https ≤500) are preserved; `InvitationDesign.schedule` in the Drizzle schema was extended to those optional fields (JSONB type only, no migration).
+- settings: the five known keys only; `galleryOpen` must be `now|after_wedding|manual` (`422 badGalleryMode`), the rest booleans (`422 badSettings`).
+- names/city reuse the shared length limits (name/occasion 120, city 120); a wedding cannot lose either name (`namesRequired`), a celebration requires the celebrant (`celebrantRequired`) and may clear `occasion`; `rsvpDeadline` is `null` or a real calendar date (`422 badDeadline`).
+- a changed `date` recalculates `purge_at` with the stored retention (SYS-9); `GET /weddings/current` now includes `rsvpDeadline` in the wedding payload.
+
+New shared modules keep the same rules usable by the editor later: `packages/shared/src/invitation.ts` (template ids, color, schedule normalizer, 20-item cap) and `limits.ts` (the SPEC §6.6 text limits, also used by onboarding and admin). Seven new message keys exist in sr/en/ru: `badTemplate`, `badColor`, `badSchedule`, `tooManyScheduleItems`, `badSettings`, `badDeadline`, `textTooLong`.
+
+E2E determinism also changed in this slice. With many parallel workers, several signups hit the local Supabase Send Email Hook at once and GoTrue logged `Request timed out … EOF`; a confirmation link from a rolled-back attempt then answered `otp_expired`, and the S12 click could be lost during hydration. The suite now runs `workers: 2`, warms the API with `/api/health` in `globalSetup` (so the hook route is compiled before the first signup), retries the signup submit while failing fast on a visible form error, and retries the S12 create/deactivate clicks until the expected state appears. Three consecutive full runs are green.
+
+Evidence: 6 new shared unit tests (79 total) for templates, colors, times and schedule normalization, and 7 new integration tests (30 total) against the local database: partial update with invitation/settings merge and unchanged `purge_at`, slug format/uniqueness/own slug, template/color/schedule/length/unknown-key rejections, settings validation, empty/unknown/date/deadline/name/city rejections, foreign and unknown ids (`404`, nothing changed), and celebration fields. `lint`, `typecheck`, `test:unit`, `test:component`, `build`, `build:demo`, `test:integration`, `test:e2e` (20, three consecutive runs) and `format:check` are green.
+
 ## 2026-11-22 — M2 complete: admin accounts, settings, session revocation and S12
 
 The rest of M2 is in: superadmin account management, the account settings section, the UC-07 phone gate, `npm run admin:create`, and the Google state/callback coverage that local fixtures can prove. The milestone is now complete; the full milestone summary is in `PROGRESS.md`.

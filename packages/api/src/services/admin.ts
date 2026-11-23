@@ -1,4 +1,12 @@
-import { isEmail, isEventDate, isValidPhone, normalizePhone, RuleViolation } from '@uspomena/shared';
+import {
+  isEmail,
+  isEventDate,
+  isValidPhone,
+  MAX_CITY_LENGTH,
+  MAX_NAME_LENGTH,
+  normalizePhone,
+  RuleViolation,
+} from '@uspomena/shared';
 import type { MessageKey } from '@uspomena/shared';
 import { and, count, desc, eq, inArray, ne, sql } from 'drizzle-orm';
 
@@ -71,8 +79,6 @@ export type AdminAccountInput = {
   password?: string;
 };
 
-const MAX_NAME = 120;
-const MAX_CITY = 120;
 const MIN_PASSWORD = 6;
 
 const text = (value: unknown, max: number, code: 'nameTooLong' | 'cityTooLong'): string => {
@@ -114,11 +120,11 @@ const parseEvent = (input: AdminAccountInput, existing?: EventRow): EventDraft =
   const type = input.type ?? (existing?.type as EventDraft['type']) ?? 'wedding';
   if (type !== 'wedding' && type !== 'celebration') throw new RuleViolation('badRequest');
 
-  const partner1 = text(input.partner1 ?? existing?.partner1, MAX_NAME, 'nameTooLong');
+  const partner1 = text(input.partner1 ?? existing?.partner1, MAX_NAME_LENGTH, 'nameTooLong');
   const celebration = type === 'celebration';
-  const partner2 = celebration ? '' : text(input.partner2 ?? existing?.partner2, MAX_NAME, 'nameTooLong');
-  const occasion = celebration ? text(input.occasion ?? existing?.occasion, MAX_NAME, 'nameTooLong') : '';
-  const city = text(input.city ?? existing?.city, MAX_CITY, 'cityTooLong');
+  const partner2 = celebration ? '' : text(input.partner2 ?? existing?.partner2, MAX_NAME_LENGTH, 'nameTooLong');
+  const occasion = celebration ? text(input.occasion ?? existing?.occasion, MAX_NAME_LENGTH, 'nameTooLong') : '';
+  const city = text(input.city ?? existing?.city, MAX_CITY_LENGTH, 'cityTooLong');
   const date = typeof (input.date ?? existing?.date) === 'string' ? (input.date ?? existing?.date ?? '') : '';
 
   const switchingType = existing && existing.type !== type;
@@ -413,7 +419,7 @@ export type MePatch = { name?: string; phone?: string; locale?: 'sr' | 'en' | 'r
 export const parseMePatch = (input: MePatch): MePatch => {
   const patch: MePatch = {};
   if (input.name !== undefined) {
-    const name = text(input.name, MAX_NAME, 'nameTooLong');
+    const name = text(input.name, MAX_NAME_LENGTH, 'nameTooLong');
     if (!name) throw new RuleViolation('nameRequired');
     patch.name = name;
   }

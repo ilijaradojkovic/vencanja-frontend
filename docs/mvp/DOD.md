@@ -92,7 +92,7 @@ Milestones are done in order. A milestone is done when all of its items are tick
 
 ### M3 – Event, invitation, guests, RSVP
 
-- [ ] `GET /weddings/current` and `PATCH /weddings/:id` with the validation from SPEC §6.6 (unique slug, templateId, color, schedule, settings).
+- [x] `GET /weddings/current` and `PATCH /weddings/:id` with the validation from SPEC §6.6 (unique slug, templateId, color, schedule, settings).
 - [ ] Guests: list, create, import (up to 1000 rows, normalized), edit (SYS-5), delete (photos stay).
 - [ ] Public: invitation, `opened`, RSVP, `notify` (with `notify_locale`), `GET /public/weddings/:slug`, gallery (empty while closed; SYS-3 in Europe/Belgrade).
 - [ ] Rate limiting (SYS-12) on public routes, with a test for `429`.

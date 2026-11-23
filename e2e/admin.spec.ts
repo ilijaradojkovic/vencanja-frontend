@@ -36,7 +36,12 @@ test('S12 superadmin creates and deactivates an account; the organizer is signed
   await modal.getByLabel(/^Email za prijavu/).fill(email);
   await modal.getByLabel(/^Telefon/).fill('060 111 2222');
   await modal.getByLabel(/^Lozinka/).fill(password);
-  await modal.getByRole('button', { name: 'Napravi nalog' }).click();
+  // A click can be lost while React hydrates under parallel load; retry until the
+  // credentials dialog replaces the form.
+  await expect(async () => {
+    await modal.getByRole('button', { name: 'Napravi nalog' }).click();
+    await expect(page.getByRole('heading', { name: 'Nalog je napravljen' })).toBeVisible({ timeout: 3000 });
+  }).toPass({ timeout: 20_000 });
 
   const credentials = page.getByRole('dialog');
   await expect(credentials).toContainText('Nalog je napravljen');
@@ -58,9 +63,11 @@ test('S12 superadmin creates and deactivates an account; the organizer is signed
   await expect(page).toHaveURL(/\/admin$/);
   await waitForHydration(page);
   const row = page.getByRole('row').filter({ hasText: email });
-  await row.getByRole('button', { name: 'Deaktiviraj' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Deaktiviraj' }).click();
-  await expect(page.getByRole('status')).toContainText('Nalog je deaktiviran.');
+  await expect(async () => {
+    await row.getByRole('button', { name: 'Deaktiviraj' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Deaktiviraj' }).click();
+    await expect(page.getByRole('status')).toContainText('Nalog je deaktiviran.', { timeout: 3000 });
+  }).toPass({ timeout: 20_000 });
   await expect(row.getByText('Deaktivirana')).toBeVisible();
 
   // The already signed-in organizer is sent back to the login page.
