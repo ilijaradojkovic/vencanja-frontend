@@ -176,6 +176,16 @@ const MESSAGES = {
     en: 'Unknown settings.',
     ru: 'Неизвестные настройки.',
   },
+  tooManyGuests: {
+    sr: 'Najviše 1000 gostiju u jednom uvozu.',
+    en: 'At most 1000 guests per import.',
+    ru: 'Не более 1000 гостей за один импорт.',
+  },
+  badSide: {
+    sr: 'Nepoznata strana gosta.',
+    en: 'Unknown guest side.',
+    ru: 'Неизвестная сторона гостя.',
+  },
   badDeadline: {
     sr: 'Datum za potvrde nije ispravan.',
     en: 'The RSVP deadline is not a valid date.',

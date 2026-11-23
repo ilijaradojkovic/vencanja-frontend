@@ -14,6 +14,22 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-22 — M3: guests (list, create, import, edit, delete)
+
+`GET/POST /api/weddings/:id/guests`, `POST /api/weddings/:id/guests/import`, `PATCH/DELETE /api/guests/:id` cover UC-17 – UC-25 behind the M2 onboarding guard. A guest response uses the prototype's shape: `id, weddingId, name, token, email, phone, side, companions, maxPersons, invitedAt, openedAt, rsvp { status, persons, companions, note, respondedAt }, photoNotify { email, requestedAt, sentAt }`. List/create/patch answer `{ guests }`/`{ guest }` (the wrapper convention used elsewhere); delete answers `{ id }` as in API.md.
+
+Rules and decisions:
+
+- **Ownership:** the event must belong to the organizer, and `PATCH`/`DELETE /guests/:id` resolve the guest's event the same way. A foreign event or guest answers `404` (`weddingNotFound`/`guestNotFound`), so existence is never disclosed.
+- **Tokens:** 12 base62 characters from `crypto.randomInt`, unique through the existing index. The integration test checks the format and uniqueness across created guests.
+- **Companions** use the shared `parseCompanions` (`named` needs 1–19 names, `open` needs `max` 1–19), `maxPersons` is derived as `1 + allowed companions`, and the default is `none`. Invalid companion input is `422` with the existing shared codes.
+- **Validation:** empty name → `guestNameRequired`, name >120 → `textTooLong`, invalid email → `invalidEmail`, invalid non-empty phone → `invalidPhone`, unknown side → `badSide` (new shared message in sr/en/ru, together with `tooManyGuests`). A blank email/phone is stored as `''`.
+- **Import (UC-19, SPEC §6.6 item 6):** at most 1000 rows (`422 tooManyGuests`), empty names are skipped, an invalid phone is dropped, an invalid email is dropped, an unknown side becomes `zajednicki`, and `maxPersons > 1` becomes an open companion allowance. Every accepted row is inserted in one statement; the endpoint returns only the new guests.
+- **Edit (SYS-5):** changing companions without a new `rsvp` trims an existing "coming" answer — named companions that are no longer invited are removed, open answers are lowered to the new maximum, and `persons` follows. Manual RSVP entry uses the shared `parseRsvp` with `{ manual: true }`, so `pending` is allowed and clears `respondedAt`; `yes`/`no` set it. Uninvited names (`companionNotInvited`) and too many persons (`personsRange`) keep the prototype messages.
+- **Delete (UC-25):** only the guest row is deleted; the `photos.guest_id` foreign key is `ON DELETE SET NULL`, so their photos stay and the personal token stops resolving.
+
+Evidence: 12 new integration tests (42 total): authorization/ownership for every route, defaults and token format/uniqueness, all validation codes, named/open `maxPersons`, per-event listing, import normalization/skipping/1000-row cap/empty list, field edits keeping the token, SYS-5 trimming for named and open answers, manual RSVP rules and `respondedAt`, and deletion keeping the photo with `guest_id = null`.
+
 ## 2026-11-22 — M3: weddings read/update with the SPEC §6.6 validation
 
 The first M3 slice adds `PATCH /api/weddings/:id` next to the existing `GET /api/weddings/current`. Both run behind the M2 onboarding guard, so an unfinished account still gets `409 onboardingRequired`; a missing token is `401 unauthorized`.

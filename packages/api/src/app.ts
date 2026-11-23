@@ -13,6 +13,7 @@ import { adminRoutes } from './routes/admin.ts';
 import { authEmailRoutes } from './routes/auth-email.ts';
 import { authRoutes } from './routes/auth.ts';
 import { diagnosticsRoutes } from './routes/diagnostics.ts';
+import { guestRoutes } from './routes/guests.ts';
 import { healthRoutes } from './routes/health.ts';
 import { metricsRoutes } from './routes/metrics.ts';
 import { onboardingRoutes } from './routes/onboarding.ts';
@@ -41,6 +42,7 @@ app.route('/', onboardingRoutes);
 // Organizer data routes: 401 without a token, 409 onboardingRequired until UC-81 is done.
 for (const prefix of ['/weddings/*', '/guests/*', '/photos/*']) app.use(prefix, onboardingGuard());
 app.route('/', weddingRoutes);
+app.route('/', guestRoutes);
 
 // Superadmin routes: 401 without a token, 403 for every other role.
 app.use('/admin/*', adminGuard());
