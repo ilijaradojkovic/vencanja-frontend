@@ -8,13 +8,14 @@ import {
   RuleViolation,
   type Language,
 } from '@uspomena/shared';
-import { and, asc, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 
 import { getDb } from '../db/client.ts';
 import { events, guests, photoSubscribers, photos } from '../db/schema.ts';
 import type { EventRow } from './events.ts';
 import type { GuestRow } from './guests.ts';
-import { signPhotoUrls } from './photos.ts';
+import { decodeCursor, parseLimit } from './cursor.ts';
+import { categoryFilter, pagePhotos, signPhotoUrls } from './photos.ts';
 
 export type PublicWedding = {
   type: 'wedding' | 'celebration';
@@ -85,13 +86,15 @@ export const toPublicGuest = (guest: GuestRow): PublicGuest => ({
 /**
  * Only approved photos are exposed, and only while the gallery is open (SYS-3 in
  * Europe/Belgrade). `url` (web version) and `thumbUrl` are signed for one hour
- * (SPEC §6.3) and signed per response, never cached; cursor pagination follows in
- * the next M4 slice.
+ * (SPEC §6.3) and signed per response, never cached. Photos come oldest first, one
+ * cursor page at a time; `total` counts every approved photo in the category.
  */
 export type PublicGallery = {
   open: boolean;
   mode: EventRow['settings']['galleryOpen'];
   opensAt: string | null;
+  total: number;
+  nextCursor: string | null;
   photos: {
     id: string;
     url: string | null;
@@ -105,23 +108,30 @@ export type PublicGallery = {
   }[];
 };
 
-export const publicGalleryFor = async (event: EventRow, now: Date = new Date()): Promise<PublicGallery> => {
+export type GalleryQuery = { cursor?: string; limit?: string; category?: string };
+
+export const publicGalleryFor = async (
+  event: EventRow,
+  query: GalleryQuery = {},
+  now: Date = new Date(),
+): Promise<PublicGallery> => {
   const open = isGalleryOpen(event, now);
-  const photosRows = open
-    ? await getDb()
-        .select()
-        .from(photos)
-        .where(and(eq(photos.eventId, event.id), eq(photos.status, 'approved')))
-        .orderBy(asc(photos.createdAt), asc(photos.id))
-    : [];
-  const signed = await signPhotoUrls(photosRows);
+  const base = { open, mode: event.settings.galleryOpen, opensAt: galleryOpensAt(event) };
+  if (!open) return { ...base, total: 0, nextCursor: null, photos: [] };
+
+  const where = and(eq(photos.eventId, event.id), eq(photos.status, 'approved'), categoryFilter(query.category));
+  const [page, [totals]] = await Promise.all([
+    pagePhotos(where, 'asc', decodeCursor(query.cursor), parseLimit(query.limit)),
+    getDb().select({ total: count() }).from(photos).where(where),
+  ]);
+  const signed = await signPhotoUrls(page.rows);
   const urlOf = (path: string | null) => (path ? (signed.get(path) ?? null) : null);
 
   return {
-    open,
-    mode: event.settings.galleryOpen,
-    opensAt: galleryOpensAt(event),
-    photos: photosRows.map((photo) => ({
+    ...base,
+    total: Number(totals?.total ?? 0),
+    nextCursor: page.nextCursor,
+    photos: page.rows.map((photo) => ({
       id: photo.id,
       url: urlOf(photo.webPath),
       thumbUrl: urlOf(photo.thumbPath),

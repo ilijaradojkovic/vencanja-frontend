@@ -78,7 +78,7 @@ export const publicRoutes = new Hono<AppEnv>()
     if (isResponse(guest)) return guest;
     const event = await eventById(guest.eventId);
     if (!event) return c.json(errorBody(c, 'invitationNotFound'), 404);
-    return c.json({ gallery: await publicGalleryFor(event) });
+    return c.json({ gallery: await publicGalleryFor(event, c.req.query()) });
   })
   .get('/public/weddings/:slug', async (c) => {
     const event = await eventOr404(c);
@@ -89,7 +89,7 @@ export const publicRoutes = new Hono<AppEnv>()
     const event = await eventOr404(c);
     if (isResponse(event)) return event;
     if (!event.settings.galleryViaQr) return c.json(errorBody(c, 'galleryPersonalOnly'), 403);
-    return c.json({ gallery: await publicGalleryFor(event) });
+    return c.json({ gallery: await publicGalleryFor(event, c.req.query()) });
   })
   .post('/public/weddings/:slug/notify', async (c) => {
     const event = await eventOr404(c);

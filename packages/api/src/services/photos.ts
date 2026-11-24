@@ -1,12 +1,13 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 import { isPhotoCategory, isPhotoStatus, RuleViolation, type PhotoCategory, type PhotoStatus } from '@uspomena/shared';
-import { and, desc, eq, inArray, ne, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
 
 import { getDb } from '../db/client.ts';
 import { events, photos } from '../db/schema.ts';
 import { env } from '../env.ts';
 import { ApiProblem } from '../errors.ts';
+import { decodeCursor, encodeCursor, parseLimit, type PhotoCursor } from './cursor.ts';
 import type { EventRow } from './events.ts';
 import type { GuestRow } from './guests.ts';
 import { makeDerivatives, readImageMetadata } from './image.ts';
@@ -200,12 +201,87 @@ export const signedPhotoPayloads = async (rows: PhotoRow[]): Promise<PhotoPayloa
   return rows.map((row) => toPhotoPayload(row, signed));
 };
 
+/** `created_at` with microseconds, for cursors (a JS Date would truncate it). */
+const cursorTimestamp = sql<string>`to_char(${photos.createdAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
+
+export type PhotoPage = { rows: PhotoRow[]; nextCursor: string | null };
+
 /**
- * `GET /weddings/:id/photos` (UC-34): the event's processed photos, newest first,
- * with signed `url`/`thumbUrl`. `uploading` reservations are not listed. Cursor
- * pagination is added by the next M4 slice.
+ * One page of photos in the stable `(createdAt, id)` order (SPEC §6.3). Fetches
+ * `limit + 1` rows to know whether another page exists.
  */
-export const listEventPhotos = async (profileId: string, eventId: string): Promise<PhotoRow[]> => {
+export const pagePhotos = async (
+  where: SQL | undefined,
+  order: 'asc' | 'desc',
+  cursor: PhotoCursor | null,
+  limit: number,
+): Promise<PhotoPage> => {
+  const after = cursor
+    ? order === 'desc'
+      ? sql`(${photos.createdAt}, ${photos.id}) < (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)`
+      : sql`(${photos.createdAt}, ${photos.id}) > (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)`
+    : undefined;
+  const direction = order === 'desc' ? desc : asc;
+  const rows = await getDb()
+    .select({ photo: photos, at: cursorTimestamp })
+    .from(photos)
+    .where(and(where, after))
+    .orderBy(direction(photos.createdAt), direction(photos.id))
+    .limit(limit + 1);
+  const page = rows.slice(0, limit);
+  const last = page.at(-1);
+  return {
+    rows: page.map((row) => row.photo),
+    nextCursor: rows.length > limit && last ? encodeCursor({ createdAt: last.at, id: last.photo.id }) : null,
+  };
+};
+
+export type PhotoCounts = { pending: number; approved: number; hidden: number; all: number };
+
+/** Per-status totals for the Photos tabs (processed photos only). */
+export const countEventPhotos = async (eventId: string): Promise<PhotoCounts> => {
+  const rows = await getDb()
+    .select({ status: photos.status, count: sql<string>`count(*)` })
+    .from(photos)
+    .where(and(eq(photos.eventId, eventId), ne(photos.status, 'uploading')))
+    .groupBy(photos.status);
+  const counts: PhotoCounts = { pending: 0, approved: 0, hidden: 0, all: 0 };
+  for (const row of rows) {
+    if (row.status === 'uploading') continue;
+    counts[row.status] = Number(row.count);
+    counts.all += Number(row.count);
+  }
+  return counts;
+};
+
+export type PhotoListQuery = {
+  status?: string;
+  category?: string;
+  guestId?: string;
+  order?: string;
+  cursor?: string;
+  limit?: string;
+};
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export const categoryFilter = (value: unknown): SQL | undefined => {
+  if (value === undefined || value === '' || value === 'all') return undefined;
+  if (!isPhotoCategory(value)) throw new RuleViolation('badRequest');
+  return eq(photos.category, value);
+};
+
+/**
+ * `GET /weddings/:id/photos` (UC-34): processed photos with signed URLs, newest
+ * first by default (`order=asc` for the album/slideshow), filtered by status,
+ * category and guest, one cursor page at a time. `uploading` reservations are
+ * never listed.
+ */
+export const listEventPhotos = async (
+  profileId: string,
+  eventId: string,
+  query: PhotoListQuery = {},
+): Promise<PhotoPage & { counts: PhotoCounts }> => {
   const db = getDb();
   const [event] = await db
     .select({ id: events.id })
@@ -213,11 +289,25 @@ export const listEventPhotos = async (profileId: string, eventId: string): Promi
     .where(and(eq(events.id, eventId), eq(events.ownerId, profileId)))
     .limit(1);
   if (!event) throw new ApiProblem(404, 'weddingNotFound');
-  return db
-    .select()
-    .from(photos)
-    .where(and(eq(photos.eventId, eventId), ne(photos.status, 'uploading')))
-    .orderBy(desc(photos.createdAt), desc(photos.id));
+
+  const status =
+    query.status === undefined || query.status === '' || query.status === 'all' ? null : statusOf(query.status);
+  if (query.guestId !== undefined && query.guestId !== '' && !UUID.test(query.guestId)) {
+    throw new RuleViolation('badRequest');
+  }
+  if (query.order !== undefined && query.order !== 'asc' && query.order !== 'desc')
+    throw new RuleViolation('badRequest');
+  const where = and(
+    eq(photos.eventId, eventId),
+    status ? eq(photos.status, status) : ne(photos.status, 'uploading'),
+    categoryFilter(query.category),
+    query.guestId ? eq(photos.guestId, query.guestId) : undefined,
+  );
+  const [page, counts] = await Promise.all([
+    pagePhotos(where, query.order === 'asc' ? 'asc' : 'desc', decodeCursor(query.cursor), parseLimit(query.limit)),
+    countEventPhotos(eventId),
+  ]);
+  return { ...page, counts };
 };
 
 const statusOf = (value: unknown): PhotoStatus => {

@@ -20,8 +20,8 @@ export const photoRoutes = new Hono<AppEnv>()
   .get('/weddings/:id/photos', async (c) => {
     const profileId = profileIdOf(c);
     if (!profileId) return c.json(errorBody(c, 'unauthorized'), 401);
-    const rows = await listEventPhotos(profileId, c.req.param('id'));
-    return c.json({ photos: await signedPhotoPayloads(rows) });
+    const page = await listEventPhotos(profileId, c.req.param('id'), c.req.query());
+    return c.json({ photos: await signedPhotoPayloads(page.rows), nextCursor: page.nextCursor, counts: page.counts });
   })
   .patch('/photos/:id', async (c) => {
     const profileId = profileIdOf(c);

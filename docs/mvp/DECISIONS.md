@@ -14,6 +14,19 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-24 — M4: cursor pagination of photo lists and galleries
+
+`GET /api/weddings/:id/photos` and both public gallery endpoints accept `cursor` and `limit` (default 50, values above 100 are capped to 100, `< 1`/non-integers are `422 badRequest`) and return `nextCursor` (SPEC §6.3).
+
+Decisions:
+
+- **Cursor:** base64url JSON `[createdAt, id]` over the stable `(created_at, id)` order. `createdAt` is taken from Postgres with microseconds (`to_char(... 'US')`) because a JS `Date` truncates to milliseconds and would skip or repeat rows created within one millisecond; the comparison is a row-value `(created_at, id) < / > (…)`. The cursor is **validated, not signed** (SPEC allows "signed or otherwise validated"): the shape, timestamp and UUID are checked (`422 badRequest` otherwise), and because the query is already scoped to the event and status, a forged cursor can only move inside rows the caller may see. No new secret is needed.
+- **Organizer list:** newest first by default, `order=asc` for the album/slideshow; filters `status` (`pending|approved|hidden|all`, `uploading` is never listed), `category` (`memories|wedding|all`) and `guestId`; the response adds `counts { pending, approved, hidden, all }` for the status tabs (the demo computed these from the full array). Shape: `{ photos, nextCursor, counts }`.
+- **Public galleries:** oldest first (as in the prototype), only approved photos, optional `category`; `PublicGallery` gains `total` (approved photos in the category, for "N photos from guests") and `nextCursor`. A closed gallery is `{ total: 0, nextCursor: null, photos: [] }`.
+- **Frontend:** `useSignedPages` (replacing the single-list hook) loads the first page, appends pages with `loadMore`, restarts when its filter key changes and re-fetches all loaded pages on refresh/expiry so every URL is re-signed.
+
+Evidence: 4 new integration tests (81 total) with 127 listed photos including 40 identical timestamps and 40 microsecond-apart rows — pages of 50/50/27 equal the database order with no gaps or repeats, the 100 cap, ascending pages of 33, status/category/guest filters, counts, invalid limit/cursor/filter `422`, and public galleries paging 50/50/20 oldest first on both links with `total`; 4 cursor unit tests; component tests for incremental pages, re-signing all loaded pages and restart on a new key.
+
 ## 2026-11-24 — M4: signed read URLs in photo lists and galleries
 
 `GET /api/weddings/:id/photos` (UC-34), the moderation responses (`PATCH /photos/:id`, `bulk-status`) and both public galleries now return `url` (web version) and `thumbUrl` signed for one hour (`READ_URL_TTL_SECONDS = 3600`, SPEC §6.3). Originals are never signed in these responses (`originalUrl` is absent); `width`/`height` are added to `PublicGallery.photos[]`.
