@@ -9,8 +9,8 @@ import { env } from '../env.ts';
 import { ApiProblem } from '../errors.ts';
 import type { EventRow } from './events.ts';
 import type { GuestRow } from './guests.ts';
-import { readImageMetadata } from './image.ts';
-import { createSignedUploadUrl, deleteObjects, downloadObject } from './storage.ts';
+import { makeDerivatives, readImageMetadata } from './image.ts';
+import { createSignedUploadUrl, deleteObjects, downloadObject, uploadObject } from './storage.ts';
 
 const ALLOWED_MIME: Record<string, 'jpeg' | 'png' | 'webp'> = {
   'image/jpeg': 'jpeg',
@@ -192,6 +192,14 @@ export const completeUpload = async (photoId: string, uploadKey: unknown): Promi
     throw new ApiProblem(403, 'storageLimit');
   }
 
+  // Derivatives are generated before the atomic status transition; a repeated
+  // complete after a failure regenerates and overwrites them (x-upsert).
+  const derivatives = await makeDerivatives(buffer);
+  const webPath = `events/${event.id}/web/${photo.id}.jpg`;
+  const thumbPath = `events/${event.id}/thumb/${photo.id}.jpg`;
+  await uploadObject(webPath, derivatives.web.buffer);
+  await uploadObject(thumbPath, derivatives.thumb.buffer);
+
   const status = event.settings.autoApprovePhotos ? 'approved' : 'pending';
   const [updated] = await db
     .update(photos)
@@ -201,6 +209,8 @@ export const completeUpload = async (photoId: string, uploadKey: unknown): Promi
       sizeBytes: metadata.size,
       width: metadata.width,
       height: metadata.height,
+      webPath,
+      thumbPath,
       uploadedAt: new Date(),
     })
     .where(and(eq(photos.id, photo.id), eq(photos.status, 'uploading')))

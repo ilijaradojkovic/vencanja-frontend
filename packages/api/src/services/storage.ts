@@ -14,6 +14,20 @@ const headers = (): Record<string, string> => ({
 const objectUrl = (path: string, action = 'object'): string =>
   `${env.supabaseUrl()}/storage/v1/${action}/${PHOTOS_BUCKET}/${path}`;
 
+/** Service-role upload of a generated derivative (web/thumb); overwrites on retry. */
+export const uploadObject = async (path: string, body: Buffer, mime = 'image/jpeg'): Promise<void> => {
+  const response = await fetch(objectUrl(path), {
+    method: 'POST',
+    headers: { ...headers(), 'content-type': mime, 'x-upsert': 'true' },
+    // Node's Buffer is a valid fetch body at runtime; the DOM `BodyInit` type used
+    // by the web build does not include it.
+    body: body as unknown as NonNullable<RequestInit['body']>,
+  });
+  if (!response.ok) {
+    throw new Error(`Storage upload failed for ${path} (${response.status}): ${await response.text()}`);
+  }
+};
+
 /** A signed upload URL valid for two hours (SPEC §6.3). */
 export const createSignedUploadUrl = async (path: string): Promise<{ uploadUrl: string; token: string }> => {
   const response = await fetch(objectUrl(path, 'object/upload/sign'), {

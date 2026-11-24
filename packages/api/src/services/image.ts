@@ -1,4 +1,4 @@
-import sharp from 'sharp';
+import sharp, { type Sharp } from 'sharp';
 
 export type ThumbnailProbe = {
   width: number;
@@ -32,6 +32,27 @@ export const readImageMetadata = async (buffer: Buffer): Promise<ImageMetadata |
   } catch {
     return null;
   }
+};
+
+export type Derivative = { buffer: Buffer; width: number; height: number };
+
+const derivative = async (pipeline: Sharp, width: number, quality: number): Promise<Derivative> => {
+  const { data, info } = await pipeline
+    .resize({ width, height: width, fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality })
+    .toBuffer({ resolveWithObject: true });
+  return { buffer: data, width: info.width, height: info.height };
+};
+
+/**
+ * `web` (long side 1600 px, JPEG q80) and `thumb` (400 px, q75) versions of an
+ * original (SPEC §7.2). `rotate()` applies the EXIF orientation first; sharp then
+ * writes fresh JPEGs without EXIF/GPS/ICC metadata.
+ */
+export const makeDerivatives = async (input: Buffer): Promise<{ web: Derivative; thumb: Derivative }> => {
+  const base = sharp(input, { limitInputPixels: MAX_INPUT_PIXELS, sequentialRead: true }).rotate();
+  const [web, thumb] = await Promise.all([derivative(base.clone(), 1600, 80), derivative(base.clone(), 400, 75)]);
+  return { web, thumb };
 };
 
 /**

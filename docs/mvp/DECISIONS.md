@@ -14,6 +14,19 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-22 — M4: sharp `web`/`thumb` derivatives with EXIF stripping
+
+`complete` now generates the two derivatives from the downloaded original: `web` (long side 1600 px, JPEG q80) and `thumb` (long side 400 px, JPEG q75), stored at `events/{eventId}/web/{photoId}.jpg` and `events/{eventId}/thumb/{photoId}.jpg`. The paths are written on the same atomic `uploading → pending|approved` transition as the metadata, so a photo never becomes visible without its derivatives.
+
+Rules and decisions:
+
+- **Orientation first, metadata last:** the pipeline starts with `.rotate()` (applies EXIF orientation), then resizes with `fit: 'inside'` and `withoutEnlargement`, then writes a fresh JPEG. sharp strips EXIF/GPS/ICC because no `withMetadata()`/`withExif()` is used; tests assert `metadata().exif === undefined` on both outputs and a swapped width/height for an orientation-6 source.
+- **Bounded processing:** `limitInputPixels: 50_000_000` and `sequentialRead`, one image per `complete` call. Both derivatives are produced in parallel from `clone()`s of the same pipeline.
+- **Failure semantics:** if derivative generation or upload throws, `complete` fails and the photo stays `uploading`, so the client can call `complete` again (the original is already in Storage and uploads use `x-upsert`). The next completion regenerates and overwrites the derivatives.
+- **Storage client:** a new service-role `uploadObject` posts the generated buffers with `x-upsert: true`; no signed URL is needed for server-generated files.
+
+Evidence: 3 new API unit tests (43 total) for 1600/400 sizes, stripped EXIF/GPS/ICC, orientation-6 rotation and rejection of unreadable bytes; integration upload tests now assert the derivative paths, real JPEG objects without EXIF, the small-image no-enlargement case and orientation-6 dimensions (68 total).
+
 ## 2026-11-22 — M4: signed direct-to-Storage uploads and `complete`
 
 `POST /api/public/invitations/:token/uploads`, `POST /api/public/weddings/:slug/uploads` and `POST /api/public/uploads/:photoId/complete` implement the SPEC §6.3 upload flow. The API never receives the file: it validates the declared files, reserves their bytes, creates `uploading` rows and returns a two-hour signed Storage upload URL plus a secret `uploadKey` per photo; the guest PUTs directly to Storage and then calls `complete`.

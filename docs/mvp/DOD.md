@@ -102,7 +102,7 @@ Milestones are done in order. A milestone is done when all of its items are tick
 ### M4 – Photos
 
 - [x] New upload flow (SPEC §6.3, §7.1): `…/uploads`, PUT to Storage, `complete`, idempotency, `uploadKey` stored as a hash.
-- [ ] sharp: `thumb` and `web`, EXIF rotation, EXIF/GPS stripped (test: output has no GPS tag).
+- [x] sharp: `thumb` and `web`, EXIF rotation, EXIF/GPS stripped (test: output has no GPS tag).
 - [ ] Moderation: `PATCH /photos/:id`, `bulk-status` (own photos only, tested with a foreign ID), `DELETE` (removes all 3 files).
 - [ ] Signed URLs in lists and in the gallery; the frontend reloads the list when a URL expires.
 - [ ] Grids use `thumbUrl`; the enlarged view and slideshow use `url` (UC-34 – UC-40, UC-46 – UC-49, UC-14).

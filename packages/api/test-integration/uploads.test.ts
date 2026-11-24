@@ -180,6 +180,35 @@ describe('POST /public/invitations/:token/uploads (SPEC §6.3)', () => {
     expect(row?.status).toBe('uploading');
   });
 
+  it('applies the EXIF orientation to the derivatives', async () => {
+    const { guest } = await setup();
+    const buffer = await sharp({
+      create: { width: 240, height: 180, channels: 3, background: { r: 10, g: 120, b: 200 } },
+    })
+      .jpeg()
+      .withMetadata({ orientation: 6 })
+      .withExif({ IFD0: { Copyright: 'test' }, GPS: { GPSLatitudeRef: 'N' } })
+      .toBuffer();
+
+    const ticket = (
+      await (
+        await requestUploads(guest.token, [{ name: 'rot.jpg', type: 'image/jpeg', size: buffer.byteLength }])
+      ).json()
+    ).uploads[0] as { photoId: string; uploadUrl: string; uploadKey: string };
+    await putObject(ticket.uploadUrl, buffer, 'image/jpeg');
+    expect((await complete(ticket.photoId, ticket.uploadKey)).status).toBe(200);
+
+    const [row] = await getDb().select().from(photos).where(eq(photos.id, ticket.photoId));
+    uploaded.push(row?.originalPath ?? '', row?.webPath ?? '', row?.thumbPath ?? '');
+    const web = await fetch(`${supabaseUrl}/storage/v1/object/photos/${row?.webPath}`, {
+      headers: { apikey: serviceKey, authorization: `Bearer ${serviceKey}` },
+    });
+    const metadata = await sharp(Buffer.from(await web.arrayBuffer())).metadata();
+    expect(metadata.width).toBe(180);
+    expect(metadata.height).toBe(240);
+    expect(metadata.exif).toBeUndefined();
+  });
+
   it('deletes an unreadable object and its row (notImage)', async () => {
     const { guest } = await setup();
     const fake = Buffer.from('this is definitely not an image');
