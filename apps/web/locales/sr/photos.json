@@ -25,5 +25,23 @@
   "deleteAria": "Obriši fotografiju",
   "deleteTitle": "Obriši fotografiju?",
   "deleteText": "Fotografija će biti trajno obrisana i uklonjena iz albuma.",
-  "loadMore": "Učitaj još"
+  "loadMore": "Učitaj još",
+  "download": {
+    "all": "Preuzmi sve",
+    "title": "Preuzmi originale",
+    "text": "Pregledač pravi ZIP od originalnih fajlova, bez slanja na drugi server.",
+    "scopeAria": "Koje fotografije",
+    "approved": "Odobrene",
+    "everything": "Sve (i na čekanju i sakrivene)",
+    "summary": "{{photos}} · {{size}}",
+    "large": "Ovo je veliko preuzimanje ({{size}}). Proverite da imate dovoljno mesta na disku i stabilnu vezu.",
+    "batches": "Vaš pregledač ne može da sačuva jedan veliki ZIP, pa ćete dobiti više manjih ZIP fajlova (do 200 MB svaki).",
+    "start": "Preuzmi",
+    "progress": "{{done}} / {{total}}",
+    "done": "Preuzimanje je završeno.",
+    "doneBatches": "Preuzeto u {{count}} ZIP fajla.",
+    "failed": "Preuzimanje nije uspelo: {{message}}",
+    "empty": "Nema fotografija za preuzimanje.",
+    "one": "Preuzmi original"
+  }
 }

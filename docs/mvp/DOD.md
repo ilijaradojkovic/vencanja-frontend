@@ -108,7 +108,7 @@ Milestones are done in order. A milestone is done when all of its items are tick
 - [x] Grids use `thumbUrl`; the enlarged view and slideshow use `url` (UC-34 – UC-40, UC-46 – UC-49, UC-14).
 - [x] Photo APIs and public galleries use tested cursor pagination (default 50, max 100); album/slideshow load incrementally.
 - [x] Bucket file-size/MIME restrictions, atomic storage reservations and `storageLimit` are tested under concurrent uploads; a new event receives the 50 MB default and a lowered limit never deletes existing files.
-- [ ] UC-85 download originals (in-browser streaming ZIP, with tested Safari fallback and unique sanitized file names) and single-photo download.
+- [x] UC-85 download originals (in-browser streaming ZIP, with tested Safari fallback and unique sanitized file names) and single-photo download.
 - [ ] Upload page: per-file progress, 3 automatic retries, "Try again", `beforeunload`, rejection of HEIC and oversized files.
 - [ ] Mock/demo remains unchanged; the product upload flow needs no mock adapter changes.
 - [ ] Tests: integration (upload with real Storage, wrong key, oversized file, non-image, QR disabled `403`); component tests for upload; E2E scenarios S7, S8, S9, S10.

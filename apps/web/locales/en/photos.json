@@ -24,5 +24,23 @@
   "deleteAria": "Delete photo",
   "deleteTitle": "Delete photo?",
   "deleteText": "The photo will be permanently deleted and removed from the album.",
-  "loadMore": "Load more"
+  "loadMore": "Load more",
+  "download": {
+    "all": "Download all",
+    "title": "Download originals",
+    "text": "Your browser builds a ZIP of the original files, without sending them to another server.",
+    "scopeAria": "Which photos",
+    "approved": "Approved",
+    "everything": "All (including pending and hidden)",
+    "summary": "{{photos}} · {{size}}",
+    "large": "This is a large download ({{size}}). Make sure you have enough disk space and a stable connection.",
+    "batches": "Your browser can’t save one large ZIP, so you’ll get several smaller ZIP files (up to 200 MB each).",
+    "start": "Download",
+    "progress": "{{done}} / {{total}}",
+    "done": "The download is complete.",
+    "doneBatches": "Downloaded as {{count}} ZIP files.",
+    "failed": "The download failed: {{message}}",
+    "empty": "There are no photos to download.",
+    "one": "Download original"
+  }
 }

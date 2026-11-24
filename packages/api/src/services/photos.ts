@@ -8,6 +8,7 @@ import { events, photos } from '../db/schema.ts';
 import { env } from '../env.ts';
 import { ApiProblem } from '../errors.ts';
 import { decodeCursor, encodeCursor, parseLimit, type PhotoCursor } from './cursor.ts';
+import { originalFileName } from './filenames.ts';
 import type { EventRow } from './events.ts';
 import type { GuestRow } from './guests.ts';
 import { makeDerivatives, readImageMetadata } from './image.ts';
@@ -201,6 +202,16 @@ export const signedPhotoPayloads = async (rows: PhotoRow[]): Promise<PhotoPayloa
   return rows.map((row) => toPhotoPayload(row, signed));
 };
 
+const ownedEventId = async (profileId: string, eventId: string): Promise<string> => {
+  const [event] = await getDb()
+    .select({ id: events.id })
+    .from(events)
+    .where(and(eq(events.id, eventId), eq(events.ownerId, profileId)))
+    .limit(1);
+  if (!event) throw new ApiProblem(404, 'weddingNotFound');
+  return event.id;
+};
+
 /** `created_at` with microseconds, for cursors (a JS Date would truncate it). */
 const cursorTimestamp = sql<string>`to_char(${photos.createdAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
 
@@ -282,13 +293,7 @@ export const listEventPhotos = async (
   eventId: string,
   query: PhotoListQuery = {},
 ): Promise<PhotoPage & { counts: PhotoCounts }> => {
-  const db = getDb();
-  const [event] = await db
-    .select({ id: events.id })
-    .from(events)
-    .where(and(eq(events.id, eventId), eq(events.ownerId, profileId)))
-    .limit(1);
-  if (!event) throw new ApiProblem(404, 'weddingNotFound');
+  await ownedEventId(profileId, eventId);
 
   const status =
     query.status === undefined || query.status === '' || query.status === 'all' ? null : statusOf(query.status);
@@ -308,6 +313,64 @@ export const listEventPhotos = async (
     countEventPhotos(eventId),
   ]);
   return { ...page, counts };
+};
+
+export type OriginalFile = { id: string; filename: string; url: string; size: number };
+
+/** Signed (1 h) original URLs that make the browser save under the given name. */
+const signOriginals = async (rows: PhotoRow[]): Promise<OriginalFile[]> => {
+  const signed = await createSignedReadUrls(
+    rows.map((row) => row.originalPath).filter((path): path is string => Boolean(path)),
+  );
+  return rows.flatMap((row) => {
+    const url = row.originalPath ? signed.get(row.originalPath) : undefined;
+    if (!url) return [];
+    const filename = originalFileName(row);
+    return [{ id: row.id, filename, url: `${url}&download=${encodeURIComponent(filename)}`, size: row.sizeBytes ?? 0 }];
+  });
+};
+
+/**
+ * `GET /weddings/:id/photos/originals` (UC-85): signed original URLs, oldest
+ * first, one mandatory cursor page at a time, for `approved` or `all` processed
+ * photos. The first page's `total`/`totalBytes` drive progress and the large-
+ * download warning.
+ */
+export const listOriginals = async (
+  profileId: string,
+  eventId: string,
+  query: { status?: string; cursor?: string; limit?: string } = {},
+): Promise<{ photos: OriginalFile[]; nextCursor: string | null; total: number; totalBytes: number }> => {
+  const id = await ownedEventId(profileId, eventId);
+  if (query.status !== undefined && query.status !== 'approved' && query.status !== 'all') {
+    throw new RuleViolation('badRequest');
+  }
+  const where = and(
+    eq(photos.eventId, id),
+    query.status === 'all' ? ne(photos.status, 'uploading') : eq(photos.status, 'approved'),
+  );
+  const [page, [totals]] = await Promise.all([
+    pagePhotos(where, 'asc', decodeCursor(query.cursor), parseLimit(query.limit)),
+    getDb()
+      .select({ total: sql<string>`count(*)`, bytes: sql<string>`coalesce(sum(${photos.sizeBytes}), 0)` })
+      .from(photos)
+      .where(where),
+  ]);
+  return {
+    photos: await signOriginals(page.rows),
+    nextCursor: page.nextCursor,
+    total: Number(totals?.total ?? 0),
+    totalBytes: Number(totals?.bytes ?? 0),
+  };
+};
+
+/** `GET /photos/:id/original` (UC-85 single download): one signed original. */
+export const originalFor = async (profileId: string, photoId: string): Promise<OriginalFile> => {
+  const owned = await ownedPhoto(profileId, photoId);
+  if (!owned || owned.photo.status === 'uploading') throw new ApiProblem(404, 'photoNotFound');
+  const [file] = await signOriginals([owned.photo]);
+  if (!file) throw new ApiProblem(404, 'photoNotFound');
+  return file;
 };
 
 const statusOf = (value: unknown): PhotoStatus => {

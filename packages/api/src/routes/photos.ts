@@ -5,6 +5,8 @@ import {
   bulkUpdateStatus,
   deletePhoto,
   listEventPhotos,
+  listOriginals,
+  originalFor,
   signedPhotoPayloads,
   updatePhotoStatus,
 } from '../services/photos.ts';
@@ -22,6 +24,16 @@ export const photoRoutes = new Hono<AppEnv>()
     if (!profileId) return c.json(errorBody(c, 'unauthorized'), 401);
     const page = await listEventPhotos(profileId, c.req.param('id'), c.req.query());
     return c.json({ photos: await signedPhotoPayloads(page.rows), nextCursor: page.nextCursor, counts: page.counts });
+  })
+  .get('/weddings/:id/photos/originals', async (c) => {
+    const profileId = profileIdOf(c);
+    if (!profileId) return c.json(errorBody(c, 'unauthorized'), 401);
+    return c.json(await listOriginals(profileId, c.req.param('id'), c.req.query()));
+  })
+  .get('/photos/:id/original', async (c) => {
+    const profileId = profileIdOf(c);
+    if (!profileId) return c.json(errorBody(c, 'unauthorized'), 401);
+    return c.json({ original: await originalFor(profileId, c.req.param('id')) });
   })
   .patch('/photos/:id', async (c) => {
     const profileId = profileIdOf(c);

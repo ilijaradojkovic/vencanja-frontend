@@ -13,5 +13,5 @@ export default async function PhotosRoute() {
   if (!data.user) redirect('/login?next=%2Fapp%2Ffotografije');
   const event = await findEventForOwner(data.user.id);
   if (!event) redirect('/onboarding');
-  return <PhotosPage eventId={event.id} />;
+  return <PhotosPage eventId={event.id} archiveName={`uspomena-${event.slug}`} />;
 }

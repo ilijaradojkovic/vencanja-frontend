@@ -9,6 +9,8 @@ import { FormError } from '@/components/auth/AuthShell';
 import { formatDateTime } from '@/lib/format';
 
 import { bulkPhotoStatus, deletePhoto, setPhotoStatus } from './actions';
+import { downloadOriginal } from './download';
+import { DownloadAllModal } from './DownloadAllModal';
 import { Lightbox } from './Lightbox';
 import { SignedPhoto } from './SignedPhoto';
 import { fetchEventPhotos, useSignedPages, type Photo, type PhotoFilters } from './signed-photos';
@@ -29,7 +31,7 @@ export function PhotoStatusBadge({ status }: { status: Photo['status'] }) {
  * enlarged view. Grids use `thumbUrl`, the lightbox `url`; pages of 50 load on
  * demand and expired signed URLs reload the loaded pages.
  */
-export function PhotosPage({ eventId }: { eventId: string }) {
+export function PhotosPage({ eventId, archiveName = 'uspomena' }: { eventId: string; archiveName?: string }) {
   const { t, i18n } = useTranslation('photos');
   const locale = (i18n.resolvedLanguage ?? 'sr') as 'sr' | 'en' | 'ru';
   const [tab, setTab] = useState<(typeof TABS)[number]>('pending');
@@ -40,6 +42,7 @@ export function PhotosPage({ eventId }: { eventId: string }) {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [downloadOpen, setDownloadOpen] = useState(false);
 
   const loadPage = useCallback(
     (cursor: string | null) => {
@@ -53,14 +56,14 @@ export function PhotosPage({ eventId }: { eventId: string }) {
   const counts = list.meta ?? { pending: 0, approved: 0, hidden: 0, all: 0 };
   const allSelected = photos.length > 0 && photos.every((photo) => selected.includes(photo.id));
 
-  const run = async (action: () => Promise<unknown>, success?: string) => {
+  const run = async (action: () => Promise<unknown>, success?: string, reload = true) => {
     setBusy(true);
     setActionError(null);
     setNotice(null);
     try {
       await action();
       if (success) setNotice(success);
-      await list.reload();
+      if (reload) await list.reload();
     } catch (error) {
       setActionError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -95,9 +98,14 @@ export function PhotosPage({ eventId }: { eventId: string }) {
           <p className="eyebrow">{t('eyebrow', { count: counts.all })}</p>
           <h1>{t('common:nav.photos')}</h1>
         </div>
-        <button type="button" className="btn btn-outline" onClick={() => void list.reload()} disabled={list.loading}>
-          {t('common:actions.refresh')}
-        </button>
+        <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+          <button type="button" className="btn btn-soft" onClick={() => setDownloadOpen(true)}>
+            <Icon name="download" size={18} /> {t('download.all')}
+          </button>
+          <button type="button" className="btn btn-outline" onClick={() => void list.reload()} disabled={list.loading}>
+            {t('common:actions.refresh')}
+          </button>
+        </div>
       </div>
 
       <section className="card stack">
@@ -268,6 +276,14 @@ export function PhotosPage({ eventId }: { eventId: string }) {
                   <button
                     type="button"
                     className="icon-btn icon-btn-sm"
+                    onClick={() => void run(() => downloadOriginal(photo.id), undefined, false)}
+                    aria-label={t('download.one')}
+                  >
+                    <Icon name="download" size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="icon-btn icon-btn-sm"
                     onClick={() => setToDelete(photo)}
                     aria-label={t('deleteAria')}
                   >
@@ -301,6 +317,9 @@ export function PhotosPage({ eventId }: { eventId: string }) {
           onExpired={list.onUrlExpired}
           onNearEnd={list.hasMore ? () => void list.loadMore() : undefined}
         />
+      ) : null}
+      {downloadOpen ? (
+        <DownloadAllModal eventId={eventId} archiveName={archiveName} onClose={() => setDownloadOpen(false)} />
       ) : null}
       {toDelete ? (
         <ConfirmDialog

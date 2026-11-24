@@ -14,6 +14,18 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-24 — M4: UC-85 download originals
+
+`GET /api/weddings/:id/photos/originals?status=approved|all&cursor&limit` returns `{ photos: [{ id, filename, url, size }], nextCursor, total, totalBytes }` (oldest first, cursor mandatory as in SPEC §6.3; `total`/`totalBytes` are an addition for "N / M" progress and the large-download warning). `GET /api/photos/:id/original` returns `{ original }` for the single-photo download (an addition; the SPEC table only lists the bulk endpoint). Original URLs are signed for 1 h and carry Storage's `download=<filename>` so the browser saves them as attachments.
+
+Decisions:
+
+- **File names:** `<sender>_<YYYY-MM-DD>_<photoId>.<ext>` (`services/filenames.ts`): NFC, path separators, `:*?"<>|`, control and format characters (e.g. RTL override) removed, whitespace → `-`, leading/trailing dots/dashes trimmed, sender capped at 40 characters, `gost` when empty; the full photo id guarantees uniqueness.
+- **ZIP library:** `client-zip` 2.5.1 (MIT, no dependencies, ZIP64, streaming `makeZip` from an async iterable). Files are stored without recompression. Originals are fetched one at a time from paginated signed URLs directly from Storage (not through `apiFetch`, so neither the API token nor signed URLs enter diagnostics).
+- **Streaming vs fallback:** where the File System Access API exists (desktop Chromium) one archive is piped straight to the chosen file, never buffered. Elsewhere (Safari/Firefox) the fallback builds archives of at most 200 MB one after another (`name-1.zip`, `name-2.zip`, …) — only one batch is in memory at a time. No service worker or third-party stream receiver is used. Downloads above 2 GB show a warning before starting; the modal also explains the batch fallback.
+
+Evidence: 3 integration tests (89 total) — two pages of signed originals whose bytes equal the uploaded files, `Content-Disposition: attachment`, sanitized unique names from a hostile sender name, `approved` vs `all`, `422` for another scope, `401`/foreign `404` for both endpoints and the single download; 4 unit tests for file names; 4 component tests that parse the produced ZIPs — one streamed archive across two pages with original bytes and names and `0…3` progress, the Safari-path fallback splitting three files into two bounded archives, the single download and the modal's size summary, >2 GB warning and progress.
+
 ## 2026-11-24 — M4: storage limits under concurrency
 
 **Bug found and fixed:** `complete` compared the photo's actual size with the other photos' usage *without* the event row lock, so two concurrent completions whose declared sizes were tiny could both pass and exceed `storage_limit_bytes` (reproduced: both `200`). The reconcile step now runs in a transaction that takes the same `select … for update` lock on the event as new reservations, and writes the actual `size_bytes` before releasing it; a photo that no longer fits is deleted with its object (`403 storageLimit`). The subsequent derivative/status transition is unchanged.
