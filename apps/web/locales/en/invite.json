@@ -73,7 +73,24 @@
     "sending": "Sending… {{progress}}%",
     "send": "Send {{photos}}",
     "chooseFirst": "Choose photos first",
-    "privacy": "Only the couple sees the photos until they approve them."
+    "privacy": "Only the couple sees the photos until they approve them.",
+    "heic": "{{name}}: HEIC isn’t supported. On iPhone, pick the photo from the library (it is sent as JPEG) or set Settings → Camera → Formats to “Most Compatible”.",
+    "wrongType": "{{name}}: please send only JPEG, PNG or WebP photos.",
+    "tooLarge": "{{name}} is larger than {{max}} MB.",
+    "state": {
+      "queued": "Waiting",
+      "uploading": "Sending… {{progress}}%",
+      "processing": "Processing…",
+      "done": "Sent",
+      "failed": "Not sent",
+      "rejected": "Rejected"
+    },
+    "retry": "Try again",
+    "skip": "Skip",
+    "someFailed_one": "{{count}} photo wasn’t sent. Try again or skip it.",
+    "someFailed_other": "{{count}} photos weren’t sent. Try again or skip them.",
+    "finish": "Finish",
+    "progressAria": "Overall upload progress"
   },
   "rsvp": {
     "title": "Please RSVP",

@@ -73,7 +73,25 @@
     "sending": "Slanje… {{progress}}%",
     "send": "Pošalji {{photos}}",
     "chooseFirst": "Prvo izaberite fotografije",
-    "privacy": "Slike vide samo mladenci dok ih ne odobre."
+    "privacy": "Slike vide samo mladenci dok ih ne odobre.",
+    "heic": "{{name}}: HEIC nije podržan. Na iPhone-u izaberite sliku iz galerije (šalje se kao JPEG) ili u Podešavanjima → Kamera → Formati izaberite „Najkompatibilnije“.",
+    "wrongType": "{{name}}: šaljite samo JPEG, PNG ili WebP fotografije.",
+    "tooLarge": "{{name}} je veća od {{max}} MB.",
+    "state": {
+      "queued": "Čeka",
+      "uploading": "Šalje se… {{progress}}%",
+      "processing": "Obrađuje se…",
+      "done": "Poslato",
+      "failed": "Nije poslato",
+      "rejected": "Odbijeno"
+    },
+    "retry": "Pokušaj ponovo",
+    "skip": "Preskoči",
+    "someFailed_one": "{{count}} fotografija nije poslata. Pokušajte ponovo ili je preskočite.",
+    "someFailed_few": "{{count}} fotografije nisu poslate. Pokušajte ponovo ili ih preskočite.",
+    "someFailed_other": "{{count}} fotografija nije poslato. Pokušajte ponovo ili ih preskočite.",
+    "finish": "Završi",
+    "progressAria": "Ukupan napredak slanja"
   },
   "rsvp": {
     "title": "Potvrdite dolazak",

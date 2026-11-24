@@ -14,6 +14,21 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-24 — M4: guest upload page
+
+`/i/:token/upload` (UC-65) and `/w/:slug/upload` (UC-66) implement SPEC §7.1 on the signed upload flow; the invitation's album card links to it again (and to the gallery when open), as in the prototype.
+
+Decisions:
+
+- **Screening before any request:** HEIC/HEIF (by MIME or `.heic/.heif` name, because iOS can send an empty type) gets an iPhone-specific message; anything other than JPEG/PNG/WebP and files over `MAX_UPLOAD_MB` (30) are rejected with the file name. The picker `accept` is narrowed to the three types. The 50-files-per-request cap from the prototype stays.
+- **Sending:** one ticket request for the batch, then at most three PUTs in parallel via `XMLHttpRequest` (fetch has no upload progress), per-file progress plus a byte-weighted total, then `complete` per file. Tickets are never requested again for a retry.
+- **Retries (step 5):** up to three automatic retries with 1/2/4 s backoff on the same photo id and signed URL. A network error, timeout or 5xx PUT is *ambiguous*: the next attempt calls `complete` first and only re-uploads on `uploadNotFound`; a `409` (object already exists) goes straight to `complete`. A Storage 4xx stops retrying. `notImage`/`tooLarge`/`storageLimit` from `complete` are final (the server already removed the photo) and offer only "Skip"; other failures offer "Try again" (same ticket) and "Skip".
+- **Thank-you:** shown when every remaining file is sent (failed ones are tried again or skipped), counting the successful files; if all were skipped, the page returns to the picker instead of thanking for zero photos. "Notify me" is submitted after a successful batch as before.
+- **`beforeunload`** is registered only while a file is queued, uploading or processing.
+- **Copy:** the thank-you and send-button wording reuses the prototype's `common:count.photos` (nominative) unchanged.
+
+Evidence: 10 component tests (67 total, 82.6 % lines) — screening of HEIC/PDF/>30 MB, ≤3 concurrent PUTs with per-file 50 % and 38 % total progress, ticket body, `beforeunload` prevented mid-upload, thank-you count; `complete` before re-PUT after an ambiguous PUT on the same id, no re-PUT when the file was stored, four attempts then "failed", `409` → `complete`, final `notImage`; "Try again" without new tickets, "Skip" with the successful count and notify, the storage-limit ticket error and the QR "uploads are turned off" screen. Real-browser PUTs are covered by E2E S7–S9.
+
 ## 2026-11-24 — M4: UC-85 download originals
 
 `GET /api/weddings/:id/photos/originals?status=approved|all&cursor&limit` returns `{ photos: [{ id, filename, url, size }], nextCursor, total, totalBytes }` (oldest first, cursor mandatory as in SPEC §6.3; `total`/`totalBytes` are an addition for "N / M" progress and the large-download warning). `GET /api/photos/:id/original` returns `{ original }` for the single-photo download (an addition; the SPEC table only lists the bulk endpoint). Original URLs are signed for 1 h and carry Storage's `download=<filename>` so the browser saves them as attachments.

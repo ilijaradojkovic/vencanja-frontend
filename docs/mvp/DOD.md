@@ -109,7 +109,7 @@ Milestones are done in order. A milestone is done when all of its items are tick
 - [x] Photo APIs and public galleries use tested cursor pagination (default 50, max 100); album/slideshow load incrementally.
 - [x] Bucket file-size/MIME restrictions, atomic storage reservations and `storageLimit` are tested under concurrent uploads; a new event receives the 50 MB default and a lowered limit never deletes existing files.
 - [x] UC-85 download originals (in-browser streaming ZIP, with tested Safari fallback and unique sanitized file names) and single-photo download.
-- [ ] Upload page: per-file progress, 3 automatic retries, "Try again", `beforeunload`, rejection of HEIC and oversized files.
+- [x] Upload page: per-file progress, 3 automatic retries, "Try again", `beforeunload`, rejection of HEIC and oversized files.
 - [ ] Mock/demo remains unchanged; the product upload flow needs no mock adapter changes.
 - [ ] Tests: integration (upload with real Storage, wrong key, oversized file, non-image, QR disabled `403`); component tests for upload; E2E scenarios S7, S8, S9, S10.
 - [ ] Measurement: `complete` for a 12 MP JPEG has p95 < 5 s locally with the configured resource limits; 30 MB/high-megapixel and decompression-limit cases complete safely or fail cleanly. Upload/processing counters and redacted request logs are visible locally; Preview measurement is repeated in M7.

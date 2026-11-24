@@ -449,12 +449,22 @@ export function InvitationExperience({
                   >
                     <Icon name="image" /> {t('gallery.view')}
                   </Link>
+                  <Link href={`/i/${token}/upload`} className="btn btn-outline btn-lg">
+                    <Icon name="upload" /> {t('sendPhotos')}
+                  </Link>
                   <p className="xs muted">{galleryStatus}</p>
                 </>
               ) : (
                 <>
                   <h2>{t('album.title')}</h2>
                   <p style={{ color: 'var(--ink-2)' }}>{t('album.text')}</p>
+                  <Link
+                    href={`/i/${token}/upload`}
+                    className="btn btn-lg"
+                    style={{ background: 'var(--ink)', color: '#F6F3EE' }}
+                  >
+                    <Icon name="upload" /> {t('sendPhotos')}
+                  </Link>
                   <p className="xs muted">{galleryStatus}</p>
                   {guest.notifyEmail ? (
                     <p className="xs muted">{t('gallery.willNotify', { email: guest.notifyEmail })}</p>
