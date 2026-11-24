@@ -27,7 +27,7 @@ Deviations:
 
 **Metrics:** `photo_uploads_total{link,outcome}`, `photo_processing_total{outcome}` and `photo_processing_duration_seconds{outcome}` (bounded labels only) plus three Grafana panels; an integration test checks the counters move and contain no photo id or guest token, and the running dev server's `/api/metrics` showed them after S7. Pino request logs for upload routes carry only the normalized route (`/api/public/uploads/:photoId/complete`), never the upload key or signed URL; Next's own dev access log prints raw page paths as before (dev-only output, not our structured logs).
 
-**Demo:** `git diff 10201c0^ HEAD -- apps/demo` is empty and `npm run build:demo` passes; the product upload flow uses no mock adapter.
+**Demo:** `git diff 10201c0^ HEAD -- apps/demo` is empty and `npm run build:demo` passes; the product upload flow uses no mock adapter. A browser walkthrough of the built demo (`vite preview`, Playwright/Chromium, one context because the mock DB lives in `localStorage`) after M4 passed the M0 checklist with no page errors: "Demo mladenci" sign-in → dashboard; guest `/#/i/milica` opens the envelope and answers "Dolazim"; the same guest uploads two photos ("Hvala vam!"); the organizer's guest list shows Milica as coming; both photos appear pending, are approved, show under "Odobrene" and appear on the big-album wall.
 
 **Local tooling notes:** the project needs Node 24 (`.nvmrc`); `dev:bootstrap` refuses Node 22. If integration tests run against a fresh stack *before* the first seed, their leftover events can take the seed's fixed slugs and `db:seed` fails on the unique slug — `ALLOW_LOCAL_RESET=1 npm run dev:reset` fixes it (pre-existing behaviour, not changed here).
 
