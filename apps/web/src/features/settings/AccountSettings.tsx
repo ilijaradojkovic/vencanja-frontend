@@ -171,6 +171,7 @@ export function AccountSettings({
           error={phoneError ?? undefined}
           willSaveLabel={copy.phoneWillSave}
           id="account-phone"
+          required
         />
         <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} disabled={phone === profile.phone}>
           {copy.savePhone}

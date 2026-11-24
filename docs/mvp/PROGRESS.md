@@ -2,6 +2,30 @@
 
 One entry per completed milestone: what was done, what wasn't, known issues. Tasks and their evidence live in [`DOD.md`](DOD.md); deviations and tooling decisions live in [`DECISIONS.md`](DECISIONS.md).
 
+## M3 – Event, invitation, guests, RSVP (complete)
+
+**Done**
+
+- `GET /weddings/current` and `PATCH /weddings/:id` with the SPEC §6.6 validation: unique slug, 11 templates, `#RRGGBB` accents, text limits, ≤20 schedule items with `HH:mm`, known settings only and `purge_at` recalculation on a date change; foreign ids answer `404`.
+- Guests: list/create/import (≤1000 normalized rows)/edit/delete with the shared companion rules, a 12-character personal token, SYS-5 trimming, manual RSVP entry and photos kept on delete.
+- Public API: invitation by token, first `opened`, RSVP, notify with `notify_locale`/SYS-4 reset, public wedding by slug, and both galleries with SYS-3 in Europe/Belgrade (approved photos only while open). Signed photo URLs and pagination are M4.
+- SYS-12 fixed-window rate limits (300/min public reads, 30/10 min RSVP+notify per IP, 30/10 min per user for onboarding and `PATCH /auth/me`) with atomic counting, hashed keys, localized `429`.
+- Product UI: dashboard stats, guests page (search/side/RSVP filters, paging, add/edit with companions and manual answers, import, CSV, link/WhatsApp/open, delete), invitation editor (11 looks, accents, text, schedule, live preview) and the server-rendered personal invitation (envelope, RSVP, notify, gallery status, localized not-found page). Client i18n uses one i18next instance per locale/event type (`react-i18next`), with the demo locale files and celebration overlays.
+- Tests: 60 integration, 37 component, 79+40 unit and 28 Playwright tests (S1–S6, S12, S17, landing, SSR locale/event isolation). CI is green.
+
+**Not done / deferred**
+
+- Photo upload and gallery pages, signed URLs, pagination, moderation and the big album are M4; the invitation's album card therefore shows the gallery status and notify form only.
+- "Photos are ready" notifications and the QR upload/gallery pages are M4/M5.
+- Retention display, account deletion and legal pages are M6.
+- Full dashboard widgets (replies list, new-photos strip, QR card) and the prototype sidebar are not ported yet; the M3 dashboard has the countdown, key stats and quick links.
+
+**Known issues**
+
+- Client bundles include all three languages and the celebration overlays; guest-route code-splitting and the 250 KB gzip budget are measured in M7.
+- The seed fixture `luka-18-rodjendan` owns that slug locally, so a celebration created with the same names gets a `-2` suffix (the rule is asserted by integration tests).
+- Re-running the E2E suite locally leaves its created organizers/guests behind (unique addresses); `dev:reset` clears them.
+
 ## M2 – Accounts and authorization (complete)
 
 **Done**

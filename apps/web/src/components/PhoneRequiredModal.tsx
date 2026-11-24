@@ -58,6 +58,7 @@ export function PhoneRequiredModal({
           onChange={setPhone}
           willSaveLabel={copy.willSave}
           id="required-phone"
+          required
           autoFocus
         />
         <div className="modal-foot">

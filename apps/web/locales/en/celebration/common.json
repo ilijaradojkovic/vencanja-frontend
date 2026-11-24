@@ -1,0 +1,17 @@
+{
+  "side": {
+    "mlada": "Family",
+    "mladozenja": "Friends",
+    "zajednicki": "Others"
+  },
+  "category": {
+    "memories": "Old memories",
+    "wedding": "From the celebration"
+  },
+  "errors": {
+    "weddingNotLoaded": "Celebration is not loaded"
+  },
+  "meta": {
+    "title": "Uspomena · celebration invitations and album"
+  }
+}

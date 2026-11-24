@@ -15,6 +15,7 @@ export function PhoneField({
   willSaveLabel,
   id = 'phone',
   autoFocus = false,
+  required = false,
 }: {
   label: string;
   value: string;
@@ -24,6 +25,7 @@ export function PhoneField({
   willSaveLabel: string;
   id?: string;
   autoFocus?: boolean;
+  required?: boolean;
 }) {
   const clean = normalizePhone(value);
   const formatted = clean ? formatPhone(clean) : '';
@@ -38,7 +40,7 @@ export function PhoneField({
         type="tel"
         inputMode="tel"
         autoComplete="tel"
-        required
+        required={required}
         autoFocus={autoFocus}
         placeholder="064 123 4567"
         value={value}

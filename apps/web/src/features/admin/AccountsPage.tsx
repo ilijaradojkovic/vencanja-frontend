@@ -703,6 +703,7 @@ function AccountModal({
           onChange={(value) => set({ phone: value })}
           willSaveLabel={copy.modal.phoneWillSave}
           id="admin-account-phone"
+          required
         />
 
         {account ? null : (

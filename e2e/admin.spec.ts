@@ -80,8 +80,8 @@ test('S12 superadmin creates and deactivates an account; the organizer is signed
   await expect(organizerPage.locator('.form-error')).toContainText('Nalog je deaktiviran. Javite se administratoru.');
   await organizer.close();
 
-  // Guest pages are unaffected by the organizer's deactivation (real invitation in M3).
-  const guest = await page.request.get('/i/demo-jelena');
+  // Guest pages are unaffected by the organizer's deactivation.
+  const guest = await page.request.get('/i/seedguest001');
   expect(guest.status()).toBe(200);
   expect(await guest.text()).toContain('Jelena Petrović');
 });

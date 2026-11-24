@@ -1,5 +1,5 @@
 import { businessDate } from '@uspomena/shared';
-import { findEventForOwner, toWeddingPayload } from '@uspomena/api/server-only';
+import { findEventForOwner, listGuests, toWeddingPayload } from '@uspomena/api/server-only';
 import { redirect } from 'next/navigation';
 
 import { getServerAuth } from '@/lib/auth/server';
@@ -30,6 +30,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const days = daysUntil(wedding.date);
   const { t } = await getTranslator();
   const { welcome } = await searchParams;
+  const guests = await listGuests(event.id);
+  const stats = {
+    invitations: guests.length,
+    invited: guests.reduce((total, guest) => total + guest.maxPersons, 0),
+    coming: guests.filter((guest) => guest.rsvpStatus === 'yes').reduce((total, guest) => total + guest.rsvpPersons, 0),
+    declined: guests.filter((guest) => guest.rsvpStatus === 'no').length,
+    waiting: guests.filter((guest) => guest.rsvpStatus === 'pending').length,
+    opened: guests.filter((guest) => guest.openedAt).length,
+  };
 
   const names =
     wedding.type === 'wedding'
@@ -55,6 +64,33 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         {countdown}
       </p>
       <p className="small muted">{wedding.date}</p>
+
+      <div className="grid-cards" role="group" aria-label={t('dashboard.stats.label')} style={{ marginTop: 8 }}>
+        <div className="stat">
+          <span className="eyebrow">{t('dashboard.stats.invited')}</span>
+          <strong>{stats.invited}</strong>
+          <span className="xs muted">{t('dashboard.stats.invitations', { count: stats.invitations })}</span>
+        </div>
+        <div className="stat">
+          <span className="eyebrow">{t('dashboard.stats.coming')}</span>
+          <strong>{stats.coming}</strong>
+          <span className="xs muted">{t('dashboard.stats.declined', { count: stats.declined })}</span>
+        </div>
+        <div className="stat">
+          <span className="eyebrow">{t('dashboard.stats.waiting')}</span>
+          <strong>{stats.waiting}</strong>
+          <span className="xs muted">{t('dashboard.stats.opened', { count: stats.opened })}</span>
+        </div>
+      </div>
+
+      <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+        <a className="btn btn-secondary" href="/app/gosti">
+          {t('dashboard.addGuests')}
+        </a>
+        <a className="btn btn-secondary" href="/app/pozivnica">
+          {t('dashboard.editInvitation')}
+        </a>
+      </div>
     </section>
   );
 }

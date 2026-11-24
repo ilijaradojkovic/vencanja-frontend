@@ -19,7 +19,7 @@ export function AppShell({
   phoneCopy,
 }: {
   children: ReactNode;
-  nav: { dashboard: string; settings: string };
+  nav: { dashboard: string; guests: string; invitation: string; settings: string };
   hasPhone: boolean;
   logoutLabel: string;
   phoneCopy: PhoneRequiredCopy;
@@ -34,22 +34,22 @@ export function AppShell({
               Uspomena
             </Link>
             <nav className="row" style={{ '--gap': '10px' } as React.CSSProperties}>
-              <Link
-                href="/app"
-                className="small"
-                aria-current={pathname === '/app' ? 'page' : undefined}
-                style={{ fontWeight: pathname === '/app' ? 600 : 400 }}
-              >
-                {nav.dashboard}
-              </Link>
-              <Link
-                href="/app/podesavanja"
-                className="small"
-                aria-current={pathname === '/app/podesavanja' ? 'page' : undefined}
-                style={{ fontWeight: pathname === '/app/podesavanja' ? 600 : 400 }}
-              >
-                {nav.settings}
-              </Link>
+              {[
+                { href: '/app', label: nav.dashboard },
+                { href: '/app/gosti', label: nav.guests },
+                { href: '/app/pozivnica', label: nav.invitation },
+                { href: '/app/podesavanja', label: nav.settings },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="small"
+                  aria-current={pathname === item.href ? 'page' : undefined}
+                  style={{ fontWeight: pathname === item.href ? 600 : 400 }}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </nav>
           </div>
           <SignOutButton label={logoutLabel} />

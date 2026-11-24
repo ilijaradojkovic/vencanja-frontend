@@ -1,48 +1,52 @@
+import { getGuestInvitation } from '@uspomena/api/server-only';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { getGuestByToken } from '@uspomena/api/server-only';
-import type { Language } from '@uspomena/shared';
+import { InvitationExperience } from '@/features/invite/InvitationExperience';
+import { eventNames } from '@/lib/event';
+import { LocaleProvider } from '@/lib/i18n/client';
+import { getTranslator } from '@/lib/i18n/server';
 
-import { getLocale } from '@/lib/i18n/locale';
-
-// Guest HTML is rendered per request: it carries a personal name and must never
-// be cached by Next.js or a CDN (SPEC §3.3).
-export const dynamic = 'force-dynamic';
-
-type GuestPageProps = { params: Promise<{ token: string }> };
-
-const COPY: Record<Language, { title: (name: string) => string; intro: string }> = {
-  sr: { title: (name) => `Pozivnica · ${name}`, intro: 'Vaša lična pozivnica.' },
-  en: { title: (name) => `Invitation · ${name}`, intro: 'Your personal invitation.' },
-  ru: { title: (name) => `Приглашение · ${name}`, intro: 'Ваше личное приглашение.' },
-};
-
-export const generateMetadata = async ({ params }: GuestPageProps): Promise<Metadata> => {
-  const [{ token }, locale] = await Promise.all([params, getLocale()]);
-  const guest = getGuestByToken(token);
-  if (!guest) return { title: COPY[locale].title(''), robots: { index: false, follow: false } };
-  return {
-    title: COPY[locale].title(guest.name),
-    description: COPY[locale].intro,
-    robots: { index: false, follow: false },
-    openGraph: { title: COPY[locale].title(guest.name), locale },
-  };
-};
+type PageProps = { params: Promise<{ token: string }> };
 
 /**
- * M0 spike placeholder for the guest invitation. M3/M6 port the real invitation
- * (envelope, schedule, RSVP) and the archived state onto this route.
+ * UC-58/UC-59: the personal invitation is rendered on the server with the guest's
+ * data and per-request locale/event overlay, `noindex`, and link-preview metadata
+ * that never contains the guest name, token or photo URLs. `proxy.ts` sets
+ * `Cache-Control: private, no-store`.
  */
-export default async function GuestInvitationPage({ params }: GuestPageProps) {
-  const [{ token }, locale] = await Promise.all([params, getLocale()]);
-  const guest = getGuestByToken(token);
-  if (!guest) notFound();
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { token } = await params;
+  const invitation = await getGuestInvitation(token);
+  const { locale, t } = await getTranslator(invitation?.publicWedding.type ?? 'wedding');
+  if (!invitation) {
+    return { title: t('invite:errors.invitationNotFound'), robots: { index: false, follow: false } };
+  }
+  const names = eventNames(invitation.publicWedding);
+  return {
+    title: t('invite:meta.title', { names }),
+    description: t('invite:meta.description'),
+    robots: { index: false, follow: false },
+    openGraph: {
+      title: t('invite:meta.title', { names }),
+      description: t('invite:meta.description'),
+      locale,
+      type: 'website',
+    },
+  };
+}
+
+export default async function GuestInvitationPage({ params }: PageProps) {
+  const { token } = await params;
+  const invitation = await getGuestInvitation(token);
+  if (!invitation) notFound();
+
+  const { publicGuest, publicWedding } = invitation;
+  const { locale } = await getTranslator(publicWedding.type);
 
   return (
-    <main>
-      <h1>{COPY[locale].title(guest.name)}</h1>
-      <p>{COPY[locale].intro}</p>
-    </main>
+    <LocaleProvider locale={locale} eventType={publicWedding.type}>
+      <InvitationExperience token={token} initialGuest={publicGuest} wedding={publicWedding} />
+    </LocaleProvider>
   );
 }

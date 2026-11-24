@@ -96,8 +96,8 @@ Milestones are done in order. A milestone is done when all of its items are tick
 - [x] Guests: list, create, import (up to 1000 rows, normalized), edit (SYS-5), delete (photos stay).
 - [x] Public: invitation, `opened`, RSVP, `notify` (with `notify_locale`), `GET /public/weddings/:slug`, gallery (empty while closed; SYS-3 in Europe/Belgrade).
 - [x] Rate limiting (SYS-12) on public routes, with a test for `429`.
-- [ ] UC-11 – UC-32, UC-58 – UC-64 and UC-70 work on the real backend (photo parts come in M4).
-- [ ] Tests: integration tests for every route in this milestone, including every error in `USE_CASES.txt` (e.g. `companionNotInvited`, `personsRange`, `badSlug`); concurrent SSR requests with different locales/event types do not leak state and guest responses are `private, no-store`; E2E scenarios S4, S5, S6.
+- [x] UC-11 – UC-32, UC-58 – UC-64 and UC-70 work on the real backend (photo parts come in M4).
+- [x] Tests: integration tests for every route in this milestone, including every error in `USE_CASES.txt` (e.g. `companionNotInvited`, `personsRange`, `badSlug`); concurrent SSR requests with different locales/event types do not leak state and guest responses are `private, no-store`; E2E scenarios S4, S5, S6.
 
 ### M4 – Photos
 

@@ -18,18 +18,16 @@ test.describe('landing page', () => {
     await expect(page.getByTestId('api-health')).toHaveText(/API: ok \(v[\d.]+\)/);
   });
 
-  // The DB-backed invitation is ported in M3; until then `/i/[token]` serves the
-  // M0 spike page, whose fixtures live in `packages/api/src/db/fixtures` (guest data
-  // is already seeded for the M3 port).
-  test('shows the localized guest invitation placeholder with private caching', async ({ page }) => {
+  // M3: `/i/[token]` is the DB-backed personal invitation (seeded guest `seedguest001`).
+  test('renders the seeded guest invitation in the cookie language with private caching', async ({ page }) => {
     await page.context().addCookies([{ name: 'lang', value: 'en', domain: 'localhost', path: '/' }]);
-    await page.goto('/i/demo-jelena');
+    await page.goto('/i/seedguest001');
 
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Invitation · Jelena Petrović');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Jelena Petrović');
 
     const cacheControl = await page.evaluate(async () => {
-      const response = await fetch('/i/demo-jelena');
+      const response = await fetch('/i/seedguest001');
       return response.headers.get('cache-control');
     });
     // `next dev` answers `no-store`; the production build gets the exact

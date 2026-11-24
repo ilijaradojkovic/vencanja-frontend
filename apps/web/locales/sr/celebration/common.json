@@ -1,0 +1,17 @@
+{
+  "side": {
+    "mlada": "Porodica",
+    "mladozenja": "Prijatelji",
+    "zajednicki": "Ostali"
+  },
+  "category": {
+    "memories": "Stare uspomene",
+    "wedding": "Sa proslave"
+  },
+  "errors": {
+    "weddingNotLoaded": "Proslava nije učitana"
+  },
+  "meta": {
+    "title": "Uspomena · pozivnice i album proslave"
+  }
+}

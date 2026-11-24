@@ -127,6 +127,17 @@ export const publicGalleryFor = async (event: EventRow, now: Date = new Date()):
   };
 };
 
+/** Initial data for the server-rendered guest page (same rules as the HTTP route). */
+export const getGuestInvitation = async (
+  token: string,
+): Promise<{ guest: GuestRow; event: EventRow; publicGuest: PublicGuest; publicWedding: PublicWedding } | null> => {
+  const guest = await guestByToken(token);
+  if (!guest) return null;
+  const event = await eventById(guest.eventId);
+  if (!event) return null;
+  return { guest, event, publicGuest: toPublicGuest(guest), publicWedding: toPublicWedding(event) };
+};
+
 export const guestByToken = async (token: string): Promise<GuestRow | null> => {
   const [guest] = await getDb().select().from(guests).where(eq(guests.token, token)).limit(1);
   return guest ?? null;

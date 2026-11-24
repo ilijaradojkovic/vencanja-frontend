@@ -1,0 +1,25 @@
+{
+  "envelope": {
+    "text": "{{p1}} has sent you an invitation to a celebration."
+  },
+  "album": {
+    "text": "Send old memories now, and photos from the celebration on the day. Everything goes into the album."
+  },
+  "gallery": {
+    "statusManual": "The gallery opens when the host opens it."
+  },
+  "upload": {
+    "disabledText": "The host has turned off photo uploads through this link for now.",
+    "sentText": "You sent {{photos}}. {{p1}} will see them right away, and the best ones go into the album.",
+    "kindWedding": "From the celebration",
+    "kindMemoriesText": "Old photos with the guest of honour: trips, parties, childhood. They go into the “Memories” chapter.",
+    "message": "Message for the guest of honour (shown with the photos in the album)",
+    "privacy": "Only the host sees the photos until they approve them."
+  },
+  "rsvp": {
+    "askNotify": "Would you like us to let you know when the celebration photos are ready?"
+  },
+  "meta": {
+    "description": "A digital celebration invitation with every detail and RSVP."
+  }
+}
