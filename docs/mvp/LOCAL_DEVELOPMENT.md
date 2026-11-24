@@ -160,7 +160,7 @@ Minimum instrumented metrics:
 
 - `http_requests_total` and `http_request_duration_seconds` by method, normalized route and status/class
 - `http_errors_total` by normalized route and stable error code
-- `photo_uploads_total{outcome}` and `photo_processing_duration_seconds`
+- `photo_uploads_total{link,outcome}` (files in ticket requests: `reserved`, `storage_limit`, `rejected`), `photo_processing_total{outcome}` and `photo_processing_duration_seconds{outcome}` for `complete` (`processed`, `already_done`, `not_image`, `too_large`, `storage_limit`, `missing`, `invalid_key`, `error`)
 - `rate_limit_hits_total{route}` and storage-limit rejections
 - `emails_sent_total{kind,outcome}`
 - `cron_runs_total{job,outcome}` and `cron_job_duration_seconds`
@@ -169,6 +169,16 @@ Minimum instrumented metrics:
 Labels must never contain raw paths, IDs, tokens, IPs, emails or other unbounded/sensitive values. Grafana provisions a Prometheus datasource and a small dashboard for request rate/p95/errors, upload processing, email outcomes and cron runs. Metrics tests cover registration and label redaction rather than scraping screenshots alone.
 
 Expose `/api/metrics` only when `METRICS_ENABLED=true` and require `METRICS_TOKEN`, including locally. The committed Prometheus scrape configuration reads the local token from an ignored environment file. In production this endpoint is disabled by default: in-memory counters in ephemeral Vercel functions are not a globally accurate production metrics system. Production MVP observability uses structured Vercel/Supabase/Resend logs and provider metrics; a hosted OTel/metrics backend is a later, explicit decision.
+
+### 6.1 Measuring `complete` (M4)
+
+`npm run measure:complete -- --runs=20` runs the real Hono app in-process against the local stack (it refuses a non-local Supabase URL): 20 completions of a 12 MP JPEG (p50/p95/max, target p95 < 5 s), one ≈27 MB / 36 MP JPEG that must complete, and a 108 MP single-colour "decompression bomb" that must fail with `422 notImage` under the 50 MP ceiling; it prints JSON with peak RSS and deletes what it created. To apply the default Vercel function size (1 vCPU, 2 GB), run it in a limited container on the host network:
+
+```bash
+docker run --rm --cpus=1 --memory=2g --memory-swap=2g --network host -v "$PWD":/work -w /work node:24-bookworm-slim node --experimental-transform-types --no-warnings scripts/measure-complete.mjs --runs=20
+```
+
+`os.cpus()` still reports the host's cores inside the container; the CPU quota applies regardless. The Grafana dashboard shows upload outcomes, processing outcomes and processing p95.
 
 ## 7. Definition of locally ready
 

@@ -146,7 +146,12 @@ export const requestUploads = async (
   }
 };
 
-export type CompletedPhoto = { id: string; status: 'uploading' | 'pending' | 'approved' | 'hidden' };
+/** `processed` is true only for the call that ran sharp and moved the photo out of `uploading`. */
+export type CompletedPhoto = {
+  id: string;
+  status: 'uploading' | 'pending' | 'approved' | 'hidden';
+  processed?: boolean;
+};
 
 export type PhotoPayload = {
   id: string;
@@ -528,7 +533,7 @@ export const completeUpload = async (photoId: string, uploadKey: unknown): Promi
     .where(and(eq(photos.id, photo.id), eq(photos.status, 'uploading')))
     .returning();
 
-  if (updated) return { id: updated.id, status: updated.status };
+  if (updated) return { id: updated.id, status: updated.status, processed: true };
   // A concurrent completion won the atomic transition; report its state.
   const [current] = await db.select().from(photos).where(eq(photos.id, photo.id)).limit(1);
   if (!current) throw new ApiProblem(404, 'photoNotFound');

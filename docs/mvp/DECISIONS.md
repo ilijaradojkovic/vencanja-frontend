@@ -14,6 +14,23 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-24 — M4: E2E S7–S10, measurement, upload metrics and demo check
+
+**E2E (`e2e/photos.spec.ts`):** S7 (personal upload with a 31 MB file rejected, approve 2 / hide 1, album shows 2 with thumb URLs and the lightbox with the web URL), S8 (QR upload with auto-approve appears in the album; QR upload off shows "Slanje je isključeno"), S9 (the first Storage PUT is aborted with the context offline; the same signed URL is retried and exactly one pending photo exists), S10 twice (the bounded-batch download — forced in Chromium by removing `showSaveFilePicker`, native on WebKit — saves `uspomena-<slug>-1.zip` whose three entries equal the uploaded bytes; and the streaming path in Chromium through a stubbed picker because headless Chromium cannot show the native save dialog).
+
+Deviations:
+
+- **Organizers for S7–S10 are created through the local Auth admin API and `POST /api/onboarding`, then sign in through `/login`**, instead of the full signup/Mailpit round trip (S1–S3 already cover it); every test still creates isolated data.
+- **S8 toggles `autoApprovePhotos` / `allowGeneralUpload` through `PATCH /api/weddings/:id`** because the organizer settings screen for photo options (UC-54 – UC-56) has not been ported to the product yet. The guest-facing behaviour is exercised in the browser; porting that screen remains open (it is not an M4 DoD item) and is reported as a gap.
+
+**Measurement (`npm run measure:complete`, LOCAL_DEVELOPMENT.md §6.1),** in a `node:24-bookworm-slim` container with `--cpus=1 --memory=2g` (the default Vercel function size) against local Supabase: 20 × 12 MP JPEG (3.3 MB) completions p50 287 ms, **p95 326 ms**, max 329 ms (target < 5 s); a 26.6 MB / 36 MP JPEG completed in 974 ms; a 108 MP single-colour JPEG (634 KB) failed cleanly with `422 notImage` in 39 ms; peak RSS 1,325 MB including the script's own fixture generation, no OOM. Unconstrained on the 4-core host: p95 239 ms. Preview measurement is repeated in M7.
+
+**Metrics:** `photo_uploads_total{link,outcome}`, `photo_processing_total{outcome}` and `photo_processing_duration_seconds{outcome}` (bounded labels only) plus three Grafana panels; an integration test checks the counters move and contain no photo id or guest token, and the running dev server's `/api/metrics` showed them after S7. Pino request logs for upload routes carry only the normalized route (`/api/public/uploads/:photoId/complete`), never the upload key or signed URL; Next's own dev access log prints raw page paths as before (dev-only output, not our structured logs).
+
+**Demo:** `git diff 10201c0^ HEAD -- apps/demo` is empty and `npm run build:demo` passes; the product upload flow uses no mock adapter.
+
+**Local tooling notes:** the project needs Node 24 (`.nvmrc`); `dev:bootstrap` refuses Node 22. If integration tests run against a fresh stack *before* the first seed, their leftover events can take the seed's fixed slugs and `db:seed` fails on the unique slug — `ALLOW_LOCAL_RESET=1 npm run dev:reset` fixes it (pre-existing behaviour, not changed here).
+
 ## 2026-11-24 — M4: guest upload page
 
 `/i/:token/upload` (UC-65) and `/w/:slug/upload` (UC-66) implement SPEC §7.1 on the signed upload flow; the invitation's album card links to it again (and to the gallery when open), as in the prototype.

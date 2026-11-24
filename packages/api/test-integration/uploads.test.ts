@@ -297,3 +297,45 @@ describe('POST /public/weddings/:slug/uploads', () => {
     expect(missing.status).toBe(404);
   });
 });
+
+describe('upload metrics (LOCAL_DEVELOPMENT.md §6)', () => {
+  it('counts reserved files and processing outcomes with bounded labels only', async () => {
+    const { registry } = await import('../src/metrics.ts');
+    const value = async (name: string, labels: string) => {
+      const text = await registry.metrics();
+      const line = text.split('\n').find((entry) => entry.startsWith(`${name}{${labels}}`));
+      return Number(line?.split(' ').at(-1) ?? 0);
+    };
+    const reservedBefore = await value('photo_uploads_total', 'link="personal",outcome="reserved"');
+    const processedBefore = await value('photo_processing_total', 'outcome="processed"');
+    const notImageBefore = await value('photo_processing_total', 'outcome="not_image"');
+
+    const { guest } = await setup();
+    const buffer = await image('jpeg');
+    const tickets = (
+      await (
+        await requestUploads(guest.token, [
+          { name: 'a.jpg', type: 'image/jpeg', size: buffer.byteLength },
+          { name: 'b.jpg', type: 'image/jpeg', size: 20 },
+        ])
+      ).json()
+    ).uploads as { photoId: string; uploadUrl: string; uploadKey: string }[];
+    const [good, bad] = tickets as [(typeof tickets)[0], (typeof tickets)[0]];
+    expect((await putObject(good.uploadUrl, buffer, 'image/jpeg')).ok).toBe(true);
+    expect((await putObject(bad.uploadUrl, Buffer.from('not really a jpeg'), 'image/jpeg')).ok).toBe(true);
+    expect((await complete(good.photoId, good.uploadKey)).status).toBe(200);
+    expect((await complete(good.photoId, good.uploadKey)).status).toBe(200);
+    expect((await complete(bad.photoId, bad.uploadKey)).status).toBe(422);
+    const [row] = await getDb().select().from(photos).where(eq(photos.id, good.photoId));
+    uploaded.push(row?.originalPath ?? '', row?.webPath ?? '', row?.thumbPath ?? '');
+
+    expect(await value('photo_uploads_total', 'link="personal",outcome="reserved"')).toBe(reservedBefore + 2);
+    expect(await value('photo_processing_total', 'outcome="processed"')).toBe(processedBefore + 1);
+    expect(await value('photo_processing_total', 'outcome="not_image"')).toBe(notImageBefore + 1);
+    expect(await value('photo_processing_total', 'outcome="already_done"')).toBeGreaterThanOrEqual(1);
+    const text = await registry.metrics();
+    expect(text).toContain('photo_processing_duration_seconds_bucket{le="5",outcome="processed"}');
+    expect(text).not.toContain(good.photoId);
+    expect(text).not.toContain(guest.token);
+  });
+});

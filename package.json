@@ -35,7 +35,8 @@
     "db:seed": "node scripts/db-seed.mjs",
     "test:integration": "node scripts/test-integration.mjs",
     "test:e2e": "playwright test",
-    "admin:create": "node scripts/admin-create.mjs"
+    "admin:create": "node scripts/admin-create.mjs",
+    "measure:complete": "node --experimental-transform-types --no-warnings scripts/measure-complete.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
