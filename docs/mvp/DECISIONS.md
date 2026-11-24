@@ -14,6 +14,12 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-24 — M4: storage limits under concurrency
+
+**Bug found and fixed:** `complete` compared the photo's actual size with the other photos' usage *without* the event row lock, so two concurrent completions whose declared sizes were tiny could both pass and exceed `storage_limit_bytes` (reproduced: both `200`). The reconcile step now runs in a transaction that takes the same `select … for update` lock on the event as new reservations, and writes the actual `size_bytes` before releasing it; a photo that no longer fits is deleted with its object (`403 storageLimit`). The subsequent derivative/status transition is unchanged.
+
+Evidence: 5 new integration tests (`storage-limits.test.ts`, 86 total) against real Storage — a new event gets 50,000,000 bytes from `EVENT_STORAGE_LIMIT_MB_DEFAULT=50`; the private bucket itself rejects a `text/plain` and a 31 MB PUT on a valid signed URL; 12 parallel batches against a 100,000-byte limit yield exactly 5 × `201` and 7 × `403 storageLimit` with 100,000 bytes reserved; two concurrent completions of under-declared files yield one `200` and one `403`, total ≤ limit, rejected object removed (repeated 3× without flakes); lowering the limit below usage blocks new reservations but keeps the photo row, its listing and all three files, and raising it re-allows uploads. Admin-created accounts use the same `createEvent` default.
+
 ## 2026-11-24 — M4: photo grids, enlarged view, big album and guest gallery
 
 Ported from the demo onto the paginated signed lists: `/app/fotografije` (UC-34 – UC-39), `/app/veliki-album` (UC-46 – UC-49), the dashboard "new photos" strip, `/i/:token/galerija` and `/w/:slug/galerija` (UC-14, UC-67 – UC-69), plus the "View gallery" link on the open invitation. Grids, dashboard thumbnails and S/M polaroids use `thumbUrl`; the lightbox, L polaroids and the slideshow use `url` (SPEC §7.3), all through plain lazy `<img>` with intrinsic size and the expiry reload.

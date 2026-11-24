@@ -422,12 +422,20 @@ export const completeUpload = async (photoId: string, uploadKey: unknown): Promi
     throw new RuleViolation('tooLarge', { name: photo.senderName || 'fotografija', max: env.maxUploadMb() });
   }
 
-  const [otherUsage] = await db
-    .select({ used: sql<string>`coalesce(sum(${photos.sizeBytes}), 0)` })
-    .from(photos)
-    .where(and(eq(photos.eventId, event.id), ne(photos.id, photo.id)));
-  const otherUsed = Number(otherUsage?.used ?? 0);
-  if (otherUsed + metadata.size > event.storageLimitBytes) {
+  // Reconcile the reservation with the actual size under the same event row lock
+  // as new reservations, so concurrent completions cannot both pass the limit.
+  const fits = await db.transaction(async (tx) => {
+    const [locked] = await tx.select().from(events).where(eq(events.id, event.id)).for('update');
+    if (!locked) return false;
+    const [otherUsage] = await tx
+      .select({ used: sql<string>`coalesce(sum(${photos.sizeBytes}), 0)` })
+      .from(photos)
+      .where(and(eq(photos.eventId, event.id), ne(photos.id, photo.id)));
+    if (Number(otherUsage?.used ?? 0) + metadata.size > locked.storageLimitBytes) return false;
+    await tx.update(photos).set({ sizeBytes: metadata.size }).where(eq(photos.id, photo.id));
+    return true;
+  });
+  if (!fits) {
     await deleteObjects([photo.originalPath]);
     await db.delete(photos).where(eq(photos.id, photo.id));
     throw new ApiProblem(403, 'storageLimit');
