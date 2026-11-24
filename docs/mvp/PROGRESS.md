@@ -2,6 +2,28 @@
 
 One entry per completed milestone: what was done, what wasn't, known issues. Tasks and their evidence live in [`DOD.md`](DOD.md); deviations and tooling decisions live in [`DECISIONS.md`](DECISIONS.md).
 
+## M4 – Photos (complete)
+
+**Done**
+
+- Signed direct-to-Storage upload flow (`…/uploads`, PUT, `complete`) with hashed upload keys, idempotent completion, atomic reservations and the actual-size check under the event row lock (a concurrent-completion overrun was found and fixed); sharp `web` (1600 px) and `thumb` (400 px) with EXIF rotation and EXIF/GPS stripped, 50 MP ceiling.
+- Moderation (`PATCH`, event-scoped `bulk-status`, `DELETE` of all three objects); `GET /weddings/:id/photos` and both public galleries with one-hour signed `url`/`thumbUrl` and validated `(createdAt, id)` cursor pagination (default 50, max 100, status/category/guest filters, counts, `total`).
+- UC-85: paginated signed originals with sanitized unique names, browser ZIP via `client-zip` (streamed to disk in Chromium, bounded 200 MB archives elsewhere) and single-photo download.
+- Product UI: Photos page, dashboard "new photos", big album (wall/per guest/slideshow, incremental pages), guest gallery for the personal and QR links, and the upload page (screening incl. HEIC, 3 parallel PUTs with per-file progress, 3 retries on the same photo, Try again/Skip, `beforeunload`). Expired signed URLs reload the loaded pages.
+- Observability: `photo_uploads_total`, `photo_processing_total`, `photo_processing_duration_seconds` with Grafana panels; `npm run measure:complete` — 12 MP p95 326 ms at 1 vCPU / 2 GB, 26.6 MB / 36 MP completes, 108 MP bomb fails with `422 notImage`.
+- Tests: 90 integration (real Storage), 67 component, 79 + 51 unit and 21 Playwright scenarios per browser project including S7–S10; CI (Chromium + WebKit) is green on `50eed2a`.
+
+**Not done / deferred**
+
+- The organizer settings screen for photo options (UC-54 – UC-56: auto-approve, QR upload, gallery mode) is not ported; the API supports it and S8 sets it through `PATCH /weddings/:id`.
+- "Photos are ready" emails are M5; retention/archiving and account deletion are M6; Preview measurement of `complete` is M7.
+
+**Known issues**
+
+- Seeding a fresh stack after integration tests have run can fail on the seed's fixed slugs (test leftovers); `ALLOW_LOCAL_RESET=1 npm run dev:reset` resolves it.
+- The upload copy keeps the prototype's nominative "Pošalji 1 fotografija" wording.
+- Album "per guest" stacks group the loaded pages only; very large albums show complete stacks after "show more".
+
 ## M3 – Event, invitation, guests, RSVP (complete)
 
 **Done**
