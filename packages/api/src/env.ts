@@ -54,6 +54,7 @@ export const env = {
   rateLimitPublicReadPerMin: () => integer('RATE_LIMIT_PUBLIC_READ_PER_MIN', 300),
   rateLimitPublicWritePer10Min: () => integer('RATE_LIMIT_PUBLIC_WRITE_PER_10_MIN', 30),
   rateLimitAuthenticatedPer10Min: () => integer('RATE_LIMIT_AUTHENTICATED_PER_10_MIN', 30),
+  rateLimitUploadsPer10Min: () => integer('RATE_LIMIT_UPLOADS_PER_10_MIN', 20),
   /** HMAC key for rate-limit buckets, so no raw IP or token is stored (§8.1). */
   rateLimitSecret: () => read('RATE_LIMIT_SECRET') ?? required('SUPABASE_SERVICE_ROLE_KEY'),
 };

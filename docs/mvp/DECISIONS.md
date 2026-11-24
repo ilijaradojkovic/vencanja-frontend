@@ -14,6 +14,21 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-22 — M4: signed direct-to-Storage uploads and `complete`
+
+`POST /api/public/invitations/:token/uploads`, `POST /api/public/weddings/:slug/uploads` and `POST /api/public/uploads/:photoId/complete` implement the SPEC §6.3 upload flow. The API never receives the file: it validates the declared files, reserves their bytes, creates `uploading` rows and returns a two-hour signed Storage upload URL plus a secret `uploadKey` per photo; the guest PUTs directly to Storage and then calls `complete`.
+
+Decisions and rules:
+
+- **Upload tickets:** 1–50 files per request (`noFiles`/`tooManyFiles`), only `image/jpeg|png|webp` (`notImage` with the file name), declared size ≤ `MAX_UPLOAD_MB` (`tooLarge`). `senderName` ≤120, message ≤1000, category `memories|wedding`. The path is `events/{eventId}/original/{photoId}.{ext}`; the secret is 32 random bytes (base64url) and only its SHA-256 hex hash is stored.
+- **Reservations:** the event row is locked (`select … for update`) in one transaction; the sum of all photo rows (including `uploading` reservations) plus the requested bytes must fit `storage_limit_bytes`, otherwise `403 { code: 'storageLimit' }`. Two concurrent batches cannot both pass (integration test: one `201`, one `403`). Signing happens after the commit; if signing fails the reservation rows are deleted.
+- **`complete`:** the key is compared to the stored hash in constant time; a wrong key or unknown photo is `404 photoNotFound`. The object must exist (`422 uploadNotFound`, the row stays so the client can retry the PUT), sharp must decode it (real format/dimensions, 50 MP decompression ceiling) or the object and row are deleted (`422 notImage`), and the actual size must still fit the ceiling (`403 storageLimit`, object and row removed). The moderation status is `approved` when `autoApprovePhotos` is on, else `pending` (SYS-2); repeated calls are idempotent (`{ id, status }`), and an atomic `status = 'uploading'` transition serializes concurrent completions.
+- **QR uploads** require `allowGeneralUpload` (`403 qrUploadDisabled`); the personal link always works. Upload-URL requests are rate-limited to `RATE_LIMIT_UPLOADS_PER_10_MIN` (default 20) per token or slug + trusted IP, on top of the public read bucket.
+- **Storage client:** the signed URL from Storage is a path relative to the Storage API; it is returned to clients as `${SUPABASE_URL}/storage/v1${url}` so the browser can PUT directly. Batch deletes use the bucket endpoint without a trailing slash (a trailing slash answers 404).
+- **Derivatives are the next M4 item:** `complete` currently records the original's real metadata and moderation status; `thumb`/`web` generation, EXIF stripping, signed read URLs, pagination, moderation endpoints and the upload UI follow in the remaining M4 slices.
+
+Evidence: 7 new integration tests (67 total) against the real local Storage: a real JPEG upload and completion (dimensions, size, `uploading` → `pending`, idempotent repeat), wrong key/missing object, an unreadable object deleted with its row, file count/type/size validation, the storage ceiling with an atomic concurrent test, auto-approve, and the QR-disabled `403` while the personal link keeps working.
+
 ## 2026-11-22 — M3 complete: organizer and guest UI, E2E S4/S5/S6
 
 M3's remaining work — the product screens for the dashboard, guests, invitation editor and the personal invitation — is done. The port keeps the prototype's copy (locale JSON files copied unchanged from `apps/demo`, plus the celebration overlays), the same CSS classes and the same template components.

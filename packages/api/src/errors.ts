@@ -2,7 +2,7 @@ import { isRuleViolation } from '@uspomena/shared';
 import type { ErrorHandler, NotFoundHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-import type { MessageKey } from '@uspomena/shared';
+import type { MessageKey, MessageParams } from '@uspomena/shared';
 
 import { errorBody, type AppEnv } from './http.ts';
 import { getLogger } from './logger.ts';
@@ -32,6 +32,11 @@ export const notFoundHandler: NotFoundHandler<AppEnv> = (c) => {
 export const errorHandler: ErrorHandler<AppEnv> = (error, c) => {
   const route = normalizeRoute(c.req.routePath);
 
+  if (error instanceof ApiProblem) {
+    httpErrorsTotal.inc({ route, code: error.code });
+    return c.json(errorBody(c, error.code, error.params), error.status);
+  }
+
   if (isRuleViolation(error)) {
     httpErrorsTotal.inc({ route, code: error.code });
     return c.json(errorBody(c, error.code, error.params), 422);
@@ -56,3 +61,18 @@ export const errorHandler: ErrorHandler<AppEnv> = (error, c) => {
 
   return c.json(errorBody(c, 'internalError'), 500);
 };
+
+/**
+ * A domain error with an explicit HTTP status and shared message key, for rules
+ * that are not input validation (e.g. the storage ceiling's `403 storageLimit`).
+ */
+export class ApiProblem extends Error {
+  constructor(
+    readonly status: 403 | 404 | 409 | 422,
+    readonly code: MessageKey,
+    readonly params: MessageParams = {},
+  ) {
+    super(code);
+    this.name = 'ApiProblem';
+  }
+}

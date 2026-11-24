@@ -1,5 +1,5 @@
 import { RuleViolation } from '@uspomena/shared';
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 
 import { env } from './env.ts';
 import { errorHandler, notFoundHandler } from './errors.ts';
@@ -8,7 +8,7 @@ import { language } from './middleware/language.ts';
 import { metricsMiddleware } from './middleware/metrics.ts';
 import { adminGuard } from './middleware/admin.ts';
 import { onboardingGuard } from './middleware/onboarding.ts';
-import { rateLimitByIp } from './middleware/rate-limit.ts';
+import { clientIp, rateLimitByIp } from './middleware/rate-limit.ts';
 import { requestContext } from './middleware/request-context.ts';
 import { requestLogger } from './middleware/request-logger.ts';
 import { adminRoutes } from './routes/admin.ts';
@@ -20,6 +20,7 @@ import { healthRoutes } from './routes/health.ts';
 import { metricsRoutes } from './routes/metrics.ts';
 import { onboardingRoutes } from './routes/onboarding.ts';
 import { publicRoutes } from './routes/public.ts';
+import { uploadRoutes } from './routes/uploads.ts';
 import { weddingRoutes } from './routes/weddings.ts';
 import { getGuestByToken } from './services/guest.ts';
 import { makeThumbnailProbe } from './services/image.ts';
@@ -74,6 +75,19 @@ for (const path of [
 }
 
 app.route('/', publicRoutes);
+
+// Upload issuance is limited per invitation token or wedding slug + trusted IP (SYS-12).
+const uploadIdentity = (c: Context<AppEnv>) => `${c.req.param('token') ?? c.req.param('slug') ?? ''}|${clientIp(c)}`;
+for (const path of ['/public/invitations/:token/uploads', '/public/weddings/:slug/uploads']) {
+  app.use(
+    path,
+    rateLimitByIp(
+      () => ({ scope: 'public-upload', limit: env.rateLimitUploadsPer10Min(), windowMs: 600_000 }),
+      uploadIdentity,
+    ),
+  );
+}
+app.route('/', uploadRoutes);
 
 // Superadmin routes: 401 without a token, 403 for every other role.
 app.use('/admin/*', adminGuard());

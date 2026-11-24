@@ -27,10 +27,10 @@ const rateLimited = (c: Context<AppEnv>, retryAfter: number, limit: number) =>
 
 /** Fixed-window limiter for the public guest routes (SYS-12), keyed by trusted IP. */
 export const rateLimitByIp =
-  (rule: () => RateLimitRule): MiddlewareHandler<AppEnv> =>
+  (rule: () => RateLimitRule, identify: (c: Context<AppEnv>) => string = clientIp): MiddlewareHandler<AppEnv> =>
   async (c, next) => {
     const current = rule();
-    const result = await consumeRateLimit(current, clientIp(c));
+    const result = await consumeRateLimit(current, identify(c));
     if (!result.allowed) {
       const retryAfter = Math.max(1, Math.ceil((result.resetAt.getTime() - Date.now()) / 1000));
       return rateLimited(c, retryAfter, result.limit);

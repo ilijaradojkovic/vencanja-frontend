@@ -61,6 +61,21 @@ const MESSAGES = {
     en: 'At most 50 photos at once.',
     ru: 'Не более 50 фото за раз.',
   },
+  tooLarge: {
+    sr: '{{name}} je veća od {{max}} MB.',
+    en: '{{name}} is larger than {{max}} MB.',
+    ru: '{{name}} больше {{max}} МБ.',
+  },
+  storageLimit: {
+    sr: 'Dostignut je limit za skladištenje fotografija ovog naloga.',
+    en: 'This account has reached its photo storage limit.',
+    ru: 'Достигнут лимит хранилища фотографий этого аккаунта.',
+  },
+  uploadNotFound: {
+    sr: 'Fotografija nije stigla na skladište. Pokušajte ponovo.',
+    en: 'The photo did not reach storage. Please try again.',
+    ru: 'Фотография не попала в хранилище. Попробуйте ещё раз.',
+  },
   notImage: {
     sr: '{{name}} nije slika.',
     en: '{{name}} is not an image.',

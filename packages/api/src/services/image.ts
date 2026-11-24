@@ -8,6 +8,33 @@ export type ThumbnailProbe = {
 };
 
 /**
+ * Decompression/pixel ceiling for uploaded originals (SPEC §7.2). sharp refuses
+ * larger inputs instead of allocating unbounded memory.
+ */
+export const MAX_INPUT_PIXELS = 50_000_000;
+
+export type ImageMetadata = {
+  format: 'jpeg' | 'png' | 'webp';
+  width: number;
+  height: number;
+  size: number;
+};
+
+/** Reads the real format and dimensions; null when sharp cannot decode the bytes. */
+export const readImageMetadata = async (buffer: Buffer): Promise<ImageMetadata | null> => {
+  try {
+    const image = sharp(buffer, { limitInputPixels: MAX_INPUT_PIXELS, sequentialRead: true });
+    const metadata = await image.metadata();
+    const format = metadata.format;
+    if (format !== 'jpeg' && format !== 'png' && format !== 'webp') return null;
+    if (!metadata.width || !metadata.height) return null;
+    return { format, width: metadata.width, height: metadata.height, size: buffer.byteLength };
+  } catch {
+    return null;
+  }
+};
+
+/**
  * Runs a real sharp pipeline (create → resize → JPEG encode → metadata decode).
  * The M0 spike calls it from the mounted Hono app inside a production Next.js
  * build, which is what proves the Node runtime runs the native sharp module.

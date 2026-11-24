@@ -65,6 +65,9 @@ export const PHOTO_CATEGORIES: readonly PhotoCategory[] = Object.values(PhotoCat
 export const COMPANION_TYPES: readonly CompanionType[] = Object.values(CompanionType);
 export const GALLERY_OPEN_MODES: readonly GalleryOpenMode[] = Object.values(GalleryOpenMode);
 
+export const isPhotoCategory = (value: unknown): value is PhotoCategory =>
+  typeof value === 'string' && (PHOTO_CATEGORIES as readonly string[]).includes(value);
+
 export const isGuestSide = (value: unknown): value is GuestSide =>
   typeof value === 'string' && (GUEST_SIDES as readonly string[]).includes(value);
 

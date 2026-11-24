@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { app } from '../src/app.ts';
 import { closeDb, getDb } from '../src/db/client.ts';
@@ -89,6 +89,11 @@ const setup = async () => {
   const guest = (await guestResponse.json()).guest as { token: string };
   return { token, slug: wedding.slug, guestToken: guest.token };
 };
+
+beforeAll(async () => {
+  // Fresh buckets so a fixed window from an earlier local run cannot leak in.
+  await getDb().delete(rateLimits);
+});
 
 afterAll(async () => {
   const db = getDb();
