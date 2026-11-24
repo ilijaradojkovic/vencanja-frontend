@@ -26,7 +26,10 @@ test('S1 signup, email confirmation, wedding onboarding and dashboard countdown'
   await completeWeddingOnboarding(page, { partner1: 'Ana', partner2: 'Marko', date: '2027-06-12' });
 
   await expect(page).toHaveURL(/\/app(\?|$)/);
-  await expect(page.getByTestId('countdown')).toContainText(/Do venčanja još \d+/);
+  await expect(page.getByTestId('countdown')).toContainText(/Do venčanja još \d+ (dan|dana)$/);
+  // Translated stats, never raw keys such as "dashboard.stats.invited".
+  await expect(page.getByText('Pozvano osoba')).toBeVisible();
+  await expect(page.getByText(/dashboard\.[a-z]/)).toHaveCount(0);
 });
 
 test('S2 celebration onboarding uses the celebration wording and "18. rođendan"', async ({ page }, testInfo) => {
@@ -43,7 +46,7 @@ test('S2 celebration onboarding uses the celebration wording and "18. rođendan"
   await clickUntilUrl(page, 'Završi', /\/app(\?|$)/);
 
   await expect(page).toHaveURL(/\/app(\?|$)/);
-  await expect(page.getByTestId('countdown')).toContainText(/Do proslave još \d+/);
+  await expect(page.getByTestId('countdown')).toContainText(/Do proslave još \d+ (dan|dana)$/);
   await expect(page.getByText('Proslava', { exact: true })).toBeVisible();
 });
 

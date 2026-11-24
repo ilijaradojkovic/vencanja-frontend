@@ -634,7 +634,7 @@ function GuestModal({
         </label>
         <div className="row" style={{ alignItems: 'flex-start' }}>
           <label className="field grow">
-            <span>{t('common:fields.email')}</span>
+            <span>{t('auth:fields.email')}</span>
             <input
               className="input"
               type="email"

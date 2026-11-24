@@ -284,7 +284,7 @@ export function InvitationEditor({ sampleGuestName }: { sampleGuestName?: string
                 />
               </label>
               <label className="field grow">
-                <span>{t('settings:wedding.slug', { defaultValue: 'Adresa' })}</span>
+                <span>{t('settings:wedding.slug')}</span>
                 <input
                   className="input"
                   value={draft.slug}

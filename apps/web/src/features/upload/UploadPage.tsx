@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/Icon';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { apiFetch } from '@/lib/diagnostics/api';
-import { formatDate } from '@/lib/format';
+import { galleryStatusText } from '@/features/invite/gallery-status';
 
 import {
   MAX_FILES,
@@ -105,11 +105,7 @@ export function UploadPage({
     );
   }
 
-  const galleryStatus = wedding.gallery.open
-    ? t('gallery.statusOpen')
-    : wedding.gallery.mode === 'after_wedding' && wedding.gallery.opensAt
-      ? t('gallery.statusOpensAt', { date: formatDate(wedding.gallery.opensAt, locale) })
-      : t('gallery.statusManual');
+  const galleryStatus = galleryStatusText(t, wedding.gallery, locale);
   const alreadyNotified = Boolean(guest?.notifyEmail);
   const canNotify = !alreadyNotified && (Boolean(token) || wedding.gallery.viaQr) && !wedding.gallery.open;
   const backTo = token ? `/i/${token}` : null;

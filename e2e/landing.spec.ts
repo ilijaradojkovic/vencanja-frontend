@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { gotoHydrated } from './auth.helpers';
+
 /**
  * M1 walking skeleton (DOD M1): the landing page renders and the product really
  * calls the mounted API at `/api/*` — the development probe only shows "ok" when
@@ -33,6 +35,16 @@ test.describe('landing page', () => {
     // `next dev` answers `no-store`; the production build gets the exact
     // `private, no-store` from proxy.ts, which `npm run spike:check` asserts.
     expect(cacheControl).toMatch(/^(private, )?no-store$/);
+  });
+
+  test('switches the guest invitation language without a reload (UC-10)', async ({ page }) => {
+    await gotoHydrated(page, '/i/seedguest001');
+    await expect(page.getByRole('button', { name: 'Otvori pozivnicu' })).toBeVisible();
+    await page.getByRole('button', { name: 'English' }).click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.getByRole('button', { name: 'Open the invitation' })).toBeVisible();
+    await page.getByRole('button', { name: 'Srpski' }).click();
+    await expect(page.getByRole('button', { name: 'Otvori pozivnicu' })).toBeVisible();
   });
 
   test('returns a 404 envelope for an unknown guest link', async ({ page }) => {

@@ -1,0 +1,43 @@
+{
+  "saved": "Settings saved",
+  "account": {
+    "title": "Account",
+    "email": "Login email",
+    "phoneHint": "Required. One number for the whole account – we use it to contact you about custom design, album printing and similar."
+  },
+  "wedding": {
+    "title": "Wedding",
+    "slug": "Wedding address (used in the QR link)",
+    "city": "City"
+  },
+  "photos": {
+    "autoApprove": "Approve new photos automatically",
+    "autoApproveHint": "Otherwise you review them first.",
+    "allowQr": "Allow uploads via QR code",
+    "allowQrHint": "Anyone with the link can send a photo, no personal link needed."
+  },
+  "gallery": {
+    "title": "Gallery for guests",
+    "when": "When does the gallery open to guests?",
+    "now": "Right away",
+    "nowHint": "Guests see approved photos as soon as you approve them.",
+    "afterWedding": "The day after the wedding",
+    "afterWeddingHint": "Automatically on {{date}}.",
+    "manual": "Manually",
+    "manualHint": "You decide when, with one click.",
+    "manualOpen": "The gallery is open to guests",
+    "viaQr": "The gallery is also visible via the QR link",
+    "viaQrHint": "The QR link can be forwarded to anyone. Turn this off if only guests with a personal link should see the gallery.",
+    "currentlyOpen": "Currently: the gallery is open to guests.",
+    "currentlyClosed": "Currently: the gallery is closed to guests."
+  },
+  "demo": {
+    "title": "Demo mode",
+    "text": "The app runs on a mock backend (VITE_USE_MOCK=true). Data is stored in this browser.",
+    "reset": "Reset demo data",
+    "resetDone": "Demo data has been reset",
+    "confirmTitle": "Reset demo data?",
+    "confirm": "Reset",
+    "confirmText": "All changes (guests, photos, album, requests) will be deleted and replaced with the initial demo data."
+  }
+}

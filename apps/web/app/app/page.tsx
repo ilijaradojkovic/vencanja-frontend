@@ -46,12 +46,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       ? [wedding.partner1, wedding.partner2].filter(Boolean).join(' & ')
       : [wedding.partner1, wedding.occasion].filter(Boolean).join(' · ');
 
+  // "Do venčanja još 200 dana": the day count is pluralized like in the prototype.
+  const dayCount = t('common:count.days', { count: days });
   const countdown =
     days > 0
-      ? (wedding.type === 'wedding' ? t('dashboard.daysLeft') : t('dashboard.celebrationDaysLeft')).replace(
-          '{{days}}',
-          String(days),
-        )
+      ? t(wedding.type === 'wedding' ? 'dashboard.daysLeft' : 'dashboard.celebrationDaysLeft', { days: dayCount })
       : wedding.type === 'wedding'
         ? t('dashboard.weddingPassed')
         : t('dashboard.celebrationPassed');
@@ -67,30 +66,30 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         </p>
         <p className="small muted">{wedding.date}</p>
 
-        <div className="grid-cards" role="group" aria-label={t('dashboard.stats.label')} style={{ marginTop: 8 }}>
+        <div className="grid-cards" role="group" aria-label={t('dashboard:stats.label')} style={{ marginTop: 8 }}>
           <div className="stat">
-            <span className="eyebrow">{t('dashboard.stats.invited')}</span>
+            <span className="eyebrow">{t('dashboard:stats.invited')}</span>
             <strong>{stats.invited}</strong>
-            <span className="xs muted">{t('dashboard.stats.invitations', { count: stats.invitations })}</span>
+            <span className="xs muted">{t('dashboard:stats.invitations', { count: stats.invitations })}</span>
           </div>
           <div className="stat">
-            <span className="eyebrow">{t('dashboard.stats.coming')}</span>
+            <span className="eyebrow">{t('dashboard:stats.coming')}</span>
             <strong>{stats.coming}</strong>
-            <span className="xs muted">{t('dashboard.stats.declined', { count: stats.declined })}</span>
+            <span className="xs muted">{t('dashboard:stats.declined', { count: stats.declined })}</span>
           </div>
           <div className="stat">
-            <span className="eyebrow">{t('dashboard.stats.waiting')}</span>
+            <span className="eyebrow">{t('dashboard:stats.waiting')}</span>
             <strong>{stats.waiting}</strong>
-            <span className="xs muted">{t('dashboard.stats.opened', { count: stats.opened })}</span>
+            <span className="xs muted">{t('dashboard:stats.opened', { count: stats.opened })}</span>
           </div>
         </div>
 
         <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
           <a className="btn btn-secondary" href="/app/gosti">
-            {t('dashboard.addGuests')}
+            {t('dashboard:addGuests')}
           </a>
           <a className="btn btn-secondary" href="/app/pozivnica">
-            {t('dashboard.editInvitation')}
+            {t('dashboard:editInvitation')}
           </a>
         </div>
       </section>

@@ -43,8 +43,15 @@ import ruCelebrationBigAlbum from '../../../locales/ru/celebration/bigAlbum.json
 import srPhotos from '../../../locales/sr/photos.json';
 import srBigAlbum from '../../../locales/sr/bigAlbum.json';
 import srCelebrationBigAlbum from '../../../locales/sr/celebration/bigAlbum.json';
+import enSettings from '../../../locales/en/settings.json';
+import enCelebrationSettings from '../../../locales/en/celebration/settings.json';
+import ruSettings from '../../../locales/ru/settings.json';
+import ruCelebrationSettings from '../../../locales/ru/celebration/settings.json';
+import srSettings from '../../../locales/sr/settings.json';
+import srCelebrationSettings from '../../../locales/sr/celebration/settings.json';
 
-export type Namespace = 'auth' | 'common' | 'dashboard' | 'guests' | 'invite' | 'templates' | 'photos' | 'bigAlbum';
+export type Namespace =
+  'auth' | 'common' | 'dashboard' | 'guests' | 'invite' | 'templates' | 'photos' | 'bigAlbum' | 'settings';
 
 type Resources = Record<string, Record<string, unknown>>;
 
@@ -58,6 +65,7 @@ const BASE: Record<Language, Resources> = {
     templates: srTemplates,
     photos: srPhotos,
     bigAlbum: srBigAlbum,
+    settings: srSettings,
   },
   en: {
     auth: enAuth,
@@ -68,6 +76,7 @@ const BASE: Record<Language, Resources> = {
     templates: enTemplates,
     photos: enPhotos,
     bigAlbum: enBigAlbum,
+    settings: enSettings,
   },
   ru: {
     auth: ruAuth,
@@ -78,6 +87,7 @@ const BASE: Record<Language, Resources> = {
     templates: ruTemplates,
     photos: ruPhotos,
     bigAlbum: ruBigAlbum,
+    settings: ruSettings,
   },
 };
 
@@ -89,6 +99,7 @@ const CELEBRATION: Record<Language, Resources> = {
     invite: srCelebrationInvite,
     templates: srCelebrationTemplates,
     bigAlbum: srCelebrationBigAlbum,
+    settings: srCelebrationSettings,
   },
   en: {
     common: enCelebrationCommon,
@@ -97,6 +108,7 @@ const CELEBRATION: Record<Language, Resources> = {
     invite: enCelebrationInvite,
     templates: enCelebrationTemplates,
     bigAlbum: enCelebrationBigAlbum,
+    settings: enCelebrationSettings,
   },
   ru: {
     common: ruCelebrationCommon,
@@ -105,6 +117,7 @@ const CELEBRATION: Record<Language, Resources> = {
     invite: ruCelebrationInvite,
     templates: ruCelebrationTemplates,
     bigAlbum: ruCelebrationBigAlbum,
+    settings: ruCelebrationSettings,
   },
 };
 
@@ -146,7 +159,7 @@ export const createI18nInstance = (locale: Language, eventType: 'wedding' | 'cel
     lng: locale,
     fallbackLng: 'sr',
     supportedLngs: ['sr', 'en', 'ru'],
-    ns: ['auth', 'common', 'dashboard', 'guests', 'invite', 'templates', 'photos', 'bigAlbum'],
+    ns: ['auth', 'common', 'dashboard', 'guests', 'invite', 'templates', 'photos', 'bigAlbum', 'settings'],
     defaultNS: 'auth',
     initAsync: false,
     interpolation: { escapeValue: false },

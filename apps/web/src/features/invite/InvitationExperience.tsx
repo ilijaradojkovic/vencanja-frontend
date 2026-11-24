@@ -11,6 +11,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { FormError } from '@/components/auth/AuthShell';
 import { apiFetch } from '@/lib/diagnostics/api';
 import { formatDate } from '@/lib/format';
+import { galleryStatusText } from '@/features/invite/gallery-status';
 import { eventInitials } from '@/lib/event';
 import { InvitationView, envelopeColor } from '@/templates';
 
@@ -377,11 +378,7 @@ export function InvitationExperience({
     setTimeout(() => setOpened(true), 650);
   };
 
-  const galleryStatus = wedding.gallery.open
-    ? t('gallery.statusOpen')
-    : wedding.gallery.mode === 'after_wedding' && wedding.gallery.opensAt
-      ? t('gallery.statusOpensAt', { date: formatDate(wedding.gallery.opensAt, locale) })
-      : t('gallery.statusManual');
+  const galleryStatus = galleryStatusText(t, wedding.gallery, locale);
 
   if (!opened) {
     const initials = eventInitials(wedding).split('').join('&');

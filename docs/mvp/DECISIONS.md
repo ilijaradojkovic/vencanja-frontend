@@ -14,6 +14,17 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-24 — Fixes from the M0–M4 product walkthrough
+
+A full browser walkthrough of the product (fresh signup → onboarding → guests → invitation → RSVP → upload → moderation → album → galleries → ZIP → settings → admin) found four M3-era UI bugs that the existing tests did not catch. All are fixed with tests that fail on the old code:
+
+1. **Raw translation keys on the dashboard** (`dashboard.stats.invited`, `dashboard.addGuests`, …): the server page resolved them in the default `auth` namespace although they live in `dashboard`. The keys now use `dashboard:`. The same scan found two more untranslated labels: the guest form's email (`common:fields.email` → `auth:fields.email`, as in the demo) and the invitation editor's address label (`settings:wedding.slug` with a hard-coded "Adresa" fallback); the demo's `settings` namespace (sr/en/ru + celebration overlay) is now ported so it resolves. New `test/translation-keys.test.ts` statically resolves every literal `t('…')` in `apps/web` against its file's namespace in sr/en/ru for wedding and celebration (it fails on the old dashboard).
+2. **Countdown without the unit** ("Do venčanja još 200"): the day count is now pluralized through `common:count.days` like the prototype ("… 200 dana"). S1/S2 now assert `\d+ (dan|dana)`, the translated stats and no `dashboard.*` text.
+3. **Language switch needed a reload on client pages:** `LocaleProvider` kept the i18next instance from its first render, so after "English" the server parts (title, `<html lang>`) changed but client text stayed Serbian. The instance is now memoized per locale/event type. Covered by a component test (sr → en → ru rerender) and a landing E2E that switches the guest invitation to English and back without a reload.
+4. **Double full stop** in "Galerija se otvara gostima 13. jun 2027..": Serbian dates end with a dot and the sentence adds one. A shared `galleryStatusText` (invitation, gallery, upload pages) collapses a final `..` (Russian "2027 г." keeps its abbreviation dot); unit-tested for sr/en/ru. The frozen demo has the same double dot and is not changed.
+
+Still open (not a bug fix): the organizer settings screen for photo options (UC-54 – UC-56).
+
 ## 2026-11-24 — M4: E2E S7–S10, measurement, upload metrics and demo check
 
 **E2E (`e2e/photos.spec.ts`):** S7 (personal upload with a 31 MB file rejected, approve 2 / hide 1, album shows 2 with thumb URLs and the lightbox with the web URL), S8 (QR upload with auto-approve appears in the album; QR upload off shows "Slanje je isključeno"), S9 (the first Storage PUT is aborted with the context offline; the same signed URL is retried and exactly one pending photo exists), S10 twice (the bounded-batch download — forced in Chromium by removing `showSaveFilePicker`, native on WebKit — saves `uspomena-<slug>-1.zip` whose three entries equal the uploaded bytes; and the streaming path in Chromium through a stubbed picker because headless Chromium cannot show the native save dialog).

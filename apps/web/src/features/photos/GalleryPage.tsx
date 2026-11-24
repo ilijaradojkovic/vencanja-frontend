@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/Icon';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { NotifyForm } from '@/features/invite/InvitationExperience';
-import { formatDate } from '@/lib/format';
+import { galleryStatusText } from '@/features/invite/gallery-status';
 import { envelopeColor } from '@/templates';
 
 import { Lightbox } from './Lightbox';
@@ -56,12 +56,7 @@ export function GalleryPage({
   const backTo = token ? `/i/${token}` : null;
   const uploadTo = token ? `/i/${token}/upload` : `/w/${slug ?? ''}/upload`;
 
-  const statusText = (meta: GalleryMeta) =>
-    meta.open
-      ? t('gallery.statusOpen')
-      : meta.mode === 'after_wedding' && meta.opensAt
-        ? t('gallery.statusOpensAt', { date: formatDate(meta.opensAt, locale) })
-        : t('gallery.statusManual');
+  const statusText = (meta: GalleryMeta) => galleryStatusText(t, meta, locale);
 
   return (
     <div className="guest-page">
