@@ -1,7 +1,7 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
-import { isPhotoCategory, RuleViolation, type PhotoCategory } from '@uspomena/shared';
-import { and, eq, ne, sql } from 'drizzle-orm';
+import { isPhotoCategory, isPhotoStatus, RuleViolation, type PhotoCategory, type PhotoStatus } from '@uspomena/shared';
+import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 
 import { getDb } from '../db/client.ts';
 import { events, photos } from '../db/schema.ts';
@@ -145,6 +145,116 @@ export const requestUploads = async (
 };
 
 export type CompletedPhoto = { id: string; status: 'uploading' | 'pending' | 'approved' | 'hidden' };
+
+export type PhotoPayload = {
+  id: string;
+  weddingId: string;
+  guestId: string | null;
+  senderName: string;
+  category: PhotoCategory;
+  message: string;
+  status: 'uploading' | PhotoStatus;
+  width: number | null;
+  height: number | null;
+  sizeBytes: number | null;
+  createdAt: string;
+  /** Signed read URLs are added in the next M4 slice; null until then. */
+  url: string | null;
+  thumbUrl: string | null;
+};
+
+export const toPhotoPayload = (photo: typeof photos.$inferSelect): PhotoPayload => ({
+  id: photo.id,
+  weddingId: photo.eventId,
+  guestId: photo.guestId,
+  senderName: photo.senderName,
+  category: photo.category,
+  message: photo.message,
+  status: photo.status,
+  width: photo.width,
+  height: photo.height,
+  sizeBytes: photo.sizeBytes,
+  createdAt: photo.createdAt.toISOString(),
+  url: null,
+  thumbUrl: null,
+});
+
+const statusOf = (value: unknown): PhotoStatus => {
+  if (!isPhotoStatus(value)) throw new RuleViolation('badStatus');
+  return value;
+};
+
+/** The photo must belong to an event of this organizer; otherwise it is not found. */
+export const ownedPhoto = async (
+  profileId: string,
+  photoId: string,
+): Promise<{ photo: typeof photos.$inferSelect; event: EventRow } | null> => {
+  const db = getDb();
+  const [photo] = await db.select().from(photos).where(eq(photos.id, photoId)).limit(1);
+  if (!photo) return null;
+  const [event] = await db
+    .select()
+    .from(events)
+    .where(and(eq(events.id, photo.eventId), eq(events.ownerId, profileId)))
+    .limit(1);
+  return event ? { photo, event } : null;
+};
+
+/** `PATCH /photos/:id` (UC-36): approve, hide or send back to pending. */
+export const updatePhotoStatus = async (
+  profileId: string,
+  photoId: string,
+  status: unknown,
+): Promise<typeof photos.$inferSelect> => {
+  const owned = await ownedPhoto(profileId, photoId);
+  if (!owned) throw new ApiProblem(404, 'photoNotFound');
+  const [updated] = await getDb()
+    .update(photos)
+    .set({ status: statusOf(status) })
+    .where(eq(photos.id, photoId))
+    .returning();
+  if (!updated) throw new ApiProblem(404, 'photoNotFound');
+  return updated;
+};
+
+/**
+ * `POST /weddings/:id/photos/bulk-status` (UC-37, SPEC §6.6 item 1): only this
+ * event's photos are touched; foreign IDs are silently skipped instead of failing
+ * the whole batch.
+ */
+export const bulkUpdateStatus = async (
+  profileId: string,
+  eventId: string,
+  ids: unknown,
+  status: unknown,
+): Promise<(typeof photos.$inferSelect)[]> => {
+  const nextStatus = statusOf(status);
+  const [event] = await getDb()
+    .select({ id: events.id })
+    .from(events)
+    .where(and(eq(events.id, eventId), eq(events.ownerId, profileId)))
+    .limit(1);
+  if (!event) throw new ApiProblem(404, 'weddingNotFound');
+  if (!Array.isArray(ids) || ids.some((id) => typeof id !== 'string')) throw new RuleViolation('badRequest');
+
+  const updated = await getDb()
+    .update(photos)
+    .set({ status: nextStatus })
+    .where(and(eq(photos.eventId, eventId), inArray(photos.id, ids as string[])))
+    .returning();
+  return updated;
+};
+
+/** `DELETE /photos/:id` (UC-39): removes the row and all three stored objects. */
+export const deletePhoto = async (profileId: string, photoId: string): Promise<void> => {
+  const owned = await ownedPhoto(profileId, photoId);
+  if (!owned) throw new ApiProblem(404, 'photoNotFound');
+  const paths = [owned.photo.originalPath, owned.photo.webPath, owned.photo.thumbPath].filter((path): path is string =>
+    Boolean(path),
+  );
+  if (paths.length > 0) await deleteObjects(paths);
+  await getDb().delete(photos).where(eq(photos.id, photoId));
+};
 
 /**
  * `POST /public/uploads/:photoId/complete` (SPEC §6.3): checks the object, reads

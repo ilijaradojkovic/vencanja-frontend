@@ -14,6 +14,20 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-22 — M4: photo moderation endpoints
+
+`PATCH /api/photos/:id`, `POST /api/weddings/:id/photos/bulk-status` and `DELETE /api/photos/:id` implement UC-36, UC-37 and UC-39 behind the M2 onboarding guard, with an ownership check on every call.
+
+Decisions:
+
+- **Status values:** only `pending`, `approved` and `hidden` are accepted (`422 badStatus`). `uploading` is an internal state and cannot be set by the organizer.
+- **Ownership:** a photo outside the organizer's event answers `404 photoNotFound`; a bulk request for a foreign event answers `404 weddingNotFound`. This mirrors the "not disclosed" rule used elsewhere.
+- **Bulk scope (SPEC §6.6 item 1):** the update is constrained to the event id **and** the given ids, so foreign photo ids in the list are silently skipped instead of failing the batch; the response contains only the photos that changed. A non-array or non-string `ids` is `422 badRequest`.
+- **Deletion:** the three stored objects (original, web, thumb) are removed before the row; if Storage fails the row stays so the action can be retried. Deleting a foreign photo leaves its row and files untouched.
+- **Response shape:** `{ photo }` / `{ photos }` with the photo metadata (`weddingId`, `guestId`, sender, category, message, status, dimensions, size, createdAt). `url`/`thumbUrl` are `null` until the signed-URL slice adds them.
+
+Evidence: 3 new integration tests (71 total) against real Storage: approve/hide/pending with `badStatus`, missing and foreign photos (`404`) and missing token (`401`); bulk updates that change only the event's photos while a foreign id stays `pending`, plus invalid status/ids and a foreign event; deletion that removes all three objects and the row, keeps a foreign photo and its files, and answers `404` on repeat.
+
 ## 2026-11-22 — M4: sharp `web`/`thumb` derivatives with EXIF stripping
 
 `complete` now generates the two derivatives from the downloaded original: `web` (long side 1600 px, JPEG q80) and `thumb` (long side 400 px, JPEG q75), stored at `events/{eventId}/web/{photoId}.jpg` and `events/{eventId}/thumb/{photoId}.jpg`. The paths are written on the same atomic `uploading → pending|approved` transition as the metadata, so a photo never becomes visible without its derivatives.

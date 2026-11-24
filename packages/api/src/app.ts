@@ -19,6 +19,7 @@ import { guestRoutes } from './routes/guests.ts';
 import { healthRoutes } from './routes/health.ts';
 import { metricsRoutes } from './routes/metrics.ts';
 import { onboardingRoutes } from './routes/onboarding.ts';
+import { photoRoutes } from './routes/photos.ts';
 import { publicRoutes } from './routes/public.ts';
 import { uploadRoutes } from './routes/uploads.ts';
 import { weddingRoutes } from './routes/weddings.ts';
@@ -47,6 +48,7 @@ app.route('/', onboardingRoutes);
 for (const prefix of ['/weddings/*', '/guests/*', '/photos/*']) app.use(prefix, onboardingGuard());
 app.route('/', weddingRoutes);
 app.route('/', guestRoutes);
+app.route('/', photoRoutes);
 
 // SYS-12: the public guest API is limited by trusted IP; RSVP/notify have the stricter
 // write window on top of the general read limit. Middleware is registered before the
