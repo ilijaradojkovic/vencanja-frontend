@@ -1,7 +1,7 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 import { isPhotoCategory, isPhotoStatus, RuleViolation, type PhotoCategory, type PhotoStatus } from '@uspomena/shared';
-import { and, eq, inArray, ne, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, ne, sql } from 'drizzle-orm';
 
 import { getDb } from '../db/client.ts';
 import { events, photos } from '../db/schema.ts';
@@ -10,7 +10,7 @@ import { ApiProblem } from '../errors.ts';
 import type { EventRow } from './events.ts';
 import type { GuestRow } from './guests.ts';
 import { makeDerivatives, readImageMetadata } from './image.ts';
-import { createSignedUploadUrl, deleteObjects, downloadObject, uploadObject } from './storage.ts';
+import { createSignedReadUrls, createSignedUploadUrl, deleteObjects, downloadObject, uploadObject } from './storage.ts';
 
 const ALLOWED_MIME: Record<string, 'jpeg' | 'png' | 'webp'> = {
   'image/jpeg': 'jpeg',
@@ -158,12 +158,27 @@ export type PhotoPayload = {
   height: number | null;
   sizeBytes: number | null;
   createdAt: string;
-  /** Signed read URLs are added in the next M4 slice; null until then. */
+  /** Signed (1 h) URL of the web version; null while it does not exist yet. */
   url: string | null;
+  /** Signed (1 h) URL of the thumbnail; null while it does not exist yet. */
   thumbUrl: string | null;
 };
 
-export const toPhotoPayload = (photo: typeof photos.$inferSelect): PhotoPayload => ({
+type PhotoRow = typeof photos.$inferSelect;
+
+const signedOf = (signed: Map<string, string>, path: string | null): string | null =>
+  path ? (signed.get(path) ?? null) : null;
+
+/**
+ * Signs the web and thumb paths of a page of photos in one Storage request
+ * (SPEC §6.3, §7.3). Originals are never signed here.
+ */
+export const signPhotoUrls = async (rows: Pick<PhotoRow, 'webPath' | 'thumbPath'>[]): Promise<Map<string, string>> =>
+  createSignedReadUrls(
+    rows.flatMap((row) => [row.webPath, row.thumbPath]).filter((path): path is string => Boolean(path)),
+  );
+
+export const toPhotoPayload = (photo: PhotoRow, signed: Map<string, string> = new Map()): PhotoPayload => ({
   id: photo.id,
   weddingId: photo.eventId,
   guestId: photo.guestId,
@@ -175,9 +190,35 @@ export const toPhotoPayload = (photo: typeof photos.$inferSelect): PhotoPayload 
   height: photo.height,
   sizeBytes: photo.sizeBytes,
   createdAt: photo.createdAt.toISOString(),
-  url: null,
-  thumbUrl: null,
+  url: signedOf(signed, photo.webPath),
+  thumbUrl: signedOf(signed, photo.thumbPath),
 });
+
+/** Payloads with freshly signed read URLs for a list of photo rows. */
+export const signedPhotoPayloads = async (rows: PhotoRow[]): Promise<PhotoPayload[]> => {
+  const signed = await signPhotoUrls(rows);
+  return rows.map((row) => toPhotoPayload(row, signed));
+};
+
+/**
+ * `GET /weddings/:id/photos` (UC-34): the event's processed photos, newest first,
+ * with signed `url`/`thumbUrl`. `uploading` reservations are not listed. Cursor
+ * pagination is added by the next M4 slice.
+ */
+export const listEventPhotos = async (profileId: string, eventId: string): Promise<PhotoRow[]> => {
+  const db = getDb();
+  const [event] = await db
+    .select({ id: events.id })
+    .from(events)
+    .where(and(eq(events.id, eventId), eq(events.ownerId, profileId)))
+    .limit(1);
+  if (!event) throw new ApiProblem(404, 'weddingNotFound');
+  return db
+    .select()
+    .from(photos)
+    .where(and(eq(photos.eventId, eventId), ne(photos.status, 'uploading')))
+    .orderBy(desc(photos.createdAt), desc(photos.id));
+};
 
 const statusOf = (value: unknown): PhotoStatus => {
   if (!isPhotoStatus(value)) throw new RuleViolation('badStatus');

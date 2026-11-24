@@ -14,6 +14,18 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-24 — M4: signed read URLs in photo lists and galleries
+
+`GET /api/weddings/:id/photos` (UC-34), the moderation responses (`PATCH /photos/:id`, `bulk-status`) and both public galleries now return `url` (web version) and `thumbUrl` signed for one hour (`READ_URL_TTL_SECONDS = 3600`, SPEC §6.3). Originals are never signed in these responses (`originalUrl` is absent); `width`/`height` are added to `PublicGallery.photos[]`.
+
+Decisions:
+
+- **One Storage call per response:** all web/thumb paths of a list are signed with the bulk endpoint `POST /storage/v1/object/sign/photos { expiresIn, paths }`, returned as absolute `${SUPABASE_URL}/storage/v1…` URLs. A path Storage cannot sign is returned as `null` instead of failing the list. URLs are signed per response and never cached server-side.
+- **Interim list shape:** `GET /weddings/:id/photos` returns `{ photos }` newest first (`createdAt`, `id` descending), excluding `uploading` reservations, and answers `404 weddingNotFound` for another organizer's event. Cursor/limit/`nextCursor` are the next M4 slice; until then the list is unpaginated.
+- **Frontend reload (SPEC §7.3):** `useSignedList` in `apps/web/src/features/photos` loads lists through `apiFetch` and re-signs them by reloading (1) 5 minutes before the hour expires, (2) when a tab becomes visible after that point (throttled timers on sleeping phones), and (3) when an `<img>` fails (`SignedPhoto` `onError`). Simultaneous failures share one reload; after an error-triggered reload further failures are ignored for 30 s so a permanently broken image cannot loop. `SignedPhoto` is a plain lazy/async `<img>` with intrinsic size (not `next/image`, per SPEC §7.3). The grids, enlarged view and slideshow that consume these are the next UI slices.
+
+Evidence: 6 new integration tests (77 total) against real local Storage — signed URLs load without credentials as JPEG web/thumb derivatives with a 3600 s token lifetime, newest-first order without reservations, `401`/foreign `404`, signed moderation responses, approved-only signed photos on the personal and QR galleries while open (empty while closed), and a 1 s URL that stops working after expiry. 7 new component tests for `SignedPhoto`, error-triggered reload with cooldown, proactive/visibility refresh and the loaders.
+
 ## 2026-11-22 — M4: photo moderation endpoints
 
 `PATCH /api/photos/:id`, `POST /api/weddings/:id/photos/bulk-status` and `DELETE /api/photos/:id` implement UC-36, UC-37 and UC-39 behind the M2 onboarding guard, with an ownership check on every call.

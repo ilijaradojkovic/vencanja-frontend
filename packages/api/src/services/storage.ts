@@ -42,6 +42,38 @@ export const createSignedUploadUrl = async (path: string): Promise<{ uploadUrl: 
   return { uploadUrl: `${env.supabaseUrl()}/storage/v1${body.url}`, token: body.token };
 };
 
+/** Signed read URLs are valid for one hour (SPEC §6.3); clients must not cache them longer. */
+export const READ_URL_TTL_SECONDS = 3600;
+
+/**
+ * Signs many object paths in one Storage request (one call per list page, not one
+ * per photo). Returns a map from path to an absolute signed URL; a path Storage
+ * could not sign (for example a missing object) is left out.
+ */
+export const createSignedReadUrls = async (
+  paths: string[],
+  expiresIn = READ_URL_TTL_SECONDS,
+): Promise<Map<string, string>> => {
+  const unique = [...new Set(paths.filter(Boolean))];
+  const signed = new Map<string, string>();
+  if (unique.length === 0) return signed;
+  const response = await fetch(`${env.supabaseUrl()}/storage/v1/object/sign/${PHOTOS_BUCKET}`, {
+    method: 'POST',
+    headers: { ...headers(), 'content-type': 'application/json' },
+    body: JSON.stringify({ expiresIn, paths: unique }),
+  });
+  if (!response.ok) {
+    throw new Error(`Storage could not sign read URLs (${response.status}): ${await response.text()}`);
+  }
+  const body = (await response.json()) as { path: string | null; signedURL: string | null; error: string | null }[];
+  for (const entry of body) {
+    if (entry.path && entry.signedURL && !entry.error) {
+      signed.set(entry.path, `${env.supabaseUrl()}/storage/v1${entry.signedURL}`);
+    }
+  }
+  return signed;
+};
+
 /** `null` when the object does not exist. */
 export const objectInfo = async (path: string): Promise<{ size: number } | null> => {
   const response = await fetch(objectUrl(path), { method: 'HEAD', headers: headers() });

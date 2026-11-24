@@ -14,6 +14,7 @@ import { getDb } from '../db/client.ts';
 import { events, guests, photoSubscribers, photos } from '../db/schema.ts';
 import type { EventRow } from './events.ts';
 import type { GuestRow } from './guests.ts';
+import { signPhotoUrls } from './photos.ts';
 
 export type PublicWedding = {
   type: 'wedding' | 'celebration';
@@ -83,8 +84,9 @@ export const toPublicGuest = (guest: GuestRow): PublicGuest => ({
 
 /**
  * Only approved photos are exposed, and only while the gallery is open (SYS-3 in
- * Europe/Belgrade). Signed URLs and cursor pagination are added in M4; until then
- * `url`/`thumbUrl` are null and the UI does not render photos yet.
+ * Europe/Belgrade). `url` (web version) and `thumbUrl` are signed for one hour
+ * (SPEC §6.3) and signed per response, never cached; cursor pagination follows in
+ * the next M4 slice.
  */
 export type PublicGallery = {
   open: boolean;
@@ -94,6 +96,8 @@ export type PublicGallery = {
     id: string;
     url: string | null;
     thumbUrl: string | null;
+    width: number | null;
+    height: number | null;
     senderName: string;
     message: string;
     category: 'memories' | 'wedding';
@@ -110,6 +114,8 @@ export const publicGalleryFor = async (event: EventRow, now: Date = new Date()):
         .where(and(eq(photos.eventId, event.id), eq(photos.status, 'approved')))
         .orderBy(asc(photos.createdAt), asc(photos.id))
     : [];
+  const signed = await signPhotoUrls(photosRows);
+  const urlOf = (path: string | null) => (path ? (signed.get(path) ?? null) : null);
 
   return {
     open,
@@ -117,8 +123,10 @@ export const publicGalleryFor = async (event: EventRow, now: Date = new Date()):
     opensAt: galleryOpensAt(event),
     photos: photosRows.map((photo) => ({
       id: photo.id,
-      url: null,
-      thumbUrl: null,
+      url: urlOf(photo.webPath),
+      thumbUrl: urlOf(photo.thumbPath),
+      width: photo.width,
+      height: photo.height,
       senderName: photo.senderName,
       message: photo.message,
       category: photo.category,
