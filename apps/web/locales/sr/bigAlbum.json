@@ -1,0 +1,47 @@
+{
+  "eyebrow_one": "{{count}} polaroid · sam se dopunjuje kad gosti pošalju slike",
+  "eyebrow_few": "{{count}} polaroida · sam se dopunjuje kad gosti pošalju slike",
+  "eyebrow_other": "{{count}} polaroida · sam se dopunjuje kad gosti pošalju slike",
+  "showOnScreen": "Prikaži na ekranu",
+  "pendingBanner_one": "{{count}} slika čeka odobrenje pre nego što uđe u veliki album.",
+  "pendingBanner_few": "{{count}} slike čekaju odobrenje pre nego što uđu u veliki album.",
+  "pendingBanner_other": "{{count}} slika čeka odobrenje pre nego što uđu u veliki album.",
+  "review": "Pregledaj",
+  "viewAria": "Prikaz",
+  "filterAria": "Koje slike",
+  "backgroundAria": "Pozadina",
+  "sizeAria": "Veličina polaroida",
+  "guestMessages": "Poruke gostiju",
+  "views": {
+    "zid": "Zid",
+    "gosti": "Po gostima",
+    "prezentacija": "Prezentacija"
+  },
+  "filters": {
+    "all": "Sve slike",
+    "memories": "Pre venčanja",
+    "wedding": "Venčanje"
+  },
+  "backgrounds": {
+    "linen": "Lan",
+    "cork": "Pluta",
+    "wood": "Drvo",
+    "night": "Noć"
+  },
+  "boardCount": "{{photos}} uspomena od {{guests}} dragih ljudi ♥",
+  "empty": "Još nema odobrenih slika.",
+  "emptyCategory": "Još nema odobrenih slika u ovoj kategoriji.",
+  "emptyHint": "Čim odobrite slike gostiju, pojavljuju se ovde kao polaroidi.",
+  "guestFallback": "Gost",
+  "slideshow": {
+    "play": "Pusti",
+    "pause": "Pauza",
+    "speed": "Brzina",
+    "speeds": {
+      "fast": "Brzo",
+      "normal": "Normalno",
+      "slow": "Sporo"
+    }
+  },
+  "showMore": "Prikaži još {{count}} od {{rest}}"
+}

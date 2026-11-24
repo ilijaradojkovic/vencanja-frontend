@@ -14,6 +14,20 @@ Three decisions taken at the start of M2 (recorded so they are not silently chan
 
 Evidence: 8 integration tests against the local stack — missing/invalid token `401`, seeded couple profile `200`, profile created for a brand-new auth user `201` (then deleted), deactivated profile `401 accountDisabled`, and a token issued before `tokens_valid_after` `401 sessionExpired`.
 
+## 2026-11-24 — M4: photo grids, enlarged view, big album and guest gallery
+
+Ported from the demo onto the paginated signed lists: `/app/fotografije` (UC-34 – UC-39), `/app/veliki-album` (UC-46 – UC-49), the dashboard "new photos" strip, `/i/:token/galerija` and `/w/:slug/galerija` (UC-14, UC-67 – UC-69), plus the "View gallery" link on the open invitation. Grids, dashboard thumbnails and S/M polaroids use `thumbUrl`; the lightbox, L polaroids and the slideshow use `url` (SPEC §7.3), all through plain lazy `<img>` with intrinsic size and the expiry reload.
+
+Decisions:
+
+- **Server-side filtering:** status tabs, the category filter and the album filter are API queries (with server `counts` for the tab badges) instead of filtering a full client array; the demo's client paging (10/20/50/100 per page) becomes "Load more" over cursor pages of 50. The album loads pages of 60 (the demo's wall step), "Show more N of M" uses `counts.approved`, and the slideshow requests the next page three slides before the end of what is loaded (`n / N+` while more exist). Per-guest stacks group the loaded pages.
+- **Moderation refresh:** after approve/hide/bulk/delete the loaded pages are re-fetched (one sign call per page), so counts, tab membership and URLs stay consistent without client-side bookkeeping.
+- **Cut features stay cut:** the album's "Uradite ovo za nas" print request and active-request banner (UC-52/UC-53) are not ported and their strings are not copied.
+- **Album preferences:** filter/background/size/messages/view stay in `localStorage` like the demo (per-viewer convenience, guarded with try/catch); the board renders after hydration so stored preferences cannot cause a hydration mismatch.
+- **Client accent:** the guest gallery computes its accent from the invitation on the client because `@/templates` is a client module; server pages pass only the invitation look.
+
+Evidence: 8 new component tests (53 total, `features/`+`components/` coverage 81 % lines) — thumbnails in grids and web URLs in the lightbox, status tabs/counts and category as API queries, single/bulk/delete moderation calls, "Load more" and re-signing both pages on an image error, album S/M thumbnails vs L/slideshow web URLs, "show more", slideshow prefetch and per-guest stacks, the open/closed/unavailable gallery with total, categories and QR notify, and the dashboard strip. `npm run build` compiles the four new dynamic routes.
+
 ## 2026-11-24 — M4: cursor pagination of photo lists and galleries
 
 `GET /api/weddings/:id/photos` and both public gallery endpoints accept `cursor` and `limit` (default 50, values above 100 are capped to 100, `< 1`/non-integers are `422 badRequest`) and return `nextCursor` (SPEC §6.3).

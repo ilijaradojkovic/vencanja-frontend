@@ -6,7 +6,14 @@
 import 'server-only';
 
 export { findEventForOwner, toWeddingPayload, type WeddingPayload } from './services/events.ts';
-export { getGuestInvitation, type PublicGallery, type PublicGuest, type PublicWedding } from './services/public.ts';
+export {
+  eventBySlug,
+  getGuestInvitation,
+  toPublicWedding,
+  type PublicGallery,
+  type PublicGuest,
+  type PublicWedding,
+} from './services/public.ts';
 export { getGuestByToken, type SpikeGuest } from './services/guest.ts';
 export { listGuests, type GuestRow } from './services/guests.ts';
 export { getProfileById, type ProfileRow } from './services/profiles.ts';

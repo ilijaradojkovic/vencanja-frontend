@@ -19,7 +19,7 @@ export function AppShell({
   phoneCopy,
 }: {
   children: ReactNode;
-  nav: { dashboard: string; guests: string; invitation: string; settings: string };
+  nav: { dashboard: string; guests: string; invitation: string; photos: string; bigAlbum: string; settings: string };
   hasPhone: boolean;
   logoutLabel: string;
   phoneCopy: PhoneRequiredCopy;
@@ -38,6 +38,8 @@ export function AppShell({
                 { href: '/app', label: nav.dashboard },
                 { href: '/app/gosti', label: nav.guests },
                 { href: '/app/pozivnica', label: nav.invitation },
+                { href: '/app/fotografije', label: nav.photos },
+                { href: '/app/veliki-album', label: nav.bigAlbum },
                 { href: '/app/podesavanja', label: nav.settings },
               ].map((item) => (
                 <Link

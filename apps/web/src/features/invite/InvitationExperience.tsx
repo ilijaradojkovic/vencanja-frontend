@@ -23,15 +23,18 @@ function LanguageRow({ dark = false }: { dark?: boolean }) {
   return <LanguageSwitcher current={locale} dark={dark} label="Jezik" />;
 }
 
-function NotifyForm({
+/** "Notify me when photos are ready" for the personal link (UC-68) or the QR link (UC-69). */
+export function NotifyForm({
   token,
+  slug,
   initialEmail,
   accent,
   onDone,
   onSkip,
   submitLabel,
 }: {
-  token: string;
+  token?: string;
+  slug?: string;
   initialEmail: string;
   accent: string;
   onDone: (email: string) => void;
@@ -48,7 +51,8 @@ function NotifyForm({
     setError(null);
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setError(t('notify.invalidEmail'));
     setBusy(true);
-    const response = await apiFetch(`/api/public/invitations/${token}/notify`, {
+    const path = token ? `/api/public/invitations/${token}/notify` : `/api/public/weddings/${slug ?? ''}/notify`;
+    const response = await apiFetch(path, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ email: email.trim() }),
@@ -438,6 +442,13 @@ export function InvitationExperience({
                 <>
                   <h2>{t('album.readyTitle')}</h2>
                   <p style={{ color: 'var(--ink-2)' }}>{t('album.readyText')}</p>
+                  <Link
+                    href={`/i/${token}/galerija`}
+                    className="btn btn-lg"
+                    style={{ background: accent, color: '#F6F3EE' }}
+                  >
+                    <Icon name="image" /> {t('gallery.view')}
+                  </Link>
                   <p className="xs muted">{galleryStatus}</p>
                 </>
               ) : (

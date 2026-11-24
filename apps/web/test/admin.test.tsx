@@ -176,7 +176,14 @@ describe('AppShell (UC-07)', () => {
   it('opens the phone dialog only when the account has no number', () => {
     const { rerender } = render(
       <AppShell
-        nav={{ dashboard: 'Pregled', guests: 'Gosti', invitation: 'Pozivnica', settings: 'Podešavanja' }}
+        nav={{
+          dashboard: 'Pregled',
+          guests: 'Gosti',
+          invitation: 'Pozivnica',
+          photos: 'Fotografije',
+          bigAlbum: 'Veliki album',
+          settings: 'Podešavanja',
+        }}
         hasPhone={false}
         logoutLabel="Odjavi se"
         phoneCopy={phoneCopy}
@@ -188,7 +195,14 @@ describe('AppShell (UC-07)', () => {
 
     rerender(
       <AppShell
-        nav={{ dashboard: 'Pregled', guests: 'Gosti', invitation: 'Pozivnica', settings: 'Podešavanja' }}
+        nav={{
+          dashboard: 'Pregled',
+          guests: 'Gosti',
+          invitation: 'Pozivnica',
+          photos: 'Fotografije',
+          bigAlbum: 'Veliki album',
+          settings: 'Podešavanja',
+        }}
         hasPhone
         logoutLabel="Odjavi se"
         phoneCopy={phoneCopy}

@@ -30,6 +30,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           dashboard: t('app.nav.dashboard'),
           guests: t('app.nav.guests'),
           invitation: t('app.nav.invitation'),
+          photos: t('common:nav.photos'),
+          bigAlbum: t('common:nav.bigAlbum'),
           settings: t('app.nav.settings'),
         }}
         hasPhone={Boolean(profile.phone)}

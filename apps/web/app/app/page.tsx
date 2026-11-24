@@ -2,6 +2,7 @@ import { businessDate } from '@uspomena/shared';
 import { findEventForOwner, listGuests, toWeddingPayload } from '@uspomena/api/server-only';
 import { redirect } from 'next/navigation';
 
+import { DashboardPhotos } from '@/features/photos/DashboardPhotos';
 import { getServerAuth } from '@/lib/auth/server';
 import { getTranslator } from '@/lib/i18n/server';
 
@@ -14,9 +15,9 @@ const daysUntil = (date: string): number =>
   Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${businessDate()}T00:00:00Z`)) / DAY_MS);
 
 /**
- * Minimal organizer dashboard for M2: the welcome and the "N days until the
- * wedding/celebration" countdown (S1/S2). Guests, photos and the sidebar arrive
- * in M3; the data comes from the same service the API uses (D11).
+ * Organizer dashboard: the welcome, the "N days until the wedding/celebration"
+ * countdown (S1/S2), guest stats from the same service the API uses (D11) and the
+ * client-loaded "new photos" strip with signed thumbnails (M4).
  */
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
   const supabase = await getServerAuth();
@@ -56,41 +57,44 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         : t('dashboard.celebrationPassed');
 
   return (
-    <section className="card stack" style={{ '--gap': '10px', maxWidth: 720 } as React.CSSProperties}>
-      {welcome ? <p className="muted small">{t('dashboard.welcome')}</p> : null}
-      <p className="eyebrow">{wedding.type === 'wedding' ? t('onboarding.wedding') : t('onboarding.celebration')}</p>
-      <h1 style={{ fontSize: 32 }}>{t('dashboard.hello').replace('{{names}}', names)}</h1>
-      <p data-testid="countdown" style={{ fontFamily: 'var(--serif)', fontSize: 26 }}>
-        {countdown}
-      </p>
-      <p className="small muted">{wedding.date}</p>
+    <div className="stack" style={{ '--gap': '24px', maxWidth: 720 } as React.CSSProperties}>
+      <section className="card stack" style={{ '--gap': '10px' } as React.CSSProperties}>
+        {welcome ? <p className="muted small">{t('dashboard.welcome')}</p> : null}
+        <p className="eyebrow">{wedding.type === 'wedding' ? t('onboarding.wedding') : t('onboarding.celebration')}</p>
+        <h1 style={{ fontSize: 32 }}>{t('dashboard.hello').replace('{{names}}', names)}</h1>
+        <p data-testid="countdown" style={{ fontFamily: 'var(--serif)', fontSize: 26 }}>
+          {countdown}
+        </p>
+        <p className="small muted">{wedding.date}</p>
 
-      <div className="grid-cards" role="group" aria-label={t('dashboard.stats.label')} style={{ marginTop: 8 }}>
-        <div className="stat">
-          <span className="eyebrow">{t('dashboard.stats.invited')}</span>
-          <strong>{stats.invited}</strong>
-          <span className="xs muted">{t('dashboard.stats.invitations', { count: stats.invitations })}</span>
+        <div className="grid-cards" role="group" aria-label={t('dashboard.stats.label')} style={{ marginTop: 8 }}>
+          <div className="stat">
+            <span className="eyebrow">{t('dashboard.stats.invited')}</span>
+            <strong>{stats.invited}</strong>
+            <span className="xs muted">{t('dashboard.stats.invitations', { count: stats.invitations })}</span>
+          </div>
+          <div className="stat">
+            <span className="eyebrow">{t('dashboard.stats.coming')}</span>
+            <strong>{stats.coming}</strong>
+            <span className="xs muted">{t('dashboard.stats.declined', { count: stats.declined })}</span>
+          </div>
+          <div className="stat">
+            <span className="eyebrow">{t('dashboard.stats.waiting')}</span>
+            <strong>{stats.waiting}</strong>
+            <span className="xs muted">{t('dashboard.stats.opened', { count: stats.opened })}</span>
+          </div>
         </div>
-        <div className="stat">
-          <span className="eyebrow">{t('dashboard.stats.coming')}</span>
-          <strong>{stats.coming}</strong>
-          <span className="xs muted">{t('dashboard.stats.declined', { count: stats.declined })}</span>
-        </div>
-        <div className="stat">
-          <span className="eyebrow">{t('dashboard.stats.waiting')}</span>
-          <strong>{stats.waiting}</strong>
-          <span className="xs muted">{t('dashboard.stats.opened', { count: stats.opened })}</span>
-        </div>
-      </div>
 
-      <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
-        <a className="btn btn-secondary" href="/app/gosti">
-          {t('dashboard.addGuests')}
-        </a>
-        <a className="btn btn-secondary" href="/app/pozivnica">
-          {t('dashboard.editInvitation')}
-        </a>
-      </div>
-    </section>
+        <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+          <a className="btn btn-secondary" href="/app/gosti">
+            {t('dashboard.addGuests')}
+          </a>
+          <a className="btn btn-secondary" href="/app/pozivnica">
+            {t('dashboard.editInvitation')}
+          </a>
+        </div>
+      </section>
+      <DashboardPhotos eventId={event.id} />
+    </div>
   );
 }

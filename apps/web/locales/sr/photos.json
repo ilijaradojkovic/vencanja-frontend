@@ -1,0 +1,29 @@
+{
+  "eyebrow_one": "{{count}} fotografija od gostiju",
+  "eyebrow_few": "{{count}} fotografije od gostiju",
+  "eyebrow_other": "{{count}} fotografija od gostiju",
+  "tabs": {
+    "pending": "Na čekanju",
+    "approved": "Odobrene",
+    "hidden": "Sakrivene",
+    "all": "Sve"
+  },
+  "statusAria": "Status",
+  "categoryAria": "Kategorija",
+  "allCategories": "Sve kategorije",
+  "selected": "Izabrano: {{count}}",
+  "selectAll": "Izaberi sve ({{count}})",
+  "select": "Izaberi",
+  "approve": "Odobri",
+  "hide": "Sakrij",
+  "approvedToast": "Odobreno: {{count}}",
+  "hiddenToast": "Sakriveno: {{count}}",
+  "deletedToast": "Fotografija je obrisana",
+  "allReviewed": "Sve je pregledano",
+  "none": "Nema fotografija",
+  "emptyHint": "Kad gosti pošalju slike preko pozivnice ili QR koda, pojaviće se ovde.",
+  "deleteAria": "Obriši fotografiju",
+  "deleteTitle": "Obriši fotografiju?",
+  "deleteText": "Fotografija će biti trajno obrisana i uklonjena iz albuma.",
+  "loadMore": "Učitaj još"
+}
