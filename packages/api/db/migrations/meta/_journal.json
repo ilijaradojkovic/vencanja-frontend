@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795309318974,
+      "tag": "0000_military_landau",
+      "breakpoints": true
+    }
+  ]
+}

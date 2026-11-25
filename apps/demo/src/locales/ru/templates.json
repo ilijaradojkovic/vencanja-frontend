@@ -1,0 +1,68 @@
+{
+  "dear": "Для {{name}}",
+  "invitationFor": "Приглашение для: {{name}}",
+  "forName": "Для: {{name}}",
+  "forLabel": "Для:",
+  "forLower": "для {{name}},",
+  "forLowerShort": "для {{name}}",
+  "invitation": "Приглашение",
+  "schedule": "Программа дня",
+  "scheduleShort": "Программа",
+  "program": "Программа",
+  "eveningSchedule": "Программа вечера",
+  "ourDay": "Наш день",
+  "date": "Дата",
+  "countdownLabel": "Обратный отсчёт",
+  "saveTheDate": "Save the date",
+  "countdown": "Осталось {{days}}",
+  "today": "Сегодня тот самый день!",
+  "openMap": "Открыть карту",
+  "addToCalendar": "Добавить в календарь",
+  "icsSummary": "Свадьба – {{p1}} и {{p2}}",
+  "items": {
+    "klasik": {
+      "name": "Классика",
+      "description": "Цветная шапка, антиква и золотые детали"
+    },
+    "minimal": {
+      "name": "Минимализм",
+      "description": "Белый фон, выравнивание влево, тонкий гротеск"
+    },
+    "botanika": {
+      "name": "Ботаника",
+      "description": "Арка, веточки и таймлайн"
+    },
+    "romantika": {
+      "name": "Романтика",
+      "description": "Пудрово-розовый, цветы и печать с датой"
+    },
+    "editorijal": {
+      "name": "Эдиториал",
+      "description": "Плакат: огромная дата и заглавные буквы"
+    },
+    "noc": {
+      "name": "Ночь",
+      "description": "Тёмный фон, рамка ар-деко, золотые буквы"
+    },
+    "rustik": {
+      "name": "Рустик",
+      "description": "Крафт-бумага, прострочка и печать"
+    },
+    "akvarel": {
+      "name": "Акварель",
+      "description": "Акварельные цветы по углам, нежный курсив"
+    },
+    "zlatna-geometrija": {
+      "name": "Золотая геометрия",
+      "description": "Мрамор и металлическая геометрическая рамка"
+    },
+    "boho": {
+      "name": "Бохо",
+      "description": "Терракотовые арки, солнце и пампасная трава"
+    },
+    "bordo": {
+      "name": "Бордо",
+      "description": "Красно-коричневые акварельные цветы на кремовой бумаге"
+    }
+  }
+}

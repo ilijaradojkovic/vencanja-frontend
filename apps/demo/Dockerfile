@@ -1,17 +1,20 @@
 # syntax=docker/dockerfile:1
+# Builds the frozen Vite demo as a static site. Build from the repository root:
+#   docker build -f apps/demo/Dockerfile -t uspomena-demo .
 
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+COPY apps/demo/package.json apps/demo/package.json
+RUN npm ci --workspace @uspomena/demo
 
-COPY . .
+COPY apps/demo apps/demo
 
 ENV VITE_USE_MOCK=true \
     VITE_ROUTER=browser
 
-RUN npm run build
+RUN npm run build:demo --workspace @uspomena/demo
 
 FROM nginx:1.27-alpine
 
@@ -40,7 +43,7 @@ server {
 }
 EOF
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/apps/demo/dist /usr/share/nginx/html
 
 ENV PORT=80
 EXPOSE 80

@@ -1,0 +1,68 @@
+{
+  "dear": "Dragi/a {{name}}",
+  "invitationFor": "Pozivnica za: {{name}}",
+  "forName": "Za: {{name}}",
+  "forLabel": "Za:",
+  "forLower": "za {{name}},",
+  "forLowerShort": "za {{name}}",
+  "invitation": "Pozivnica",
+  "schedule": "Raspored dana",
+  "scheduleShort": "Raspored",
+  "program": "Program",
+  "eveningSchedule": "Raspored večeri",
+  "ourDay": "Naš dan",
+  "date": "Datum",
+  "countdownLabel": "Odbrojavanje",
+  "saveTheDate": "Save the date",
+  "countdown": "Još {{days}}",
+  "today": "Danas je veliki dan!",
+  "openMap": "Otvori mapu",
+  "addToCalendar": "Dodaj u kalendar",
+  "icsSummary": "Venčanje – {{p1}} i {{p2}}",
+  "items": {
+    "klasik": {
+      "name": "Klasik",
+      "description": "Obojeno zaglavlje, serif i zlatni detalji"
+    },
+    "minimal": {
+      "name": "Minimal",
+      "description": "Belo, levo poravnato, tanak sans"
+    },
+    "botanika": {
+      "name": "Botanika",
+      "description": "Luk, grančice i vremenska linija"
+    },
+    "romantika": {
+      "name": "Romantika",
+      "description": "Puder roze, cveće i pečat sa datumom"
+    },
+    "editorijal": {
+      "name": "Editorijal",
+      "description": "Plakat: ogroman datum i velika slova"
+    },
+    "noc": {
+      "name": "Noć",
+      "description": "Tamno, art-deco ram, zlatna slova"
+    },
+    "rustik": {
+      "name": "Rustik",
+      "description": "Kraft papir, prošiven rub i pečat"
+    },
+    "akvarel": {
+      "name": "Akvarel",
+      "description": "Akvarel cveće u uglovima, nežni italik"
+    },
+    "zlatna-geometrija": {
+      "name": "Zlatna geometrija",
+      "description": "Mermer i metalik geometrijski okvir"
+    },
+    "boho": {
+      "name": "Boho",
+      "description": "Terakota lukovi, sunce i pampas trava"
+    },
+    "bordo": {
+      "name": "Bordo",
+      "description": "Crveno-braon akvarel cveće na krem papiru"
+    }
+  }
+}

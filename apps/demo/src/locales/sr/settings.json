@@ -1,0 +1,43 @@
+{
+  "saved": "Podešavanja su sačuvana",
+  "account": {
+    "title": "Nalog",
+    "email": "Email za prijavu",
+    "phoneHint": "Obavezan. Jedan broj za ceo nalog – na njega vas kontaktiramo za custom dizajn, štampu albuma i slično."
+  },
+  "wedding": {
+    "title": "Venčanje",
+    "slug": "Adresa venčanja (koristi se u QR linku)",
+    "city": "Grad"
+  },
+  "photos": {
+    "autoApprove": "Automatski odobri nove fotografije",
+    "autoApproveHint": "Inače ih prvo pregledate vi.",
+    "allowQr": "Dozvoli slanje preko QR koda",
+    "allowQrHint": "Bilo ko sa linkom može da pošalje sliku, bez ličnog linka."
+  },
+  "gallery": {
+    "title": "Galerija za goste",
+    "when": "Kada se galerija otvara gostima?",
+    "now": "Odmah",
+    "nowHint": "Gosti vide odobrene slike čim ih odobrite.",
+    "afterWedding": "Dan posle venčanja",
+    "afterWeddingHint": "Automatski {{date}}.",
+    "manual": "Ručno",
+    "manualHint": "Vi odlučujete kada, jednim klikom.",
+    "manualOpen": "Galerija je otvorena za goste",
+    "viaQr": "Galerija se vidi i preko QR linka",
+    "viaQrHint": "QR link može da se prosledi bilo kome. Isključite ako želite da galeriju vide samo gosti sa ličnim linkom.",
+    "currentlyOpen": "Trenutno: galerija je otvorena za goste.",
+    "currentlyClosed": "Trenutno: galerija je zatvorena za goste."
+  },
+  "demo": {
+    "title": "Demo režim",
+    "text": "Aplikacija radi sa mock backendom (VITE_USE_MOCK=true). Podaci se čuvaju u ovom browseru.",
+    "reset": "Vrati demo podatke na početak",
+    "resetDone": "Demo podaci su vraćeni na početak",
+    "confirmTitle": "Resetovati demo podatke?",
+    "confirm": "Resetuj",
+    "confirmText": "Sve izmene (gosti, slike, album, zahtevi) biće obrisane i vraćene na početne demo podatke."
+  }
+}

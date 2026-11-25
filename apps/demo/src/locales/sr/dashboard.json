@@ -1,0 +1,53 @@
+{
+  "daysLeft": "Do venčanja još {{days}}",
+  "weddingPassed": "Venčanje je prošlo – vreme je za album",
+  "hello": "Zdravo, {{p1}} i {{p2}}",
+  "editInvitation": "Uredi pozivnicu",
+  "addGuests": "Dodaj goste",
+  "stats": {
+    "label": "Statistika",
+    "invited": "Pozvano osoba",
+    "invitations_one": "{{count}} pozivnica",
+    "invitations_few": "{{count}} pozivnice",
+    "invitations_other": "{{count}} pozivnica",
+    "coming": "Dolaze",
+    "declined": "{{count}} ne dolazi",
+    "waiting": "Čekamo odgovor",
+    "opened": "{{count}} otvorilo pozivnicu",
+    "pendingPhotos": "{{count}} čeka odobrenje"
+  },
+  "replies": {
+    "title": "Odgovori gostiju",
+    "progress": "{{answered}} od {{total}} ({{pct}}%)",
+    "empty": "Još nema odgovora.",
+    "allGuests": "Svi gosti"
+  },
+  "newPhotos": {
+    "title": "Nove fotografije",
+    "all": "Sve ({{count}})",
+    "allReviewed": "Sve je pregledano",
+    "emptyHint": "Nove slike gostiju pojaviće se ovde.",
+    "from": "Od {{name}}",
+    "fromLabel": "Od: {{name}}"
+  },
+  "qr": {
+    "eyebrow": "QR za stolove",
+    "title": "Gosti šalju slike jednim skeniranjem",
+    "download": "Preuzmi PNG"
+  },
+  "notify": {
+    "title": "Slike za goste",
+    "galleryOpen": "Galerija otvorena",
+    "galleryClosed": "Galerija zatvorena",
+    "toSend": "čeka obaveštenje mejlom",
+    "viaQr": "({{count}} preko QR)",
+    "alreadySent": "već obavešteno",
+    "withoutEmail": "gostiju bez emaila",
+    "openFirst": "Obaveštenje šaljete kad otvorite galeriju u",
+    "openFirstLink": "podešavanjima"
+  },
+  "album": {
+    "text": "{{count}} odobrenih fotografija je već na tabli kao polaroidi. Pogledajte ih ili zatražite da vam ga mi uradimo.",
+    "open": "Otvori veliki album"
+  }
+}

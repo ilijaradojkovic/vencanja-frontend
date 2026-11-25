@@ -1,0 +1,45 @@
+{
+  "eyebrow_one": "{{count}} polaroid · fills itself as guests send photos",
+  "eyebrow_other": "{{count}} polaroids · fills itself as guests send photos",
+  "showOnScreen": "Show on screen",
+  "pendingBanner_one": "{{count}} photo is waiting for approval before it goes into the big album.",
+  "pendingBanner_other": "{{count}} photos are waiting for approval before they go into the big album.",
+  "review": "Review",
+  "viewAria": "View",
+  "filterAria": "Which photos",
+  "backgroundAria": "Background",
+  "sizeAria": "Polaroid size",
+  "guestMessages": "Guest messages",
+  "views": {
+    "zid": "Wall",
+    "gosti": "By guest",
+    "prezentacija": "Slideshow"
+  },
+  "filters": {
+    "all": "All photos",
+    "memories": "Before the wedding",
+    "wedding": "The wedding"
+  },
+  "backgrounds": {
+    "linen": "Linen",
+    "cork": "Cork",
+    "wood": "Wood",
+    "night": "Night"
+  },
+  "boardCount": "{{photos}} memories from {{guests}} dear people ♥",
+  "empty": "No approved photos yet.",
+  "emptyCategory": "No approved photos in this category yet.",
+  "emptyHint": "As soon as you approve guest photos, they appear here as polaroids.",
+  "guestFallback": "Guest",
+  "slideshow": {
+    "play": "Play",
+    "pause": "Pause",
+    "speed": "Speed",
+    "speeds": {
+      "fast": "Fast",
+      "normal": "Normal",
+      "slow": "Slow"
+    }
+  },
+  "showMore": "Show {{count}} more of {{rest}}"
+}

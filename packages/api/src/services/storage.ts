@@ -1,0 +1,107 @@
+import { env } from '../env.ts';
+
+export const PHOTOS_BUCKET = 'photos';
+
+/**
+ * Minimal Storage client for the API (uploads, completion, deletion). Only server
+ * code uses the service-role key; guests PUT directly to a signed URL.
+ */
+const headers = (): Record<string, string> => ({
+  apikey: env.supabaseServiceKey(),
+  authorization: `Bearer ${env.supabaseServiceKey()}`,
+});
+
+const objectUrl = (path: string, action = 'object'): string =>
+  `${env.supabaseUrl()}/storage/v1/${action}/${PHOTOS_BUCKET}/${path}`;
+
+/** Service-role upload of a generated derivative (web/thumb); overwrites on retry. */
+export const uploadObject = async (path: string, body: Buffer, mime = 'image/jpeg'): Promise<void> => {
+  const response = await fetch(objectUrl(path), {
+    method: 'POST',
+    headers: { ...headers(), 'content-type': mime, 'x-upsert': 'true' },
+    // Node's Buffer is a valid fetch body at runtime; the DOM `BodyInit` type used
+    // by the web build does not include it.
+    body: body as unknown as NonNullable<RequestInit['body']>,
+  });
+  if (!response.ok) {
+    throw new Error(`Storage upload failed for ${path} (${response.status}): ${await response.text()}`);
+  }
+};
+
+/** A signed upload URL valid for two hours (SPEC §6.3). */
+export const createSignedUploadUrl = async (path: string): Promise<{ uploadUrl: string; token: string }> => {
+  const response = await fetch(objectUrl(path, 'object/upload/sign'), {
+    method: 'POST',
+    headers: { ...headers(), 'content-type': 'application/json' },
+    body: JSON.stringify({ expiresIn: 7200 }),
+  });
+  if (!response.ok) {
+    throw new Error(`Storage could not sign an upload (${response.status}): ${await response.text()}`);
+  }
+  const body = (await response.json()) as { url: string; token: string };
+  return { uploadUrl: `${env.supabaseUrl()}/storage/v1${body.url}`, token: body.token };
+};
+
+/** Signed read URLs are valid for one hour (SPEC §6.3); clients must not cache them longer. */
+export const READ_URL_TTL_SECONDS = 3600;
+
+/**
+ * Signs many object paths in one Storage request (one call per list page, not one
+ * per photo). Returns a map from path to an absolute signed URL; a path Storage
+ * could not sign (for example a missing object) is left out.
+ */
+export const createSignedReadUrls = async (
+  paths: string[],
+  expiresIn = READ_URL_TTL_SECONDS,
+): Promise<Map<string, string>> => {
+  const unique = [...new Set(paths.filter(Boolean))];
+  const signed = new Map<string, string>();
+  if (unique.length === 0) return signed;
+  const response = await fetch(`${env.supabaseUrl()}/storage/v1/object/sign/${PHOTOS_BUCKET}`, {
+    method: 'POST',
+    headers: { ...headers(), 'content-type': 'application/json' },
+    body: JSON.stringify({ expiresIn, paths: unique }),
+  });
+  if (!response.ok) {
+    throw new Error(`Storage could not sign read URLs (${response.status}): ${await response.text()}`);
+  }
+  const body = (await response.json()) as { path: string | null; signedURL: string | null; error: string | null }[];
+  for (const entry of body) {
+    if (entry.path && entry.signedURL && !entry.error) {
+      signed.set(entry.path, `${env.supabaseUrl()}/storage/v1${entry.signedURL}`);
+    }
+  }
+  return signed;
+};
+
+/** `null` when the object does not exist. */
+export const objectInfo = async (path: string): Promise<{ size: number } | null> => {
+  const response = await fetch(objectUrl(path), { method: 'HEAD', headers: headers() });
+  if (response.status === 404 || response.status === 400) return null;
+  if (!response.ok) throw new Error(`Storage object lookup failed (${response.status}).`);
+  return { size: Number(response.headers.get('content-length') ?? 0) };
+};
+
+export const downloadObject = async (path: string): Promise<Buffer | null> => {
+  const response = await fetch(objectUrl(path), { headers: headers() });
+  if (response.status === 404 || response.status === 400) return null;
+  if (!response.ok) throw new Error(`Storage download failed (${response.status}).`);
+  return Buffer.from(await response.arrayBuffer());
+};
+
+/** Deletes the given object paths in batches (Storage caps a delete request). */
+export const deleteObjects = async (paths: string[]): Promise<void> => {
+  const unique = [...new Set(paths.filter(Boolean))];
+  const batchSize = 100;
+  for (let index = 0; index < unique.length; index += batchSize) {
+    const prefixes = unique.slice(index, index + batchSize);
+    const response = await fetch(`${env.supabaseUrl()}/storage/v1/object/${PHOTOS_BUCKET}`, {
+      method: 'DELETE',
+      headers: { ...headers(), 'content-type': 'application/json' },
+      body: JSON.stringify({ prefixes }),
+    });
+    if (!response.ok) {
+      throw new Error(`Storage delete failed (${response.status}): ${await response.text()}`);
+    }
+  }
+};

@@ -1,31 +1,51 @@
 {
-  "name": "uspomena-web",
+  "name": "uspomena",
   "private": true,
   "version": "0.1.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:demo": "vite build --mode demo",
-    "preview": "vite preview"
+  "engines": {
+    "node": ">=24.0.0"
   },
-  "dependencies": {
-    "@fontsource/caveat": "^5.3.0",
-    "@fontsource/eb-garamond": "^5.3.0",
-    "@fontsource/jost": "^5.3.0",
-    "@reduxjs/toolkit": "^2.14.0",
-    "axios": "^1.21.1",
-    "i18next": "^25.10.10",
-    "qrcode.react": "^4.2.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-i18next": "^15.7.4",
-    "react-redux": "^9.3.1",
-    "react-router-dom": "^6.30.6",
-    "react-toastify": "^11.2.0"
+  "workspaces": [
+    "apps/web",
+    "apps/demo",
+    "packages/api",
+    "packages/shared"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @uspomena/web",
+    "dev:demo": "npm run dev -w @uspomena/demo",
+    "build": "npm run build -w @uspomena/web",
+    "build:demo": "npm run build:demo -w @uspomena/demo",
+    "preview": "npm run start -w @uspomena/web",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "npm run typecheck -w @uspomena/web && npm run typecheck -w @uspomena/api && npm run typecheck -w @uspomena/shared && tsc --noEmit -p tsconfig.e2e.json",
+    "test:unit": "npm run test:unit -w @uspomena/shared && npm run test:unit -w @uspomena/api",
+    "test:component": "npm run test:component -w @uspomena/web",
+    "spike:check": "node scripts/spike-check.mjs",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "dev:bootstrap": "node scripts/dev-bootstrap.mjs",
+    "dev:services": "node scripts/dev-services.mjs",
+    "dev:teardown": "node scripts/dev-teardown.mjs",
+    "dev:reset": "node scripts/dev-reset.mjs",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:seed": "node scripts/db-seed.mjs",
+    "test:integration": "node scripts/test-integration.mjs",
+    "test:e2e": "playwright test",
+    "admin:create": "node scripts/admin-create.mjs",
+    "measure:complete": "node --experimental-transform-types --no-warnings scripts/measure-complete.mjs"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.7.0",
-    "vite": "^5.4.21"
+    "@playwright/test": "^1.65.1",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.6",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.10.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "supabase": "3.2.0"
   }
 }

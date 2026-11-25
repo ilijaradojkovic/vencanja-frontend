@@ -1,0 +1,25 @@
+{
+  "envelope": {
+    "text": "{{p1}} vam šalje pozivnicu za proslavu."
+  },
+  "album": {
+    "text": "Pošaljite stare uspomene već sada, a na dan proslave i fotografije sa nje. Sve ulazi u album."
+  },
+  "gallery": {
+    "statusManual": "Galerija se otvara kada je slavljenik otvori."
+  },
+  "upload": {
+    "disabledText": "Slavljenik je trenutno isključio slanje slika preko ovog linka.",
+    "sentText": "Poslali ste {{photos}}. {{p1}} će ih videti odmah, a najlepše ulaze u album.",
+    "kindWedding": "Sa proslave",
+    "kindMemoriesText": "Stare fotografije sa slavljenikom: putovanja, žurke, detinjstvo. Ulaze u poglavlje „Uspomene“.",
+    "message": "Poruka za slavljenika (biće uz slike u albumu)",
+    "privacy": "Slike vidi samo slavljenik dok ih ne odobri."
+  },
+  "rsvp": {
+    "askNotify": "Želite li da vas obavestimo kada slike sa proslave budu spremne?"
+  },
+  "meta": {
+    "description": "Digitalna pozivnica za proslavu sa svim detaljima i potvrdom dolaska."
+  }
+}

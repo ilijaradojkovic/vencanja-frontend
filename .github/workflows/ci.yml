@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  push:
+    branches: [specs/mvp]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: lint, typecheck, tests, builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Component tests
+        run: npm run test:component
+
+      - name: Build product
+        run: npm run build
+
+      - name: Build demo
+        run: npm run build:demo
+
+  integration:
+    name: integration tests (local Supabase)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Local auth hook secret
+        run: echo "SUPABASE_AUTH_HOOK_SECRET=v1,whsec_$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+
+      - name: Start local Supabase
+        run: npx supabase start
+
+      - name: Integration tests
+        run: npm run test:integration
+
+      - name: Stop local Supabase
+        if: always()
+        run: npx supabase stop --no-backup
+
+  e2e:
+    name: e2e (Chromium + WebKit)
+    runs-on: ubuntu-latest
+    env:
+      # The local testing menu and the support bundle are local-only features;
+      # bootstrap normally writes these into apps/web/.env.local.
+      NEXT_PUBLIC_DIAGNOSTICS_ENABLED: 'true'
+      DIAGNOSTICS_ENABLED: 'true'
+      APP_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Local auth hook secret
+        # The CLI needs the `v1,` prefix, the app the bare `whsec_` value; one secret.
+        run: echo "HOOK_SECRET_BARE=whsec_$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+
+      - name: Start local Supabase
+        run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npx supabase start
+
+      - name: Apply migrations
+        # `supabase start` only creates the Supabase-managed schema; the product
+        # tables come from the Drizzle migrations the API needs.
+        run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npm run db:migrate
+
+      - name: Seed local fixtures
+        # S12 signs in as the seeded superadmin; E2E still creates its own data.
+        run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npm run db:seed
+
+      - name: Expose the local Supabase configuration
+        run: |
+          export SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE"
+          eval "$(npx supabase status -o env)"
+          {
+            echo "DATABASE_URL=$DB_URL"
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${PUBLISHABLE_KEY:-$ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SECRET_KEY:-$SERVICE_ROLE_KEY}"
+            echo "SUPABASE_AUTH_HOOK_SECRET=$HOOK_SECRET_BARE"
+          } >> "$GITHUB_ENV"
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+      - name: Stop local Supabase
+        if: always()
+        run: SUPABASE_AUTH_HOOK_SECRET="v1,$HOOK_SECRET_BARE" npx supabase stop --no-backup

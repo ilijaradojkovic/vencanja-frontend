@@ -1,0 +1,115 @@
+{
+  "title": "Gosti i lični linkovi",
+  "importList": "Uvezi spisak",
+  "newGuest": "Novi gost",
+  "search": "Pretraga",
+  "searchPlaceholder": "Pretraži goste…",
+  "sideAria": "Strana",
+  "allSides": "Sve strane",
+  "filterAria": "Filter po odgovoru",
+  "filters": {
+    "all": "Svi",
+    "yes": "Dolaze",
+    "pending": "Čekamo",
+    "no": "Ne dolaze"
+  },
+  "empty": "Još niste dodali goste",
+  "emptyFilter": "Nema gostiju za ovaj filter",
+  "addFirst": "Dodaj prvog gosta",
+  "table": {
+    "guest": "Gost",
+    "side": "Strana",
+    "reply": "Odgovor",
+    "coming": "Dolazi",
+    "invitation": "Pozivnica",
+    "photos": "Slike",
+    "actions": "Akcije"
+  },
+  "opened": "Otvorena",
+  "notOpened": "Nije otvorena",
+  "link": "Link",
+  "aria": {
+    "whatsapp": "Pošalji {{name}} preko WhatsApp-a",
+    "openInvitation": "Otvori pozivnicu za {{name}}",
+    "edit": "Izmeni {{name}}",
+    "delete": "Obriši {{name}}"
+  },
+  "whatsappInvite": "Dragi {{name}}, sa radošću vas pozivamo na naše venčanje! Vaša pozivnica: {{link}}\n{{p1}} i {{p2}}",
+  "deleted": "Gost je obrisan",
+  "deleteTitle": "Obriši gosta?",
+  "deleteText": "{{name}} će biti obrisan, a njegov lični link prestaje da radi. Fotografije koje je poslao ostaju.",
+  "companionsComing": "sa: {{names}}",
+  "companionsInvited": "pozvani: {{names}}",
+  "notify": {
+    "sent": "Poslato {{date}}",
+    "waiting": "Čeka"
+  },
+  "import": {
+    "title": "Uvoz gostiju",
+    "submit": "Uvezi ({{count}})",
+    "done": "Dodato gostiju: {{count}}",
+    "hintBefore": "Jedan gost po redu, u formatu",
+    "format": "Ime; broj osoba; telefon",
+    "hintAfter": "Možete i nalepiti kolone iz Excela.",
+    "placeholder": "Porodica Nikolić; 4; +381641234567\nMarija Đurić; 1\nKum Petar; 2",
+    "aria": "Spisak gostiju"
+  },
+  "csv": {
+    "fileName": "gosti",
+    "name": "Ime",
+    "side": "Strana",
+    "companions": "Pratioci",
+    "invitedCompanions": "Pozvani pratioci",
+    "maxPersons": "Najviše osoba",
+    "status": "Status",
+    "persons": "Dolazi osoba",
+    "comingCompanions": "Pratioci koji dolaze",
+    "note": "Napomena",
+    "phone": "Telefon",
+    "email": "Email",
+    "notifyEmail": "Email za slike",
+    "notifiedAt": "Obaveštenje poslato",
+    "link": "Link",
+    "companionType": {
+      "none": "Bez pratioca",
+      "open": "Bez imena",
+      "named": "Navedeni"
+    }
+  },
+  "modal": {
+    "editTitle": "Izmeni gosta",
+    "name": "Ime (kako piše na pozivnici)",
+    "namePlaceholder": "npr. Jelena Nikolić",
+    "phone": "Telefon",
+    "companions": "Pratioci",
+    "companionTypes": {
+      "none": {
+        "label": "Bez pratioca",
+        "hint": "Dolazi samo gost."
+      },
+      "open": {
+        "label": "+ pratioci bez imena",
+        "hint": "Gost sam bira koga vodi i koliko (do zadatog broja)."
+      },
+      "named": {
+        "label": "Tačno navedene osobe",
+        "hint": "Gost samo potvrđuje ko od njih dolazi."
+      }
+    },
+    "maxCompanions": "Najviše pratilaca",
+    "companionNames": "Imena pratilaca",
+    "companionPlaceholder": "npr. Marija",
+    "removeCompanion": "Ukloni pratioca {{n}}",
+    "addCompanion": "Dodaj pratioca",
+    "manualReply": "Odgovor (ako se gost javio telefonom)",
+    "status": "Status",
+    "whoComes": "Ko od pratilaca dolazi",
+    "personsWithGuest": "Broj osoba (sa gostom)",
+    "nameRequired": "Ime je obavezno.",
+    "namedRequired": "Upišite bar jedno ime pratioca.",
+    "maxRange": "Broj pratilaca mora biti između 1 i 19.",
+    "saved": "Gost je sačuvan",
+    "added": "Gost je dodat, lični link je spreman",
+    "note": "Napomena"
+  }
+}
