@@ -1,0 +1,31 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "demo": {
+      "root": "apps/demo",
+      "framework": "vite"
+    },
+    "web": {
+      "root": "apps/web",
+      "framework": "nextjs"
+    },
+    "api": {
+      "root": "packages/api",
+      "framework": "hono"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "api"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    }
+  ]
+}
